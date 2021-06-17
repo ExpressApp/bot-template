@@ -1,0 +1,11 @@
+{
+  "bot_name": "async-box-bot",
+  "bot_display_name": "AsyncBox bot",
+  "bot_short_description": "TODO",
+  "bot_docs_link": "TODO",
+  "test_cov": 0,
+
+  "bot_image_name_prefix": "registry.example.com/bots/",
+
+  "bot_name_underscored": "{{ cookiecutter.bot_name|replace('-', '_') }}"
+}

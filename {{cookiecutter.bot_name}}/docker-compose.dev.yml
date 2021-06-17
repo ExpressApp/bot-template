@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13.2-alpine
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - ./scripts/pg-init-scripts:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
