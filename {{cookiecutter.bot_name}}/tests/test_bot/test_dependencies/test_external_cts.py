@@ -17,7 +17,17 @@ async def test_message_from_external_cts(
     assert body == "\n".join(
         [
             "Данный бот зарегистрирован на другом CTS.",
-            "Для продолжения работы напишите боту со своего CTS.",
-            "Найти его можно через поиск корпоративных контактов.",
+            "Перейдите по `меншну`, чтобы попасть к вашему боту",
+        ]
+    )
+
+    builder.user.host = "cts.testing2.dev"
+    await botx_client.send_command(builder.message)
+    body = botx_client.notifications[1].result.body
+
+    assert body == "\n".join(
+        [
+            "Данный бот зарегистрирован на другом CTS.",
+            "Обратитесь к администратору, чтобы он зарегистрировал бота на вашем CTS",
         ]
     )
