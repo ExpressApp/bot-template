@@ -20,7 +20,7 @@ ARG GIT_LOGIN="gitlab-ci-token"
 RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" > ~/.netrc && \
     apt-get update && \
     apt-get install -y git sudo && \
-    pip install poetry==1.1.0 --no-cache-dir && \
+    pip install poetry==1.1.6 --no-cache-dir && \
     poetry config virtualenvs.create false && \
     poetry install --no-dev && \
     echo "${NON_ROOT_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
