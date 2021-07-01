@@ -30,7 +30,9 @@ RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" 
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-COPY . .
+COPY alembic.ini .
+COPY app app
+
 ARG CI_COMMIT_SHA=""
 ENV GIT_COMMIT_SHA=${CI_COMMIT_SHA}
 
