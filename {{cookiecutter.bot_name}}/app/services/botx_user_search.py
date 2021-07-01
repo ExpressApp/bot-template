@@ -3,11 +3,9 @@
 from typing import List, Tuple
 from uuid import UUID
 
-from botx import Bot, SendingCredentials
+from botx import Bot, BotXCredentials, SendingCredentials
 from botx.clients.methods.errors.user_not_found import UserNotFoundError
 from botx.models.users import UserFromSearch
-
-from app.settings.environments.base import BotAccount
 
 
 class UserIsBotError(Exception):
@@ -15,7 +13,7 @@ class UserIsBotError(Exception):
 
 
 async def search_user_on_each_cts(
-    bot: Bot, user_huid: UUID, bot_accounts: List[BotAccount]
+    bot: Bot, user_huid: UUID, bot_accounts: List[BotXCredentials]
 ) -> Tuple[UserFromSearch, str]:
     """Search user by huid on all cts on which bot is registered.
 

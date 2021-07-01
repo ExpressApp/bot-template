@@ -2,10 +2,9 @@
 
 from enum import Enum
 from typing import Any, List
-from uuid import UUID
 
 from botx import BotXCredentials
-from pydantic import BaseModel, BaseSettings, PostgresDsn, RedisDsn, validator
+from pydantic import BaseSettings, PostgresDsn, RedisDsn, validator
 
 
 class AppEnvTypes(str, Enum):  # noqa:WPS600, WPS115
@@ -23,11 +22,6 @@ class BaseAppSettings(BaseSettings):
 
     class Config:  # noqa: WPS431
         env_file = ".env"
-
-
-class BotAccount(BaseModel):
-    host: str
-    bot_id: UUID
 
 
 class AppSettings(BaseAppSettings):
