@@ -3,12 +3,11 @@ from typing import List
 from unittest.mock import AsyncMock
 
 import pytest
+from botx import Bot, BotXCredentials, SendingCredentials
 from botx.clients.methods.errors.user_not_found import UserNotFoundError
-from botx.models.messages.sending.credentials import SendingCredentials
 from botx.models.users import UserFromSearch
 
 from app.services.botx_user_search import UserIsBotError, search_user_on_each_cts
-from app.settings.environments.base import BotAccount
 
 
 @pytest.fixture
@@ -27,8 +26,8 @@ def user_from_search(user_huid: uuid.UUID, host: str) -> UserFromSearch:
 
 
 @pytest.fixture
-async def bot_accounts(host: str, bot_id: uuid.UUID) -> List[BotAccount]:
-    return [BotAccount(host=host, bot_id=bot_id)]
+async def bot_accounts(bot: Bot) -> List[BotXCredentials]:
+    return bot.bot_accounts
 
 
 @pytest.fixture
@@ -48,7 +47,7 @@ async def test_search_user_on_each_cts_found_user(
     credentials: SendingCredentials,
     user_from_search: UserFromSearch,
     host: str,
-    bot_accounts: List[BotAccount],
+    bot_accounts: List[BotXCredentials],
 ):
     bot_mock.search_user.return_value = user_from_search
     user, cts_host = await search_user_on_each_cts(bot_mock, user_huid, bot_accounts)
@@ -64,8 +63,7 @@ async def test_search_user_on_each_cts_found_bot(
     user_huid: uuid.UUID,
     credentials: SendingCredentials,
     bot_from_search: UserFromSearch,
-    host: str,
-    bot_accounts: List[BotAccount],
+    bot_accounts: List[BotXCredentials],
 ):
     bot_mock.search_user.return_value = bot_from_search
     with pytest.raises(UserIsBotError):
@@ -79,7 +77,7 @@ async def test_search_user_on_each_cts_exception(
     bot_mock: AsyncMock,
     user_huid: uuid.UUID,
     credentials: SendingCredentials,
-    bot_accounts: List[BotAccount],
+    bot_accounts: List[BotXCredentials],
 ):
     bot_mock.search_user.side_effect = UserNotFoundError()
 
