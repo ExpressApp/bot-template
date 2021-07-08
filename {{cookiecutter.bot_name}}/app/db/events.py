@@ -10,7 +10,7 @@ from app.db.redis.repo import RedisRepo
 
 async def init_db(dsn: DatabaseURL) -> None:
     """Create connection to db and init orm models."""
-    await Tortoise.init(db_url=str(dsn), modules={"botx": ["app.db.botx.models"]})
+    await Tortoise.init(db_url=str(dsn), modules={"models": []})
 
 
 async def init_redis(
