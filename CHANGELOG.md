@@ -1,3 +1,10 @@
+## 0.14.1 (Jul 9, 2021)
+
+### Fixed
+
+* Dependencies resolving (update pybotx-fsm version).
+
+
 ## 0.14.0 (Jul 7, 2021)
 
 ### Removed
