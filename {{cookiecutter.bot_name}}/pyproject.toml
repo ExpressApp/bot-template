@@ -1,9 +1,9 @@
 # https://python-poetry.org/docs/
 
 [tool.poetry]
-name = "{{cookiecutter.bot_name}}"
+name = "asyncbox-testing-bot"
 version = "0.1.0"
-description = "{{cookiecutter.bot_short_description}}"
+description = "TODO"
 authors = []
 
 
@@ -11,13 +11,13 @@ authors = []
 python = "~3.8"
 
 botx = "~0.20.0"
-botx-fsm = { git = "https://github.com/ExpressApp/pybotx-fsm", rev = "0.1.4" }
+botx-fsm = { git = "https://github.com/ExpressApp/pybotx-fsm", rev = "0.1.5" }
 
 fastapi = "~0.61.2"
 uvicorn = "~0.12.3"
 python-multipart = "~0.0.5"
 
-tortoise-orm = "~0.16.18"
+tortoise-orm = "0.16.18"
 databases = { version = "~0.4.1", extras = ["postgresql"] }
 alembic = "~1.3.2"
 psycopg2-binary = "~2.8.6"  # for alembic
