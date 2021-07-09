@@ -20,7 +20,6 @@ def get_application() -> FastAPI:
     application.add_event_handler(
         "startup",
         startup(
-            db_dsn=config.DATABASE_URL,
             redis_dsn=config.REDIS_DSN,
             redis_prefix="{{cookiecutter.bot_name}}",
             bot_app=bot,

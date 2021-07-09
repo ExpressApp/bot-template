@@ -1,7 +1,7 @@
 """App settings for test stage."""
 from typing import Any
 
-from pydantic import Field, PostgresDsn, RedisDsn
+from pydantic import Field
 
 from app.settings.environments.base import AppSettings
 
@@ -15,10 +15,11 @@ class TestAppSettings(AppSettings):
     BOT_CREDENTIALS: Any = "cts.example.com@secret@123e4567-e89b-12d3-a456-426655440000"
 
     # storages
-    DATABASE_URL: PostgresDsn = Field(
-        "postgres://postgres:postgres@localhost/postgres", env="TEST_DB_CONNECTION"
+    DATABASE_URL: str = Field(
+        "postgresql+asyncpg://postgres:postgres@localhost/postgres",
+        env="TEST_DB_CONNECTION",
     )
-    REDIS_DSN: RedisDsn = "redis://localhost/0"
+    REDIS_DSN: str = "redis://localhost/0"
 
     # db up-time can be more that 25
     RETRY_TIMEOUT: int = 25
