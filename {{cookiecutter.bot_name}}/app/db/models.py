@@ -10,7 +10,7 @@ from app.db.sqlalchemy import Base, session
 T = TypeVar("T")  # noqa: WPS111
 
 
-class ModelAdminMixin(Generic[T]):
+class CRUDMixin(Generic[T]):
     """Mixin for CRUD operations for models."""
 
     id: int  # noqa: WPS125
@@ -49,7 +49,7 @@ class ModelAdminMixin(Generic[T]):
         return rows.scalars().all()
 
 
-class Record(Base, ModelAdminMixin):
+class Record(Base, CRUDMixin):
     """Simple database model for example."""
 
     __tablename__ = "record"
