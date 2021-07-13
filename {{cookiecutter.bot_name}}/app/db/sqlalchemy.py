@@ -8,6 +8,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from app.settings.config import get_app_settings
 
 DATABASE_URL = get_app_settings().DATABASE_URL
+SQL_DEBUG = get_app_settings().SQL_DEBUG
 
 
 def make_url_async(url: str) -> str:
@@ -37,17 +38,12 @@ class AsyncDatabaseSession:
 
     async def init(self) -> None:
         """Async initialization."""
-        self._engine = create_async_engine(make_url_async(DATABASE_URL), echo=True)
+        self._engine = create_async_engine(make_url_async(DATABASE_URL), echo=SQL_DEBUG)
 
-        self._session = sessionmaker(
+        make_session = sessionmaker(
             self._engine, expire_on_commit=False, class_=AsyncSession
-        )()
-
-    async def create_all(self) -> None:
-        """Create database schema."""
-        assert self._engine is not None
-        async with self._engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+        )
+        self._session = make_session()
 
     async def close(self) -> None:
         """Close session."""
@@ -55,4 +51,4 @@ class AsyncDatabaseSession:
         await self._session.close()
 
 
-async_db_session = AsyncDatabaseSession()
+session = AsyncDatabaseSession()

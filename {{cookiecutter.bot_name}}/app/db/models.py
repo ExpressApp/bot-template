@@ -1,49 +1,52 @@
 """Database models declarations."""
 
-from typing import Any
+from typing import Any, Generic, List, TypeVar
 
-from sqlalchemy import Column, Integer, String, update as sqlalchemy_update
+from sqlalchemy import Column, Integer, String, insert, update as _update
 from sqlalchemy.future import select
 
-from app.db.sqlalchemy import Base, async_db_session
+from app.db.sqlalchemy import Base, session
+
+T = TypeVar("T")  # noqa: WPS111
 
 
-class ModelAdminMixin:
+class ModelAdminMixin(Generic[T]):
     """Mixin for CRUD operations for models."""
+
+    id: int  # noqa: WPS125
 
     @classmethod
     async def create(cls, **kwargs: Any) -> None:
         """Create object."""
-        async_db_session.add(cls(**kwargs))  # type: ignore
-        await async_db_session.commit()
+        query = insert(cls).values(**kwargs)
+        async with session.begin():
+            await session.execute(query)
 
     @classmethod
     async def update(cls, id: int, **kwargs: Any) -> None:  # noqa: WPS125
         """Update object by id."""
         query = (
-            sqlalchemy_update(cls)
-            .where(cls.id == id)  # type: ignore
+            _update(cls)
+            .where(cls.id == id)
             .values(**kwargs)
             .execution_options(synchronize_session="fetch")
         )
-
-        await async_db_session.execute(query)
-        await async_db_session.commit()
+        async with session.begin():
+            await session.execute(query)
 
     @classmethod
-    async def get(cls, id: int) -> Any:  # noqa: WPS125
+    async def get(cls, id: int) -> T:  # noqa: WPS125
         """Get object by id."""
-        query = select(cls).where(cls.id == id)  # type: ignore
-        rows = await async_db_session.execute(query)
-        (row,) = rows.one()
-        return row  # noqa: WPS331
+        query = select(cls).where(cls.id == id)
+        rows = await session.execute(query)
+        return rows.scalars().one()
 
     @classmethod
-    async def all(cls) -> Any:  # noqa: WPS125
+    async def all(cls) -> List[T]:  # noqa: WPS125
         """Get all objects."""
         query = select(cls)
-        rows = await async_db_session.execute(query)
-        return rows.all()
+        rows = await session.execute(query)
+        return rows.scalars().all()
 
 
 class Record(Base, ModelAdminMixin):

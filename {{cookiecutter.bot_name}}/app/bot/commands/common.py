@@ -59,5 +59,5 @@ async def git_commit_sha(message: Message, bot: Bot) -> None:
 async def history(message: Message, bot: Bot) -> None:
     """Show history of unhandled messages."""
     records = await Record.all()
-    text = "\n".join(row[0].record_data for row in records)
+    text = "\n".join(row.record_data for row in records)
     await bot.answer_message(text, message)
