@@ -8,12 +8,16 @@ config = get_app_settings()
 
 @pytest.fixture
 async def redis_repo() -> RedisRepo:
-    return await RedisRepo.init(dsn=config.REDIS_DSN)
+    redis_repo = await RedisRepo.init(dsn=config.REDIS_DSN)
+    yield redis_repo
+    await redis_repo.close()
 
 
 @pytest.fixture
 async def redis_repo_with_prefix() -> RedisRepo:
-    return await RedisRepo.init(dsn=config.REDIS_DSN, prefix="test")
+    redis_repo = await RedisRepo.init(dsn=config.REDIS_DSN, prefix="test")
+    yield redis_repo
+    await redis_repo.close()
 
 
 @pytest.fixture
