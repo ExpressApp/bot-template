@@ -4,7 +4,7 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-
+from loguru import logger
 from app.settings.config import get_app_settings
 
 DATABASE_URL = get_app_settings().DATABASE_URL
@@ -38,6 +38,9 @@ class AsyncDatabaseSession:
 
     async def init(self) -> None:
         """Async initialization."""
+        if not DATABASE_URL:
+            logger.warning("Database NOT initialized")
+            return
         self._engine = create_async_engine(make_url_async(DATABASE_URL), echo=SQL_DEBUG)
 
         make_session = sessionmaker(
@@ -47,8 +50,8 @@ class AsyncDatabaseSession:
 
     async def close(self) -> None:
         """Close session."""
-        assert self._session is not None
-        await self._session.close()
+        if self._session is not None:
+            await self._session.close()
 
 
 session = AsyncDatabaseSession()
