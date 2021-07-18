@@ -1,3 +1,18 @@
+## 0.15.0 (Jul 14, 2021)
+
+### Changed
+
+* **Breaking change:** upgrade dependencies:
+  *  Upgrade python from `3.8` to `3.9`
+  *  Upgrade fastapi from `0.61.2` to `0.66.0`
+  *  Upgrade uvicorn from `0.12.3` to `0.13.14`
+  *  Upgrade tortoise-orm from `0.16.18` to `0.17.3`
+  *  Upgrade databases from `0.4.1` to `0.4.3`
+  *  Upgrade alembic from `1.3.2` to `1.6.5`
+  *  Upgrade psycopg2-binary from `2.8.6` to `2.9.1`
+  *  Upgrade mako from `1.1.0` to `1.1.4`
+
+
 ## 0.14.1 (Jul 9, 2021)
 
 ### Fixed

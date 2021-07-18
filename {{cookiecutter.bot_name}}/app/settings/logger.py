@@ -94,7 +94,7 @@ def format_record(record: Record) -> str:
         if is_botx_client:
             format_botx_client_payload(payload)
 
-        if (attachments := payload.get("attachments")) :  # noqa: WPS332
+        if attachments := payload.get("attachments"):  # noqa: WPS332
             attachments = trim_attachments_content(attachments)
 
         record["extra"]["payload"] = pformat(

@@ -5,7 +5,7 @@
   - &dev_env APP_ENV=dev
   - &dev_bot_url BOT_URL="${BOT_NAME}.${DEV_SERVER_HOST}"
   - &image_name CONTAINER_RELEASE_IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
-  - &postgres 
+  - &postgres
       POSTGRES_USER=${CONTAINER_NAME} &&
       POSTGRES_DB=${CONTAINER_NAME} &&
       POSTGRES_PASSWORD=$(openssl rand -hex 16) &&
@@ -95,7 +95,7 @@ default:
     - docker
 
   image:
-    name: python:3.8
+    name: python:3.9
 
   before_script:
     - echo -e "machine ${GIT_HOST}\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
