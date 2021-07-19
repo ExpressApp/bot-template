@@ -1,0 +1,13 @@
+name: Tests
+on: push
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: install python
+        run: sudo apt install python3.9-full python3.9-dev python3-pip
+      - name: install cookiecutter
+        run: pip install cookiecutter
+      - name: run tests
+        run: ./scripts/test

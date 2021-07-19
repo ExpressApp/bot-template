@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -x
+
+if [ -f .env ]; then
+  source .env
+fi
+
+echo using PostgreSQL at $TEST_POSTGRES_DSN
+echo using Redis at $TEST_REDIS_DSN
+echo testing bot template
+
+BOT_NAME="async-box-bot"
+PRJDIR=$(pwd)
+TMPDIR=$(mktemp -d)
+cookiecutter --no-input . -o ${TMPDIR}
+
+cd "${TMPDIR}/${BOT_NAME}" || exit 1
+/usr/bin/python3.9 -m venv .venv
+source .venv/bin/activate
+pip install poetry
+poetry install
+TEST_DB_CONNECTION=${TEST_DB_CONNECTION} TEST_REDIS_DSN=${TEST_REDIS_DSN} pytest -s -v --cov-config=setup.cfg -m "not db"
+EXIT_CODE=$?
+cd "${PRJDIR}" || exit 1
+rm -rf "${TMPDIR}"
+if [[ $EXIT_CODE -gt 0 ]]; then exit $EXIT_CODE; fi
