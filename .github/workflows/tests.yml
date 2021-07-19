@@ -27,3 +27,4 @@ jobs:
           ./scripts/test
         env:
           TEST_DB_CONNECTION: postgres://postgres:postgres@localhost/postgres
+          DB_CONNECTION: postgres://postgres:postgres@localhost/postgres
