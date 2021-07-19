@@ -18,13 +18,12 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - name: install cookiecutter
-        run: pip install cookiecutter
       - name: checkout
         uses: actions/checkout@v2
+      - name: install cookiecutter
+        run: pip install cookiecutter
       - name: run tests
         run: |
-          cd ${{ github.workspace }}
           ./scripts/test
         env:
           TEST_DB_CONNECTION: postgres://postgres:postgres@localhost/postgres
