@@ -9,6 +9,8 @@ jobs:
         run: sudo apt install python3.9-full python3.9-dev python3-pip
       - name: install cookiecutter
         run: pip install cookiecutter
+      - name: checkout
+        uses: actions/checkout@v2
       - name: run tests
         run: |
           cd ${{ github.workspace }}
