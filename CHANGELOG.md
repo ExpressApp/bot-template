@@ -1,3 +1,10 @@
+## 0.15.1 (Jul 19, 2021)
+
+### Added
+
+* Tests to make a new project from cookiecutter template and run pytest in it
+
+
 ## 0.15.0 (Jul 14, 2021)
 
 ### Changed

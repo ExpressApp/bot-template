@@ -5,7 +5,7 @@ from botx import Bot, ChatTypes
 from botx.models.status import StatusRecipient
 from botx.testing import MessageBuilder
 from fastapi import FastAPI
-from httpx import AsyncClient, StatusCode
+from httpx import AsyncClient, codes
 
 
 @pytest.mark.asyncio
@@ -18,7 +18,7 @@ async def test_botx_status_endpoint_return_right_bot_status(
     ).dict()
     recipient.update({"chat_type": f"{ChatTypes.chat.value}"})
     response = await http_client.get(url, params=recipient)
-    assert response.status_code == StatusCode.OK
+    assert response.status_code == codes.OK
     assert response.json() == await bot.status()
 
 
@@ -36,7 +36,7 @@ async def test_send_status_with_missing_optional_fields(
     ).dict(exclude_none=True)
     recipient.update({"chat_type": f"{ChatTypes.chat.value}"})
     response = await http_client.get(url, params=recipient)
-    assert response.status_code == StatusCode.OK
+    assert response.status_code == codes.OK
     assert response.json() == await bot.status()
 
 
@@ -49,7 +49,7 @@ async def test_botx_command_endpoint_return_accepted(
     url = app.url_path_for("botx:command")
     response = await http_client.post(url, data=builder.message.json())
 
-    assert response.status_code == StatusCode.ACCEPTED
+    assert response.status_code == codes.ACCEPTED
 
 
 @pytest.mark.asyncio
@@ -68,7 +68,7 @@ async def test_botx_command_unknown_server_error(
     url = app.url_path_for("botx:command")
     response = await http_client.post(url, data=builder.message.json())
 
-    assert response.status_code == StatusCode.SERVICE_UNAVAILABLE
+    assert response.status_code == codes.SERVICE_UNAVAILABLE
     assert response.json() == {
         "error_data": {"status_message": f"Unknown bot ID: {bot_id}"},
         "errors": [],
