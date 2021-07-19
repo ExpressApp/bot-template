@@ -9,7 +9,7 @@ import pytest
 from tests.utils import do_with_retry
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def migrations(postgres_server):
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     alembic.config.main(argv=["upgrade", "head"])

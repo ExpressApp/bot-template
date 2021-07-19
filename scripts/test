@@ -6,8 +6,6 @@ if [ -f .env ]; then
   source .env
 fi
 
-echo using PostgreSQL at $TEST_POSTGRES_DSN
-echo using Redis at $TEST_REDIS_DSN
 echo testing bot template
 
 BOT_NAME="async-box-bot"
@@ -20,7 +18,7 @@ cd "${TMPDIR}/${BOT_NAME}" || exit 1
 source .venv/bin/activate
 pip install poetry
 poetry install
-TEST_DB_CONNECTION=${TEST_DB_CONNECTION} TEST_REDIS_DSN=${TEST_REDIS_DSN} pytest -s -v --cov-config=setup.cfg -m "not db"
+APP_ENV=test pytest -s -v --cov-config=setup.cfg -m "not db"
 EXIT_CODE=$?
 cd "${PRJDIR}" || exit 1
 rm -rf "${TMPDIR}"

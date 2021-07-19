@@ -35,7 +35,7 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture
-def app(migrations) -> FastAPI:
+def app() -> FastAPI:
     from app.main import get_application
 
     return get_application()
