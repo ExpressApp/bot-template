@@ -4,12 +4,12 @@ jobs:
 
   tests:
     name: Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container: python:3.9
 
     services:
       postgres:
-        image: postgres
+        image: postgres:12
         env:
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -18,7 +18,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis
+        image: redis:6
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
