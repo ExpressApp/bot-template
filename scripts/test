@@ -14,7 +14,7 @@ TMPDIR=$(mktemp -d)
 cookiecutter --no-input . -o ${TMPDIR}
 
 cd "${TMPDIR}/${BOT_NAME}" || exit 1
-/usr/bin/python3.9 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 pip install poetry
 poetry install
