@@ -1,9 +1,10 @@
 # https://python-poetry.org/docs/
 
 [tool.poetry]
-name = "asyncbox-testing-bot"
+name = "{{cookiecutter.bot_name}}"
 version = "0.1.0"
-description = "TODO"
+description = "{{cookiecutter.bot_short_description}}"
+version = "0.1.0"
 authors = []
 
 
