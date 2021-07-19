@@ -10,4 +10,6 @@ jobs:
       - name: install cookiecutter
         run: pip install cookiecutter
       - name: run tests
-        run: ./scripts/test
+        run: |
+          cd ${{ github.workspace }}
+          ./scripts/test
