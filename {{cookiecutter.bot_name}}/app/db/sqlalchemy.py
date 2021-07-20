@@ -2,9 +2,10 @@
 
 from typing import Any
 
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from loguru import logger
+
 from app.settings.config import get_app_settings
 
 DATABASE_URL = get_app_settings().DATABASE_URL
@@ -17,7 +18,7 @@ def make_url_async(url: str) -> str:
 
 
 def make_url_sync(url: str) -> str:
-    """Add +asyncpg to url scheme."""
+    """Remove +asyncpg from url scheme."""
     return "postgresql" + url[url.find(":") :]  # noqa: WPS336
 
 
