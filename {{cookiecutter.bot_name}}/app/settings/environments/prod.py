@@ -1,6 +1,6 @@
 """App settings for prod stage."""
 
-from pydantic import Field, PostgresDsn, RedisDsn
+from pydantic import Field
 
 from app.settings.environments.base import AppSettings
 
@@ -13,8 +13,8 @@ class ProdAppSettings(AppSettings):
     SQL_DEBUG: bool = False
 
     # storages
-    DATABASE_URL: PostgresDsn = Field(..., env="DB_CONNECTION")
-    REDIS_DSN: RedisDsn
+    DATABASE_URL: str = Field(..., env="DB_CONNECTION")
+    REDIS_DSN: str
 
     class Config(AppSettings.Config):  # noqa: WPS431
         env_file = "prod.env"

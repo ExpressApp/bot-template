@@ -4,7 +4,7 @@ import pytest
 from botx import ChatCreatedEvent, SystemEvents
 from botx.testing import MessageBuilder, TestClient as BotXClient
 
-
+@pytest.mark.db
 @pytest.mark.asyncio
 async def test_default_handler(builder: MessageBuilder, botx_client: BotXClient):
     text = "random text"
@@ -71,3 +71,19 @@ async def test_debug_commit_sha_command(
     body = botx_client.notifications[0].result.body
 
     assert body == "test-git-commit-sha"
+
+
+@pytest.mark.db
+@pytest.mark.asyncio
+async def test_history(builder: MessageBuilder, botx_client: BotXClient):
+    builder.body = "text1"
+    await botx_client.send_command(builder.message)
+
+    builder.body = "text2"
+    await botx_client.send_command(builder.message)
+
+    builder.body = "/_history"
+    await botx_client.send_command(builder.message)
+    body = botx_client.notifications[0].result.body
+
+    assert body == "text1\ntext2"
