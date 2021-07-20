@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -x
+
+if [ -f .env ]; then
+  source .env
+fi
+
+echo testing bot template
+
+BOT_NAME="async-box-bot"
+PRJDIR=$(pwd)
+TMPDIR=$(mktemp -d)
+cookiecutter --no-input . -o ${TMPDIR}
+
+cd "${TMPDIR}/${BOT_NAME}" || exit 1
+python -m venv .venv
+source .venv/bin/activate
+pip install poetry
+poetry install
+APP_ENV=test pytest --cov-config=setup.cfg
+EXIT_CODE=$?
+cd "${PRJDIR}" || exit 1
+rm -rf "${TMPDIR}"
+if [[ $EXIT_CODE -gt 0 ]]; then exit $EXIT_CODE; fi
