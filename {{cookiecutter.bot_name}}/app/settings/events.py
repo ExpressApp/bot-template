@@ -12,9 +12,7 @@ from app.db.events import close_db, close_redis, init_db, init_redis
 from app.settings.logger import configure_logger
 
 
-def startup(
-    db_dsn: DatabaseURL, redis_dsn: DatabaseURL, redis_prefix: str, bot_app: Bot
-) -> Callable:
+def startup(redis_dsn: DatabaseURL, redis_prefix: str, bot_app: Bot) -> Callable:
     """
     Create startup event handler.
 
@@ -24,7 +22,7 @@ def startup(
     async def start_app() -> None:  # noqa: WPS430
         configure_logger()
         await bot_app.start()
-        await init_db(db_dsn)
+        await init_db()
         bot_app.state.redis = await init_redis(redis_dsn, redis_prefix)
 
         await bot_app.authorize()

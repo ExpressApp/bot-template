@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, List
 
 from botx import BotXCredentials
-from pydantic import BaseSettings, PostgresDsn, RedisDsn, validator
+from pydantic import BaseSettings, validator
 
 
 class AppEnvTypes(str, Enum):  # noqa:WPS600, WPS115
@@ -39,8 +39,8 @@ class AppSettings(BaseAppSettings):
     BOT_CREDENTIALS: Any
 
     # storages
-    DATABASE_URL: PostgresDsn
-    REDIS_DSN: RedisDsn
+    DATABASE_URL: str
+    REDIS_DSN: str
 
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod

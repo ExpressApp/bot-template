@@ -1,15 +1,20 @@
-import warnings
 from os import environ
-from typing import Callable
-
-import alembic.config
-import psycopg2
+import warnings
 import pytest
+from sqlalchemy import create_engine
+
+from app.db.sqlalchemy import Base, make_url_sync
 
 
-@pytest.fixture()
-def migrations():
-    warnings.filterwarnings("ignore", category=DeprecationWarning)
-    alembic.config.main(argv=["upgrade", "head"])
-    yield
-    alembic.config.main(argv=["downgrade", "base"])
+@pytest.fixture
+def migrations(printer):
+    warnings.filterwarnings("ignore", category=ResourceWarning)
+    dsn = environ.get("TEST_DB_CONNECTION")
+    if dsn:
+        printer(f"Using database {dsn}")
+        engine = create_engine(make_url_sync(dsn))
+        Base.metadata.create_all(engine)
+        yield
+        Base.metadata.drop_all(engine)
+    else:
+        yield

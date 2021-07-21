@@ -4,14 +4,18 @@ from os import environ
 
 from botx import Bot, Collector, Message, SendingMessage
 
+from app.db.models import Record
 from app.resources import strings
 
 collector = Collector()
 
 
 @collector.default(include_in_status=False)
-async def default_handler() -> None:
+async def default_handler(message: Message) -> None:
     """Run if command not found."""
+    # add text to history
+    # example of using database
+    await Record.create(record_data=message.body)
 
 
 @collector.chat_created
@@ -49,3 +53,11 @@ async def show_help(message: Message, bot: Bot) -> None:
 async def git_commit_sha(message: Message, bot: Bot) -> None:
     """Show git commit SHA."""
     await bot.answer_message(environ.get("GIT_COMMIT_SHA", "<undefined>"), message)
+
+
+@collector.hidden(command="/_history")
+async def history(message: Message, bot: Bot) -> None:
+    """Show history of unhandled messages."""
+    records = await Record.all()
+    text = "\n".join(row.record_data for row in records)
+    await bot.answer_message(text, message)

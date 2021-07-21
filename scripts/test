@@ -18,7 +18,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install poetry
 poetry install
-APP_ENV=test pytest --cov-config=setup.cfg
+APP_ENV=test TEST_DB_CONNECTION=$TEST_DB_CONNECTION REDIS_DSN=$REDIS_DSN pytest --cov-config=setup.cfg
 EXIT_CODE=$?
 cd "${PRJDIR}" || exit 1
 rm -rf "${TMPDIR}"

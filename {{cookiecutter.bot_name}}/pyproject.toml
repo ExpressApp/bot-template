@@ -16,10 +16,11 @@ botx-fsm = { git = "https://github.com/ExpressApp/pybotx-fsm", rev = "0.1.5" }
 fastapi = "~0.66.0"
 uvicorn = "~0.13.4"
 
-tortoise-orm = "0.17.3"
-databases = { version = "~0.4.3", extras = ["postgresql"] }
+databases = { version = "~0.4.1", extras = ["postgresql"] }
 alembic = "~1.6.5"
-psycopg2-binary = "~2.9.1"  # for alembic
+SQLAlchemy = "~1.4.20"
+psycopg2-binary = "~2.9.1"
+asyncpg = "~0.23.0"
 
 loguru = "~0.5.3"
 mako = "~1.1.4"

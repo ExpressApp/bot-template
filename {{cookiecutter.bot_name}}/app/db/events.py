@@ -1,16 +1,15 @@
 """Functions to create and close connections to db."""
 from typing import Optional
 
-from databases import DatabaseURL
 from starlette.datastructures import URL
-from tortoise import Tortoise
 
 from app.db.redis.repo import RedisRepo
+from app.db.sqlalchemy import session
 
 
-async def init_db(dsn: DatabaseURL) -> None:
+async def init_db() -> None:
     """Create connection to db and init orm models."""
-    await Tortoise.init(db_url=str(dsn), modules={"models": []})
+    await session.init()
 
 
 async def init_redis(
@@ -29,4 +28,4 @@ async def close_redis(redis: Optional[RedisRepo]) -> None:
 
 async def close_db() -> None:
     """Close connection to db."""
-    await Tortoise.close_connections()
+    await session.close()

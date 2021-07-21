@@ -1,3 +1,10 @@
+## 0.15.2 (Jul 20, 2021)
+
+### Added
+
+* SQLAlchemy support and example model
+
+
 ## 0.15.1 (Jul 19, 2021)
 
 ### Added
