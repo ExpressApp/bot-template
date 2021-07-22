@@ -6,13 +6,12 @@ For more info see https://fastapi.tiangolo.com/advanced/events/
 from typing import Callable
 
 from botx import Bot
-from databases import DatabaseURL
 
 from app.db.events import close_db, close_redis, init_db, init_redis
 from app.settings.logger import configure_logger
 
 
-def startup(redis_dsn: DatabaseURL, redis_prefix: str, bot_app: Bot) -> Callable:
+def startup(redis_dsn: str, redis_prefix: str, bot_app: Bot) -> Callable:
     """
     Create startup event handler.
 
