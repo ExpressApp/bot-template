@@ -6,7 +6,7 @@
 
 ### Removed
 
-* databases package removed from dependencies
+* `databases` package removed from dependencies
 
 
 ## 0.15.2 (Jul 20, 2021)
