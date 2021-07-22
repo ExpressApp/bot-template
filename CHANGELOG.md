@@ -1,3 +1,14 @@
+## 0.15.3 (Jul 22, 2021)
+
+### Fixed
+
+* Bug with migrations fixture in tests
+
+### Removed
+
+* databases package removed from dependencies
+
+
 ## 0.15.2 (Jul 20, 2021)
 
 ### Added
