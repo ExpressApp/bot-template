@@ -3,4 +3,4 @@
 set -e
 set -x
 
-pytest -m "db" ${@}
+APP_ENV=test pytest -m "db" ${@}

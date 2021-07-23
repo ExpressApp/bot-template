@@ -1,3 +1,10 @@
+## 0.15.4 (Jul 23, 2021)
+
+### Fixed
+
+* Now tests use `TestAppSettings` instead of environment variables.
+
+
 ## 0.15.3 (Jul 22, 2021)
 
 ### Fixed

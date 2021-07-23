@@ -1,7 +1,8 @@
 """App settings for test stage."""
-from typing import Any
+from typing import Any, List
 
-from pydantic import Field
+from botx import BotXCredentials
+from pydantic import Field, validator
 
 from app.settings.environments.base import AppSettings
 
@@ -16,7 +17,7 @@ class TestAppSettings(AppSettings):
 
     # storages
     DATABASE_URL: str = Field(
-        "postgresql+asyncpg://postgres:postgres@localhost/postgres",
+        "postgresql://postgres:postgres@localhost/{{ cookiecutter.bot_name_underscored }}_test",
         env="TEST_DB_CONNECTION",
     )
     REDIS_DSN: str = "redis://localhost/0"
@@ -28,3 +29,15 @@ class TestAppSettings(AppSettings):
 
     class Config(AppSettings.Config):  # noqa: WPS431
         env_file = ".env"
+
+    @validator("BOT_CREDENTIALS", pre=True)
+    @classmethod
+    def parse_bot_credentials(cls, raw_credentials: Any) -> List[BotXCredentials]:
+        """Parse bot credentials separated by comma.
+
+        If passed empty string return empty list for test env.
+        """
+        try:
+            return super().parse_bot_credentials(raw_credentials)
+        except ValueError:
+            return []
