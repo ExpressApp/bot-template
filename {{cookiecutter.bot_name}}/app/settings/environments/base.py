@@ -18,7 +18,7 @@ class AppEnvTypes(str, Enum):  # noqa:WPS600, WPS115
 class BaseAppSettings(BaseSettings):
     """Allows to determine the current application environment."""
 
-    APP_ENV: AppEnvTypes = AppEnvTypes.DEV
+    APP_ENV: AppEnvTypes
 
     class Config:  # noqa: WPS431
         env_file = ".env"

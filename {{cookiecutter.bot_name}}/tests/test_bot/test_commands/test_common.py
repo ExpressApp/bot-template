@@ -4,6 +4,7 @@ import pytest
 from botx import ChatCreatedEvent, SystemEvents
 from botx.testing import MessageBuilder, TestClient as BotXClient
 
+
 @pytest.mark.db
 @pytest.mark.asyncio
 async def test_default_handler(builder: MessageBuilder, botx_client: BotXClient):

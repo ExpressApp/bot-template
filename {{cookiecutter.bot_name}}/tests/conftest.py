@@ -7,11 +7,10 @@ import pytest
 from asgi_lifespan import LifespanManager
 from botx import Bot, BotXCredentials, ChatCreatedEvent
 from botx.testing import MessageBuilder, TestClient
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from pytest_cov.plugin import StoreReport
 
-load_dotenv(".env")
+from app.settings.environments.test import TestAppSettings
 
 
 pytest_plugins = ["tests.fixtures.printer", "tests.fixtures.database"]
@@ -32,6 +31,11 @@ def pytest_addoption(parser):
         type=fake_validate_report,
         help="Short alias for option term-missing:skip-covered",
     )
+
+
+@pytest.fixture
+def settings() -> TestAppSettings:
+    return TestAppSettings()
 
 
 @pytest.fixture
