@@ -15,7 +15,6 @@ async def get_status_recipient(
     is_admin: Optional[str] = None,  # Hack with casting "" to bool.
 ) -> StatusRecipient:
     """Get status recipient from status request query params."""
-
     if is_admin is not None:
         is_admin_bool = is_admin.lower() == "true"
     else:

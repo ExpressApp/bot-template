@@ -14,7 +14,6 @@ router = APIRouter()
 @router.post("/command", name="botx:command", status_code=HTTP_202_ACCEPTED)
 async def bot_command(message: IncomingMessage) -> None:
     """Receive commands from users. Max timeout - 5 seconds."""
-
     await bot.execute_command(message.dict())
 
 

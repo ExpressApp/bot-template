@@ -10,7 +10,6 @@ async def message_from_unknown_bot_handler(
     _request: Request, exc: UnknownBotError
 ) -> Response:
     """Handle error for message from unknown bot."""
-
     return JSONResponse(
         status_code=HTTP_503_SERVICE_UNAVAILABLE,
         content=BotDisabledResponse(

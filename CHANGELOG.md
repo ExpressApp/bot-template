@@ -1,3 +1,10 @@
+## 0.15.6 (Jul 30, 2021)
+
+### Fixed
+
+* Remove unused linters rules.
+
+
 ## 0.15.5 (Jul 28, 2021)
 
 ### Added
