@@ -16,7 +16,6 @@ async def init_redis(
     redis_dsn: URL, prefix: Optional[str] = None, expire: Optional[int] = None
 ) -> RedisRepo:
     """Create connection to redis."""
-
     return await RedisRepo.init(dsn=redis_dsn, prefix=prefix, expire=expire)
 
 

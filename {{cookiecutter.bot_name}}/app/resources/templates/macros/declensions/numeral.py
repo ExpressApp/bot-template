@@ -67,7 +67,6 @@ MINUS = "минус"
 
 def _get_words_from_thousand(rest: int, sex: Sex) -> List[str]:
     """Преобразовывает тройку чисел в числительное с указанием рода."""
-
     words = []
 
     # Делим число на цифры
@@ -108,7 +107,6 @@ def _get_plural(thousand: int) -> int:  # type: ignore
     1: две, три, четыре поликлиникИ
     2: пять, ... поликлиник
     """
-
     # Для числительных из двух слов (двенадцать) последнее число не влияет
     if 10 <= thousand % 100 <= 19:
         return 2
@@ -130,7 +128,6 @@ def get_numeral(number: int, sex: Sex = Sex.male) -> str:
     12342 - двенадцать тысяч триста сорок два
     2345, Sex.female - две тысячи триста сорок две
     """
-
     words = []
     position = 0
     rest = abs(number)
@@ -180,7 +177,6 @@ def agree_with_number(
     тут слово "найдена" смотрит на первую тройку ("001") и приводит слово к
     единственному числу.
     """
-
     if by_first_number:
         plural = _get_plural(number % 1000)
         return word[plural]

@@ -22,7 +22,6 @@ def get_app_settings() -> AppSettings:
     Missing vars reading from .env for every APP_ENV.
 
     """
-
     app_env = BaseAppSettings().APP_ENV
     config = environments[app_env]
     return config()

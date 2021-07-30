@@ -49,7 +49,6 @@ class AppSettings(BaseAppSettings):
 
         Each entry must be separated by "@".
         """
-
         if not raw_credentials:
             raise ValueError("`BOT_CREDENTIALS` can't be empty")
 

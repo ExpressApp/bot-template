@@ -12,7 +12,6 @@ from pytest_cov.plugin import StoreReport
 
 from app.settings.environments.test import TestAppSettings
 
-
 pytest_plugins = ["tests.fixtures.printer", "tests.fixtures.database"]
 
 
