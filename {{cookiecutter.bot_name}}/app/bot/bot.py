@@ -1,12 +1,11 @@
 """Configuration for bot instance."""
-from botx import Bot, Depends
+from botx import Bot
 from botx_fsm import FSMMiddleware  # type: ignore
 from botx_fsm.storages.redis import RedisStorage  # type: ignore
 from loguru import logger
 
 from app.bot.commands import common
 from app.bot.dependencies.errors import internal_error_handler
-from app.bot.dependencies.external_cts import message_from_current_cts
 from app.resources import strings
 from app.settings.config import get_app_settings
 
@@ -14,10 +13,7 @@ config = get_app_settings()
 
 redis_storage = RedisStorage(redis_dsn=str(config.REDIS_DSN), prefix=strings.BOT_NAME)
 logger.debug(redis_storage.redis_dsn)
-bot = Bot(
-    bot_accounts=config.BOT_CREDENTIALS,
-    dependencies=[Depends(message_from_current_cts)],
-)
+bot = Bot(bot_accounts=config.BOT_CREDENTIALS)
 
 bot.add_middleware(
     FSMMiddleware,
