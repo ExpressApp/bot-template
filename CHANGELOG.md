@@ -1,3 +1,11 @@
+## 0.15.7 (Aug 02, 2021)
+
+### Removed
+
+* Remove external cts user message. This dependency is no longer required
+  as user access to the bot is now controlled in the cts admin panel.
+
+
 ## 0.15.6 (Jul 30, 2021)
 
 ### Fixed
