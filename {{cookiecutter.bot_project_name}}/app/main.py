@@ -13,7 +13,7 @@ config = get_app_settings()
 
 def get_application() -> FastAPI:
     """Create configured server application instance."""
-    application = FastAPI(title="{{cookiecutter.bot_name}}")
+    application = FastAPI(title="{{cookiecutter.bot_project_name}}")
     application.state = bot.state
     application.state.bot = bot
 
@@ -21,7 +21,7 @@ def get_application() -> FastAPI:
         "startup",
         startup(
             redis_dsn=config.REDIS_DSN,
-            redis_prefix="{{cookiecutter.bot_name}}",
+            redis_prefix="{{cookiecutter.bot_project_name}}",
             bot_app=bot,
         ),
     )

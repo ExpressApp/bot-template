@@ -1,4 +1,4 @@
-# {{cookiecutter.bot_name}}
+# {{cookiecutter.bot_project_name}}
 
 Бот создан на базе шаблона [async-box](async-box.md).
 
@@ -126,19 +126,19 @@ GRANT ALL PRIVILEGES ON DATABASE {{cookiecutter.bot_name_underscored}}_db TO {{c
 3. Создайте директорию для бота.
 
 ```shell
-mkdir -p /opt/express/bots/{{cookiecutter.bot_name}}
+mkdir -p /opt/express/bots/{{cookiecutter.bot_project_name}}
 ```
 
-4. В директории `/opt/express/bots/{{cookiecutter.bot_name}}` создайте файл
+4. В директории `/opt/express/bots/{{cookiecutter.bot_project_name}}` создайте файл
    `docker-compose.yml` со следующим содержимым:
 
 ```yaml
 version: "3.8"
 
 services:
-  {{cookiecutter.bot_name}}:
-    image: {{cookiecutter.bot_image_name_prefix}}{{cookiecutter.bot_name}}:master
-    container_name: {{cookiecutter.bot_name}}
+  {{cookiecutter.bot_project_name}}:
+    image: {{cookiecutter.bot_image_name_prefix}}{{cookiecutter.bot_project_name}}:master
+    container_name: {{cookiecutter.bot_project_name}}
     env_file: .env
     ports:
       - "8000:8000"  # Отредактируйте порт хоста (первый), если он уже занят
