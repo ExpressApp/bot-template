@@ -21,7 +21,9 @@ async def default_handler(message: Message) -> None:
 @collector.chat_created
 async def chat_created(message: Message, bot: Bot) -> None:
     """Send a welcome message and the bot functionality in new created chat."""
-    text = strings.CHAT_CREATED_TEMPLATE.format(bot_name=strings.BOT_DISPLAY_NAME)
+    text = strings.CHAT_CREATED_TEMPLATE.format(
+        bot_project_name=strings.BOT_DISPLAY_NAME
+    )
     reply = SendingMessage.from_message(text=text, message=message)
     reply.add_bubble(command=bot.command_for("help"), label=strings.HELP_LABEL)
     await bot.send(reply)

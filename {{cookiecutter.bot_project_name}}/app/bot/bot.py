@@ -11,7 +11,9 @@ from app.settings.config import get_app_settings
 
 config = get_app_settings()
 
-redis_storage = RedisStorage(redis_dsn=str(config.REDIS_DSN), prefix=strings.BOT_NAME)
+redis_storage = RedisStorage(
+    redis_dsn=str(config.REDIS_DSN), prefix=strings.BOT_PROJECT_NAME
+)
 logger.debug(redis_storage.redis_dsn)
 bot = Bot(bot_accounts=config.BOT_CREDENTIALS)
 
