@@ -36,7 +36,7 @@ lookup = TemplateFormatterLookup(
     strict_undefined=True,
 )
 
-BOT_NAME = "{{cookiecutter.bot_name}}"
+BOT_PROJECT_NAME = "{{cookiecutter.bot_project_name}}"
 BOT_DISPLAY_NAME = "{{cookiecutter.bot_display_name}}"
 
 CHAT_CREATED_TEMPLATE = lookup.get_template("chat_created.txt.mako")

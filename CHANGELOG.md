@@ -1,3 +1,11 @@
+## 0.15.8 (Aug 09, 2021)
+
+### Changed
+
+* Replace variable `bot_name` with `bot_project_name`.
+* Add `APP_ENV` to example.env 
+
+  
 ## 0.15.7 (Aug 02, 2021)
 
 ### Removed

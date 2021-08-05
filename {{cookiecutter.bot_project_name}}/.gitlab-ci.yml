@@ -1,9 +1,9 @@
 # YAML objects named with dot is anchors, which are not recognized as jobs
 .common_anchors:
   - &prod_env APP_ENV=prod
-  - &prod_bot_url BOT_URL="${BOT_NAME}.${PROD_SERVER_HOST}"
+  - &prod_bot_url BOT_URL="${BOT_PROJECT_NAME}.${PROD_SERVER_HOST}"
   - &dev_env APP_ENV=dev
-  - &dev_bot_url BOT_URL="${BOT_NAME}.${DEV_SERVER_HOST}"
+  - &dev_bot_url BOT_URL="${BOT_PROJECT_NAME}.${DEV_SERVER_HOST}"
   - &image_name CONTAINER_RELEASE_IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
   - &postgres
       POSTGRES_USER=${CONTAINER_NAME} &&
@@ -12,7 +12,7 @@
       POSTGRES_HOST=${PROD_POSTGRES_HOST} &&
       POSTGRES_DSN=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST/$POSTGRES_DB
   - &redis REDIS_DSN=redis://${PROD_REDIS_HOST}/1
-  - &bot_name if [ -z ${BOT_NAME:-} ]; then BOT_NAME=${CI_PROJECT_PATH_SLUG#"$CI_PROJECT_NAMESPACE-"}; fi
+  - &bot_project_name if [ -z ${BOT_PROJECT_NAME:-} ]; then BOT_PROJECT_NAME=${CI_PROJECT_PATH_SLUG#"$CI_PROJECT_NAMESPACE-"}; fi
 
 .deploy: &deploy
   - echo "Use URL 'https://${BOT_URL}/' in your cts admin site"
@@ -28,9 +28,9 @@
     -d
     --name ${CONTAINER_NAME}
     --restart always
-    --label traefik.http.routers.${BOT_NAME}.rule="Host(\`${BOT_URL}\`)"
+    --label traefik.http.routers.${BOT_PROJECT_NAME}.rule="Host(\`${BOT_URL}\`)"
     --label traefik.enable=true
-    --label traefik.http.services.${BOT_NAME}.loadbalancer.server.port="8000"
+    --label traefik.http.services.${BOT_PROJECT_NAME}.loadbalancer.server.port="8000"
     --log-opt max-size=10m
     --log-opt max-file=5
     -e APP_ENV="${APP_ENV}"
@@ -154,7 +154,7 @@ deploy.sandbox:
   before_script:
     - *dev_env
     - GITLAB_USER_LOGIN="${GITLAB_USER_LOGIN/./_}"
-    - BOT_NAME="$GITLAB_USER_LOGIN"
+    - BOT_PROJECT_NAME="$GITLAB_USER_LOGIN"
     - CONTAINER_NAME="$CI_PROJECT_PATH_SLUG-$GITLAB_USER_LOGIN"
     - BOT_CREDENTIALS="$GITLAB_USER_LOGIN"_BOT_CREDENTIALS
     - *dev_bot_url
@@ -174,8 +174,8 @@ deploy.test:
     on_stop: deploy.test.stop
   before_script:
     - *dev_env
-    - *bot_name
-    - CONTAINER_NAME=$BOT_NAME-`echo $CI_COMMIT_REF_NAME | sed 's/^.*\///'`
+    - *bot_project_name
+    - CONTAINER_NAME=$BOT_PROJECT_NAME-`echo $CI_COMMIT_REF_NAME | sed 's/^.*\///'`
     - BOT_CREDENTIALS=$DEV_BOT_CREDENTIALS
     - *dev_bot_url
     - *image_name
@@ -191,8 +191,8 @@ deploy.prod:
   <<: *deploy_prod_config
   before_script:
     - *prod_env
-    - *bot_name
-    - CONTAINER_NAME=$BOT_NAME
+    - *bot_project_name
+    - CONTAINER_NAME=$BOT_PROJECT_NAME
     - *prod_bot_url
     - *image_name
     - *storages
