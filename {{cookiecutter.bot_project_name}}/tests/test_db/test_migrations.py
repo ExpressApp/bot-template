@@ -13,3 +13,4 @@ def test_migrations(settings: TestAppSettings):
     Base.metadata.drop_all(engine)
     alembic.config.main(argv=["upgrade", "head"])
     alembic.config.main(argv=["downgrade", "base"])
+    Base.metadata.create_all(engine)

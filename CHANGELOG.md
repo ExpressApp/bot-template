@@ -1,5 +1,9 @@
 ## 0.15.8 (Aug 09, 2021)
 
+### Fixed
+
+* Fix an error in a migration test.
+
 ### Changed
 
 * Replace variable `bot_name` with `bot_project_name`.
