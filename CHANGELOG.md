@@ -1,3 +1,10 @@
+## 0.15.9 (Aug 10, 2021)
+
+### Changed
+
+* Dockerfile uses venv to set up dependencies, run app.
+
+  
 ## 0.15.8 (Aug 09, 2021)
 
 ### Fixed
