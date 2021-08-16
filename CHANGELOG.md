@@ -1,3 +1,10 @@
+## 0.16.0 (Aug 16, 2021)
+
+### Changed
+
+* Rename CI/CD jobs `deploy.test` and `deploy.prod` to `deploy.botstest` and `deploy.botsprod`
+
+
 ## 0.15.9 (Aug 10, 2021)
 
 ### Changed

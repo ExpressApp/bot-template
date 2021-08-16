@@ -167,11 +167,11 @@ deploy.sandbox.stop:
   extends: deploy.sandbox
   script: *stop
 
-deploy.test:
+deploy.botstest:
   <<: *deploy_dev_config
   environment:
     name: test
-    on_stop: deploy.test.stop
+    on_stop: deploy.botstest.stop
   before_script:
     - *dev_env
     - *bot_project_name
@@ -182,12 +182,12 @@ deploy.test:
     - *storages
   script: *deploy
 
-deploy.test.stop:
+deploy.botstest.stop:
   <<: *deploy_stop_config
-  extends: deploy.test
+  extends: deploy.botstest
   script: *stop
 
-deploy.prod:
+deploy.botsprod:
   <<: *deploy_prod_config
   before_script:
     - *prod_env
