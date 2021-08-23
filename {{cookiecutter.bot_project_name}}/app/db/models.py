@@ -38,14 +38,16 @@ class CRUDMixin(Generic[T]):
     async def get(cls, id: int) -> T:  # noqa: WPS125
         """Get object by id."""
         query = select(cls).where(cls.id == id)
-        rows = await session.execute(query)
+        async with session.begin():
+            rows = await session.execute(query)
         return rows.scalars().one()
 
     @classmethod
     async def all(cls) -> List[T]:  # noqa: WPS125
         """Get all objects."""
         query = select(cls)
-        rows = await session.execute(query)
+        async with session.begin():
+            rows = await session.execute(query)
         return rows.scalars().all()
 
 
