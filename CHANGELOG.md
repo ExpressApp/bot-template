@@ -1,3 +1,13 @@
+## 0.16.1 (Aug 23, 2021)
+
+### Fixed
+
+* A little error with sqlalchemy related to session
+
+### Changed
+
+* Restructured dockerfile
+
 ## 0.16.0 (Aug 16, 2021)
 
 ### Changed
