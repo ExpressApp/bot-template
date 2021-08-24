@@ -16,19 +16,20 @@ ARG GIT_HOST=""
 ARG GIT_PASSWORD=${CI_JOB_TOKEN}
 ARG GIT_LOGIN="gitlab-ci-token"
 
-# Poetry can't read password to download private repos
-RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" > ~/.netrc && \
-    apt-get update && \
-    apt-get install -y git sudo && \
-    pip install poetry==1.1.6 --no-cache-dir && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev && \
+RUN apt-get update && \
+    apt-get install -y sudo git && \
     echo "${NON_ROOT_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
-    rm -rf /root/.cache/pypoetry && \
-    rm -rf ~/.netrc && \
     apt-get clean autoclean && \
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+# Poetry can't read password to download private repos
+RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" > ~/.netrc && \
+    pip install poetry==1.1.6 --no-cache-dir && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev && \
+    rm -rf /root/.cache/pypoetry && \
+    rm -rf ~/.netrc
 
 COPY alembic.ini .
 COPY app app
