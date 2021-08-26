@@ -10,8 +10,8 @@ authors = []
 [tool.poetry.dependencies]
 python = "~3.9"
 
-botx = "~0.20.0"
-botx-fsm = { git = "https://github.com/ExpressApp/pybotx-fsm", rev = "0.1.5" }
+botx = "~0.23.0"
+botx-fsm = { git = "https://github.com/ExpressApp/pybotx-fsm", rev = "0.1.7" }
 
 fastapi = "~0.66.0"
 uvicorn = "~0.13.4"
@@ -20,6 +20,7 @@ alembic = "~1.6.5"
 SQLAlchemy = "~1.4.20"
 psycopg2-binary = "~2.9.1"
 asyncpg = "~0.23.0"
+greenlet = "~1.1.1"
 
 loguru = "~0.5.3"
 mako = "~1.1.4"

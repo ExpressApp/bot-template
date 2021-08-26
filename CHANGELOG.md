@@ -1,3 +1,11 @@
+## 0.16.2 (Aug 26, 2021)
+
+### Changed
+
+* `botx` dependency was updated to 0.23.0.
+* `bot.authorize` now is `startup_event`.
+
+
 ## 0.16.1 (Aug 23, 2021)
 
 ### Fixed
