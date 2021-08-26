@@ -23,7 +23,7 @@ bot.add_middleware(
     fsm_instances=[],
 )
 
-bot.startup_events = [redis_storage.init]
+bot.startup_events = [redis_storage.init, bot.authorize]
 bot.shutdown_events = [redis_storage.close]
 
 bot.include_collector(common.collector)

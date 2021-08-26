@@ -24,8 +24,6 @@ def startup(redis_dsn: str, redis_prefix: str, bot_app: Bot) -> Callable:
         await init_db()
         bot_app.state.redis = await init_redis(redis_dsn, redis_prefix)
 
-        await bot_app.authorize()
-
     return start_app
 
 
