@@ -1,3 +1,9 @@
+## 0.16.3 (Aug 31, 2021)
+
+### Added
+
+* logging for notification callbacks (BotX bot API v4 feature)
+
 ## 0.16.2 (Aug 26, 2021)
 
 ### Changed
