@@ -74,3 +74,29 @@ async def test_botx_command_unknown_server_error(
         "errors": [],
         "reason": "bot_disabled",
     }
+
+
+success_payload = """
+{
+  "sync_id": "a7ffba12-8d0a-534e-8896-a0aa2d93a434",
+  "status": "ok",
+  "result": {"user_id": 123}
+}
+"""
+error_payload = """
+{
+  "sync_id": "a7ffba12-8d0a-534e-8896-a0aa2d93a434",
+  "status": "error",
+  "reason": "chat_not_found",
+  "errors": ["chat with specified id not found"],
+  "error_data": {"group_chat_id": "918da23a-1c9a-506e-8a6f-1328f1499ee8"}
+}
+"""
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("payload", [success_payload, error_payload])
+async def test_botx_callback(app: FastAPI, http_client: AsyncClient, payload: str):
+    url = app.url_path_for("botx:callback")
+    response = await http_client.post(url, data=payload)
+    assert response.status_code == codes.ACCEPTED
