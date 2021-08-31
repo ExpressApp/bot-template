@@ -9,7 +9,7 @@ from starlette.status import HTTP_202_ACCEPTED
 from app.api.dependencies.status_recipient import get_status_recipient
 from app.bot.bot import bot
 from app.schemas.notification_callback import (
-    BaseCallback,
+    BotXCallback,
     ErrorCallback,
     SuccessCallback,
 )
@@ -34,7 +34,7 @@ async def bot_status(
 @router.post(
     "/notification/callback", name="botx:callback", status_code=HTTP_202_ACCEPTED
 )
-async def bot_callback(callback: BaseCallback) -> None:
+async def bot_callback(callback: BotXCallback) -> None:
     """Receive callbacks for async methods."""
     payload = callback.dict()
     if isinstance(callback, SuccessCallback):
