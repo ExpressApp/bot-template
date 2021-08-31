@@ -1,3 +1,87 @@
+## 0.16.2 (Aug 26, 2021)
+
+### Changed
+
+* `botx` dependency was updated to 0.23.0.
+* `bot.authorize` now is `startup_event`.
+
+
+## 0.16.1 (Aug 23, 2021)
+
+### Fixed
+
+* A little error with sqlalchemy related to session
+
+### Changed
+
+* Restructured dockerfile
+
+## 0.16.0 (Aug 16, 2021)
+
+### Changed
+
+* Rename CI/CD jobs `deploy.test` and `deploy.prod` to `deploy.botstest` and `deploy.botsprod`
+
+
+## 0.15.9 (Aug 10, 2021)
+
+### Changed
+
+* Dockerfile uses venv to set up dependencies, run app.
+
+  
+## 0.15.8 (Aug 09, 2021)
+
+### Fixed
+
+* Fix an error in a migration test.
+
+### Changed
+
+* Replace variable `bot_name` with `bot_project_name`.
+* Add `APP_ENV` to example.env 
+
+  
+## 0.15.7 (Aug 02, 2021)
+
+### Removed
+
+* Remove external cts user message. This dependency is no longer required
+  as user access to the bot is now controlled in the cts admin panel.
+
+
+## 0.15.6 (Jul 30, 2021)
+
+### Fixed
+
+* Remove unused linters rules.
+
+
+## 0.15.5 (Jul 28, 2021)
+
+### Added
+
+* Add AsyncBox tutorial to `async-box.md`
+
+
+## 0.15.4 (Jul 23, 2021)
+
+### Fixed
+
+* Now tests use `TestAppSettings` instead of environment variables.
+
+
+## 0.15.3 (Jul 22, 2021)
+
+### Fixed
+
+* Bug with migrations fixture in tests
+
+### Removed
+
+* `databases` package removed from dependencies
+
+
 ## 0.15.2 (Jul 20, 2021)
 
 ### Added

@@ -1,0 +1,52 @@
+# https://python-poetry.org/docs/
+
+[tool.poetry]
+name = "{{cookiecutter.bot_project_name}}"
+version = "0.1.0"
+description = "{{cookiecutter.bot_short_description}}"
+authors = []
+
+
+[tool.poetry.dependencies]
+python = "~3.9"
+
+botx = "~0.23.0"
+botx-fsm = { git = "https://github.com/ExpressApp/pybotx-fsm", rev = "0.1.7" }
+
+fastapi = "~0.66.0"
+uvicorn = "~0.13.4"
+
+alembic = "~1.6.5"
+SQLAlchemy = "~1.4.20"
+psycopg2-binary = "~2.9.1"
+asyncpg = "~0.23.0"
+greenlet = "~1.1.1"
+
+loguru = "~0.5.3"
+mako = "~1.1.4"
+
+
+[tool.poetry.dev-dependencies]
+black = "~21.6b0"
+isort = "5.9.2"
+autoflake = "~1.4"
+mypy = "~0.910"
+wemake-python-styleguide = "~0.15.3"
+
+pytest = "~6.2.4"
+pytest-cov = "~2.12.1"
+pytest-asyncio = "~0.15.1"
+pytest-localserver = "~0.5.0"
+python-dotenv = "~0.18.0"
+pytest-clarity = "~1.0.1"
+pytest-timeout = "~1.4.2"
+
+asgi-lifespan = "1.0.1"
+molten = "1.0.1"
+redis = "3.5.3"
+tenacity = "6.2.0"
+
+
+[build-system]
+requires = ["poetry>=1.0"]
+build-backend = "poetry.masonry.api"
