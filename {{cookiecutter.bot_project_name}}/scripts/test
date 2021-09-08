@@ -3,4 +3,4 @@
 set -e
 set -x
 
-APP_ENV=test pytest --cov-config=setup.cfg -m "not db" ${@}
+pytest --cov-config=setup.cfg -m "not db" ${@}
