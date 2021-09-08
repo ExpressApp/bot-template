@@ -14,11 +14,11 @@ TMPDIR=$(mktemp -d)
 cookiecutter --no-input . -o ${TMPDIR}
 
 cd "${TMPDIR}/${BOT_PROJECT_NAME}" || exit 1
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
-pip install poetry
+pip3 install poetry
 poetry install
-APP_ENV=test pytest --cov-config=setup.cfg
+pytest --cov-config=setup.cfg
 EXIT_CODE=$?
 cd "${PRJDIR}" || exit 1
 rm -rf "${TMPDIR}"

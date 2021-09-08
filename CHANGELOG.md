@@ -1,3 +1,10 @@
+## 0.16.4 (Sep 08, 2021)
+
+### Added
+
+* Add `pytest-env` dependency so that you can run pytest without passing environment variables.
+
+
 ## 0.16.3 (Aug 31, 2021)
 
 ### Added
