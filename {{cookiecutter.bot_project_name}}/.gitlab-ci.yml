@@ -126,7 +126,6 @@ test:
   variables:
     TEST_DB_CONNECTION: postgres://postgres:postgres@postgres/postgres
     REDIS_DSN: redis://redis/0
-    APP_ENV: test
   coverage: '/Total coverage: \d\d\d.\d\d%/'
 
 build:
