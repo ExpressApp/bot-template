@@ -2,7 +2,7 @@
 from typing import Any, List
 
 from botx import BotXCredentials
-from pydantic import Field, validator
+from pydantic import validator
 
 from app.settings.environments.base import AppSettings
 

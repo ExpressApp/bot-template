@@ -1,7 +1,5 @@
 """App settings for development stage."""
 
-from pydantic import Field
-
 from app.settings.environments.base import AppSettings
 
 
