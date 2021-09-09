@@ -1,3 +1,11 @@
+## 0.17.0 (Sep 09, 2021)
+
+### Changed
+
+* **Breaking change:** Rename all environment and python variables containing a DSN for 
+PostgreSQL database to `POSTGRES_DSN`
+
+
 ## 0.16.4 (Sep 08, 2021)
 
 ### Added

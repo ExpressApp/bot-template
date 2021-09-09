@@ -13,7 +13,7 @@ class ProdAppSettings(AppSettings):
     SQL_DEBUG: bool = False
 
     # storages
-    DATABASE_URL: str = Field(..., env="DB_CONNECTION")
+    POSTGRES_DSN: str
     REDIS_DSN: str
 
     class Config(AppSettings.Config):  # noqa: WPS431

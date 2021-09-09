@@ -21,7 +21,7 @@
   регистрации бота находится в [Руководстве
   администратора](https://express.ms/admin_guide.pdf) `->` Эксплуатация корпоративного
   сервера `->` Управление контактами `->` Чат-боты.
-* `DB_CONNECTION`: DSN для БД PostgreSQL, например:
+* `POSTGRES_DSN`: DSN для БД PostgreSQL, например:
   `postgres://postgres_user:postgres_password@host:port/db_name`
 * `REDIS_DSN`: DSN для хранилища Redis, например: `redis://127.0.0.1:6379/0`
 * `DEBUG` [`false`]: Включает вывод сообщений уровня `DEBUG` (по-умолчанию выводятся

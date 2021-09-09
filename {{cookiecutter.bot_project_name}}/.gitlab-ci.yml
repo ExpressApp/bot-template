@@ -34,7 +34,7 @@
     --log-opt max-size=10m
     --log-opt max-file=5
     -e APP_ENV="${APP_ENV}"
-    -e DB_CONNECTION="${POSTGRES_DSN}"
+    -e POSTGRES_DSN="${POSTGRES_DSN}"
     -e REDIS_DSN="${REDIS_DSN}"
     -e BOT_CREDENTIALS="${BOT_CREDENTIALS}"
     $CONTAINER_RELEASE_IMAGE
@@ -124,7 +124,7 @@ test:
   script:
     - poetry run pytest --cov-config=setup.cfg
   variables:
-    TEST_DB_CONNECTION: postgres://postgres:postgres@postgres/postgres
+    POSTGRES_DSN: postgres://postgres:postgres@postgres/postgres
     REDIS_DSN: redis://redis/0
   coverage: '/Total coverage: \d\d\d.\d\d%/'
 

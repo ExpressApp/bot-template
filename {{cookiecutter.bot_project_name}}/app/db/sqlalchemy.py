@@ -8,7 +8,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.settings.config import get_app_settings
 
-DATABASE_URL = get_app_settings().DATABASE_URL
+POSTGRES_DSN = get_app_settings().POSTGRES_DSN
 SQL_DEBUG = get_app_settings().SQL_DEBUG
 
 
@@ -39,10 +39,10 @@ class AsyncDatabaseSession:
 
     async def init(self) -> None:
         """Async initialization."""
-        if not DATABASE_URL:
+        if not POSTGRES_DSN:
             logger.warning("Database NOT initialized")
             return
-        self._engine = create_async_engine(make_url_async(DATABASE_URL), echo=SQL_DEBUG)
+        self._engine = create_async_engine(make_url_async(POSTGRES_DSN), echo=SQL_DEBUG)
 
         make_session = sessionmaker(
             self._engine, expire_on_commit=False, class_=AsyncSession
