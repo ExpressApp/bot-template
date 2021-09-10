@@ -3,13 +3,10 @@ FROM python:3.9-slim
 ENV PYTHONUNBUFFERED 1
 ENV UVICORN_CMD_ARGS ""
 
-ARG NON_ROOT_USER=express_bot
-RUN useradd --create-home ${NON_ROOT_USER}
-
 EXPOSE 8000
-WORKDIR /app
 
-COPY poetry.lock pyproject.toml ./
+ENV APP_USER=appuser
+RUN useradd --create-home $APP_USER
 
 ARG CI_JOB_TOKEN=""
 ARG GIT_HOST=""
@@ -18,17 +15,27 @@ ARG GIT_LOGIN="gitlab-ci-token"
 
 RUN apt-get update && \
     apt-get install -y sudo git && \
-    echo "${NON_ROOT_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
+    echo "${APP_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
     apt-get clean autoclean && \
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 
+ENV VENV_PATH=/home/$APP_USER/.venv/bin
+ENV USER_PATH=/home/$APP_USER/.local/bin
+ENV PATH="$VENV_PATH:$USER_PATH:$PATH"
+
+WORKDIR /home/$APP_USER
+USER $APP_USER
+
+COPY poetry.lock pyproject.toml ./
+
+RUN pip install --user --no-cache-dir poetry==1.1.6 && \
+  poetry config virtualenvs.in-project true
+
 # Poetry can't read password to download private repos
 RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" > ~/.netrc && \
-    pip install poetry==1.1.6 --no-cache-dir && \
-    poetry config virtualenvs.create false && \
     poetry install --no-dev && \
-    rm -rf /root/.cache/pypoetry && \
+    rm -rf ~/.cache/pypoetry && \
     rm -rf ~/.netrc
 
 COPY alembic.ini .
@@ -36,8 +43,6 @@ COPY app app
 
 ARG CI_COMMIT_SHA=""
 ENV GIT_COMMIT_SHA=${CI_COMMIT_SHA}
-
-USER ${NON_ROOT_USER}
 
 CMD sudo update-ca-certificates && \
     alembic upgrade head && \
