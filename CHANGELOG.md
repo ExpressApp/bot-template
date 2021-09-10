@@ -4,7 +4,8 @@
 
 * **Breaking change:** Rename all environment and python variables containing a DSN for 
 PostgreSQL database to `POSTGRES_DSN`
-
+* Changed Dockerfile to install dependencies to user's home directory
+* Changed docker-compose example config in README.md
 
 ## 0.16.5 (Sep 09, 2021)
 
