@@ -22,8 +22,8 @@
   администратора](https://express.ms/admin_guide.pdf) `->` Эксплуатация корпоративного
   сервера `->` Управление контактами `->` Чат-боты.
 * `POSTGRES_DSN`: DSN для БД PostgreSQL, например:
-  `postgres://postgres_user:postgres_password@host:port/db_name`
-* `REDIS_DSN`: DSN для хранилища Redis, например: `redis://127.0.0.1:6379/0`
+  `postgres://postgres_user:postgres_password@postgres:port/db_name`
+* `REDIS_DSN`: DSN для хранилища Redis, например: `redis://redis:6379/0`
 * `DEBUG` [`false`]: Включает вывод сообщений уровня `DEBUG` (по-умолчанию выводятся
     сообщения с уровня `INFO`).
 * `SQL_DEBUG` [`false`]: Включает вывод запросов к БД PostgreSQL.
@@ -143,9 +143,6 @@ services:
     ports:
       - "8000:8000"  # Отредактируйте порт хоста (первый), если он уже занят
     restart: always
-    depends_on:
-      - postgres
-      - redis
     logging:
       driver: "json-file"
       options:
