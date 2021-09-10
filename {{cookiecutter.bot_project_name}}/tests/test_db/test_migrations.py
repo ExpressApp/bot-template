@@ -8,8 +8,8 @@ from app.settings.environments.test import TestAppSettings
 
 @pytest.mark.db
 def test_migrations(settings: TestAppSettings):
-    dsn = settings.DATABASE_URL
-    engine = create_engine(make_url_sync(dsn))
+    postgres_dsn = make_url_sync(settings.POSTGRES_DSN)
+    engine = create_engine(postgres_dsn)
     Base.metadata.drop_all(engine)
     alembic.config.main(argv=["upgrade", "head"])
     alembic.config.main(argv=["downgrade", "base"])

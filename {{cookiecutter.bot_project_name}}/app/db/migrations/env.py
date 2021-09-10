@@ -12,15 +12,11 @@ from app.settings.config import get_app_settings  # isort:skip
 from app.db.sqlalchemy import Base, make_url_sync  # isort:skip
 import app.db.models  # isort:skip
 
-config = get_app_settings()
-
+postgres_dsn = make_url_sync(get_app_settings().POSTGRES_DSN)
 context_config = context.config
-
 fileConfig(context_config.config_file_name)
-
 target_metadata = Base.metadata
-
-context_config.set_main_option("sqlalchemy.url", make_url_sync(config.DATABASE_URL))
+context_config.set_main_option("sqlalchemy.url", postgres_dsn)
 
 
 def run_migrations_online() -> None:
