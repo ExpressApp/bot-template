@@ -1,7 +1,5 @@
 """App settings for development stage."""
 
-from pydantic import Field
-
 from app.settings.environments.base import AppSettings
 
 
@@ -13,8 +11,9 @@ class DevAppSettings(AppSettings):
     SQL_DEBUG: bool = True
 
     # storages
-    DATABASE_URL: str = Field(
-        "postgresql+asyncpg://postgres:postgres@localhost/postgres", env="DB_CONNECTION"
+    POSTGRES_DSN: str = (
+        "postgresql+asyncpg://postgres:postgres@localhost/"
+        "{{ cookiecutter.bot_name_underscored }}"
     )
     REDIS_DSN: str = "redis://localhost/0"
 

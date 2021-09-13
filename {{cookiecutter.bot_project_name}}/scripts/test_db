@@ -3,4 +3,4 @@
 set -e
 set -x
 
-pytest -m "db" ${@}
+POSTGRES_DSN="${TEST_POSTGRES_DSN:-$POSTGRES_DSN}" pytest -m "db" ${@}

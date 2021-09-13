@@ -39,7 +39,7 @@ class AppSettings(BaseAppSettings):
     BOT_CREDENTIALS: Any
 
     # storages
-    DATABASE_URL: str
+    POSTGRES_DSN: str
     REDIS_DSN: str
 
     @validator("BOT_CREDENTIALS", pre=True)
