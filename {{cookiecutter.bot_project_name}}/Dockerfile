@@ -14,7 +14,7 @@ ARG GIT_PASSWORD=${CI_JOB_TOKEN}
 ARG GIT_LOGIN="gitlab-ci-token"
 
 RUN apt-get update && \
-    apt-get install -y sudo git && \
+    apt-get install -y sudo git curl && \
     echo "${APP_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
     apt-get clean autoclean && \
     apt-get autoremove --yes && \
