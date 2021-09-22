@@ -1,3 +1,10 @@
+## 0.18.0 (Sep 22, 2021)
+
+### Added
+
+* Add test to build image and run application.
+
+
 ## 0.17.0 (Sep 09, 2021)
 
 ### Changed

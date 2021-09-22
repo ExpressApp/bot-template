@@ -36,3 +36,38 @@ jobs:
           POSTGRES_DSN: postgres://postgres:postgres@postgres/postgres
           REDIS_DSN: redis://redis/0
 
+  test-image:
+    name: Test app start
+    runs-on: ubuntu-20.04
+    services:
+      postgres:
+        image: postgres:12
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install cookiecutter
+        run: pip install cookiecutter
+      - name: Test image
+        env:
+          REDIS_DSN: redis://localhost:6379/0
+          POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+        run: ./scripts/test_image
