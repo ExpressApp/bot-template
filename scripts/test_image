@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -ex
+
+PROJECT_NAME=async-box-bot
+
+cookiecutter --no-input .
+docker build -t $PROJECT_NAME $PROJECT_NAME
+
+# there should be added `--fail` option to curl command when healthcheck endpoint is added
+docker run \
+    -d \
+    --name $PROJECT_NAME \
+    --network host \
+    -e APP_ENV=dev \
+    -e REDIS_DSN=$REDIS_DSN \
+    -e POSTGRES_DSN=$POSTGRES_DSN \
+    -e BOT_CREDENTIALS="cts.example.com@secret@aab1b617-7694-4e75-bc59-145a2fd1502f"  \
+    --health-cmd "curl http://localhost:8000/status || exit 1" \
+    --health-interval 2s \
+    --health-start-period 4s \
+    --health-timeout 1s \
+    $PROJECT_NAME
+
+sleep 10
+
+HEALTH_STATUS=$(docker inspect $PROJECT_NAME --format='{{.State.Health.Status}}')
+if [[ $HEALTH_STATUS != healthy ]]; then
+    docker logs $PROJECT_NAME
+    exit 1
+fi
