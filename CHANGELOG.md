@@ -2,7 +2,7 @@
 
 ### Changed
 
-* **Breaking change:** Template completly changed for using boxv2 bot framework.
+* **Breaking change:** Template completely changed for using boxv2 bot framework.
 
 ## 0.18.0 (Sep 22, 2021)
 
