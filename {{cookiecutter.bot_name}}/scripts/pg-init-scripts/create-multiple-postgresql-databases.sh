@@ -2,8 +2,7 @@
 
 # Used by PostgreSQL container to create multiple databases on start
 
-set -e
-set -u
+set -eux
 
 function create_user_and_database() {
   local database=$1

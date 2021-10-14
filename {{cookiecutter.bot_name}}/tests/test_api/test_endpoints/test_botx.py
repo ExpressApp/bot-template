@@ -50,29 +50,3 @@ async def test_botx_command_endpoint_return_accepted(
     response = await http_client.post(url, data=builder.message.json())
 
     assert response.status_code == codes.ACCEPTED
-
-
-@pytest.mark.asyncio
-async def test_botx_command_unknown_server_error(
-    app: FastAPI,
-    http_client: AsyncClient,
-    builder: MessageBuilder,
-):
-    text = "/help"
-    host = "example.com"
-    bot_id = "0885570c-cfef-4f25-8c40-ae2c9ee0a935"
-    builder.bot_id = bot_id
-    builder.body = text
-    builder.user.host = host
-
-    url = app.url_path_for("botx:command")
-    response = await http_client.post(url, data=builder.message.json())
-
-    assert response.status_code == codes.SERVICE_UNAVAILABLE
-    assert response.json() == {
-        "error_data": {
-            "status_message": "Unknown bot ID: 0885570c-cfef-4f25-8c40-ae2c9ee0a935"
-        },
-        "errors": [],
-        "reason": "bot_disabled",
-    }
