@@ -4,6 +4,7 @@ from typing import Any, Generic, List, TypeVar
 
 from sqlalchemy import Column, Integer, String, insert, update as _update
 from sqlalchemy.future import select
+from sqlalchemy.inspection import inspect
 
 from app.db.sqlalchemy import Base, session
 
@@ -13,8 +14,6 @@ T = TypeVar("T")  # noqa: WPS111
 class CRUDMixin(Generic[T]):
     """Mixin for CRUD operations for models."""
 
-    id: int  # noqa: WPS125
-
     @classmethod
     async def create(cls, **kwargs: Any) -> None:
         """Create object."""
@@ -23,11 +22,12 @@ class CRUDMixin(Generic[T]):
             await session.execute(query)
 
     @classmethod
-    async def update(cls, id: int, **kwargs: Any) -> None:  # noqa: WPS125
+    async def update(cls, pkey_val: int, **kwargs: Any) -> None:  # noqa: WPS125
         """Update object by id."""
+        primary_key = inspect(cls).primary_key[0]
         query = (
             _update(cls)
-            .where(cls.id == id)
+            .where(primary_key == pkey_val)
             .values(**kwargs)
             .execution_options(synchronize_session="fetch")
         )
@@ -35,9 +35,10 @@ class CRUDMixin(Generic[T]):
             await session.execute(query)
 
     @classmethod
-    async def get(cls, id: int) -> T:  # noqa: WPS125
+    async def get(cls, pkey_val: int) -> T:  # noqa: WPS125
         """Get object by id."""
-        query = select(cls).where(cls.id == id)
+        primary_key = inspect(cls).primary_key[0]
+        query = select(cls).where(primary_key == pkey_val)
         async with session.begin():
             rows = await session.execute(query)
         return rows.scalars().one()
