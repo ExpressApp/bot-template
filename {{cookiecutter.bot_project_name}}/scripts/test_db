@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-set -x
-
-POSTGRES_DSN="${TEST_POSTGRES_DSN:-$POSTGRES_DSN}" pytest -m "db" ${@}
