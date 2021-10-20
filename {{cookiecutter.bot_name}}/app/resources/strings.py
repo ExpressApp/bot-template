@@ -1,6 +1,6 @@
 """Text and templates for messages and api responses."""
 
-from boxv2.utils.mako import TemplateFormatterLookup
+from asyncbox.utils.mako import TemplateFormatterLookup
 
 template_lookup = TemplateFormatterLookup(
     directories=["app/resources/templates"], input_encoding="utf-8"

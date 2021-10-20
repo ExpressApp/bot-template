@@ -4,4 +4,4 @@ set -ex
 
 autoflake --recursive --remove-all-unused-imports --remove-unused-variables --in-place app tests
 black app tests
-isort --recursive app tests
+isort app tests
