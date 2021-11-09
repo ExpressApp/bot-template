@@ -25,12 +25,12 @@ def make_url_sync(url: str) -> str:
 Base = declarative_base()
 
 
-class AsyncDatabaseSession:
+class AsyncDatabaseConnectionFabric:
     """Database session class."""
 
     def __init__(self) -> None:
         """Initialize."""
-        self._session = None
+        self._session_maker = None
         self._engine = None
 
     def __getattr__(self, name: str) -> Any:
@@ -44,15 +44,19 @@ class AsyncDatabaseSession:
             return
         self._engine = create_async_engine(make_url_async(POSTGRES_DSN), echo=SQL_DEBUG)
 
-        make_session = sessionmaker(
+        self._session_maker = sessionmaker(
             self._engine, expire_on_commit=False, class_=AsyncSession
         )
-        self._session = make_session()
 
     async def close(self) -> None:
-        """Close session."""
-        if self._session is not None:
-            await self._session.close()
+        """Close database connections."""
+        assert self._engine is not None
+        await self._engine.dispose()
+
+    async def get_session(self) -> Any:
+        """Return new session."""
+        assert self._session_maker is not None
+        return self._session_maker()
 
 
-session = AsyncDatabaseSession()
+async_db_connection = AsyncDatabaseConnectionFabric()

@@ -4,12 +4,12 @@ from typing import Optional
 from starlette.datastructures import URL
 
 from app.db.redis.repo import RedisRepo
-from app.db.sqlalchemy import session
+from app.db.sqlalchemy import async_db_connection
 
 
 async def init_db() -> None:
     """Create connection to db and init orm models."""
-    await session.init()
+    await async_db_connection.init()
 
 
 async def init_redis(
@@ -27,4 +27,4 @@ async def close_redis(redis: Optional[RedisRepo]) -> None:
 
 async def close_db() -> None:
     """Close connection to db."""
-    await session.close()
+    await async_db_connection.close()
