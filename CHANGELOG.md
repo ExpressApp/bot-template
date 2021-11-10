@@ -1,3 +1,10 @@
+## 0.19.0 (Nov 14, 2021)
+
+### Changed
+
+* Changed the way sqlalchemy is used
+
+
 ## 0.18.0 (Sep 22, 2021)
 
 ### Added

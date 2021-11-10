@@ -4,22 +4,33 @@ from os import environ
 
 from botx import Bot, Collector, Message, SendingMessage
 
-from app.db.models import Record
+from app.bot.dependencies.db import session_factory_dependency
+from app.db.repos.record_repo import RecordRepo
+from app.db.sqlalchemy import AsyncSessionFactory
 from app.resources import strings
 
 collector = Collector()
 
 
 @collector.default(include_in_status=False)
-async def default_handler(message: Message) -> None:
+async def default_handler(
+    message: Message,
+    session_factory: AsyncSessionFactory = session_factory_dependency,
+) -> None:
     """Run if command not found."""
     # add text to history
     # example of using database
-    await Record.create(record_data=message.body)
+    async with session_factory() as session, session.begin():
+        record_repo = RecordRepo(session)
+
+        await record_repo.create_record(text=message.body)
 
 
 @collector.chat_created
-async def chat_created(message: Message, bot: Bot) -> None:
+async def chat_created(
+    message: Message,
+    bot: Bot,
+) -> None:
     """Send a welcome message and the bot functionality in new created chat."""
     text = strings.CHAT_CREATED_TEMPLATE.format(
         bot_project_name=strings.BOT_DISPLAY_NAME
@@ -58,8 +69,15 @@ async def git_commit_sha(message: Message, bot: Bot) -> None:
 
 
 @collector.hidden(command="/_history")
-async def history(message: Message, bot: Bot) -> None:
+async def history(
+    message: Message,
+    bot: Bot,
+    session_factory: AsyncSessionFactory = session_factory_dependency,
+) -> None:
     """Show history of unhandled messages."""
-    records = await Record.all()
+    async with session_factory() as session, session.begin():
+        record_repo = RecordRepo(session)
+        records = await record_repo.get_all()
+
     text = "\n".join(row.record_data for row in records)
     await bot.answer_message(text, message)
