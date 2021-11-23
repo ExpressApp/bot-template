@@ -21,8 +21,8 @@ def startup(redis_dsn: str, redis_prefix: str, bot_app: Bot) -> Callable:
     async def start_app() -> None:  # noqa: WPS430
         configure_logger()
         await bot_app.start()
-        await init_db()
         bot_app.state.redis = await init_redis(redis_dsn, redis_prefix)
+        bot_app.state.session_factory = await init_db()
 
     return start_app
 
