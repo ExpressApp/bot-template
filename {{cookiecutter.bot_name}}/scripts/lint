@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-set -ex
-
-mypy app
-flake8 app
-
-black --check app --diff
-isort --check-only app
