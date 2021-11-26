@@ -1,3 +1,10 @@
+## 0.19.1 (Nov 29, 2021)
+
+### Fixed
+
+* Fixed script to run tests for db
+
+
 ## 0.19.0 (Nov 14, 2021)
 
 ### Changed

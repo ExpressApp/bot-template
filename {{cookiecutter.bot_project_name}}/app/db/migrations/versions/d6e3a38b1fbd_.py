@@ -9,6 +9,7 @@ Doc: https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-s
 import sqlalchemy as sa
 from alembic import op
 
+
 revision = "d6e3a38b1fbd"
 down_revision = None
 branch_labels = None
