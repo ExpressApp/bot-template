@@ -1,3 +1,10 @@
+## 0.20.0 (Nov 26, 2021)
+
+### Added
+
+* Add crud methods
+
+
 ## 0.19.0 (Nov 14, 2021)
 
 ### Changed
