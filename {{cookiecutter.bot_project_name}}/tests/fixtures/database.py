@@ -1,4 +1,5 @@
 import warnings
+from typing import Callable
 
 import pytest
 from sqlalchemy import create_engine
@@ -8,7 +9,7 @@ from app.settings.environments.test import TestAppSettings
 
 
 @pytest.fixture
-def migrations(printer, settings: TestAppSettings):
+def migrations(printer: Callable, settings: TestAppSettings):
     import app.db.models  # isort: skip
 
     warnings.filterwarnings("ignore", category=ResourceWarning)
