@@ -1,5 +1,6 @@
 import logging
 
+import httpx
 import pytest
 from botx import Message, TestClient
 from botx.testing import MessageBuilder
@@ -9,7 +10,10 @@ from app.bot.dependencies.errors import internal_error_handler
 
 @pytest.mark.asyncio
 async def test_send_error_message_to_user(
-    caplog, builder: MessageBuilder, botx_client: TestClient
+    caplog: pytest.LogCaptureFixture,
+    builder: MessageBuilder,
+    botx_client: TestClient,
+    http_client: httpx.AsyncClient,
 ):
     caplog.set_level(logging.DEBUG)
     exc = Exception("custom error")

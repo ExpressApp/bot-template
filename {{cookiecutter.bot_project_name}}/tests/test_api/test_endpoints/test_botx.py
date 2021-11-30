@@ -25,7 +25,7 @@ async def test_botx_status_endpoint_return_right_bot_status(
 @pytest.mark.asyncio
 @pytest.mark.parametrize("is_admin", [True, False, None])
 async def test_send_status_with_missing_optional_fields(
-    app: FastAPI, http_client: AsyncClient, bot: Bot, is_admin
+    app: FastAPI, http_client: AsyncClient, bot: Bot, is_admin: bool
 ):
     url = app.url_path_for("botx:status")
     recipient = StatusRecipient(
