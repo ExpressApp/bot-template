@@ -1,5 +1,6 @@
 from os import environ
 
+import httpx
 import pytest
 from botx import ChatCreatedEvent, SystemEvents
 from botx.testing import MessageBuilder, TestClient as BotXClient
@@ -48,7 +49,9 @@ async def test_chat_created(
 
 
 @pytest.mark.asyncio
-async def test_help_command(builder: MessageBuilder, botx_client: BotXClient):
+async def test_help_command(
+    builder: MessageBuilder, botx_client: BotXClient, http_client: httpx.AsyncClient
+):
     builder.body = "/help"
 
     await botx_client.send_command(builder.message)
@@ -62,7 +65,7 @@ async def test_help_command(builder: MessageBuilder, botx_client: BotXClient):
 
 @pytest.mark.asyncio
 async def test_debug_commit_sha_command(
-    builder: MessageBuilder, botx_client: BotXClient
+    builder: MessageBuilder, botx_client: BotXClient, http_client: httpx.AsyncClient
 ):
     environ["GIT_COMMIT_SHA"] = "test-git-commit-sha"
     builder.body = "/_debug:git-commit-sha"
@@ -76,7 +79,9 @@ async def test_debug_commit_sha_command(
 
 @pytest.mark.db
 @pytest.mark.asyncio
-async def test_history(builder: MessageBuilder, botx_client: BotXClient):
+async def test_history(
+    builder: MessageBuilder, botx_client: BotXClient, http_client: httpx.AsyncClient
+):
     builder.body = "text1"
     await botx_client.send_command(builder.message)
 

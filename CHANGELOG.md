@@ -1,9 +1,20 @@
-## 0.19.1 (Nov 29, 2021)
+## 0.20.0 (Dec 02, 2021)
+
+### Added
+
+* Added CRUD methods
+
+
+## 0.19.1 (Nov 30, 2021)
 
 ### Fixed
 
 * Fixed script to run tests for db
+* Fixed migration test
 
+### Changed
+
+* Delete `autouse` for some fixtures
 
 ## 0.19.0 (Nov 14, 2021)
 

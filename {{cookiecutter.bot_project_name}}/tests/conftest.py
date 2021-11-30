@@ -44,19 +44,19 @@ def app(migrations) -> FastAPI:
     return get_application()
 
 
-@pytest.fixture(autouse=True)
-async def http_client(app: FastAPI) -> httpx.AsyncClient:
+@pytest.fixture
+async def botx_client(bot: Bot) -> TestClient:
+    with TestClient(bot) as client:
+        yield client
+
+
+@pytest.fixture
+async def http_client(app: FastAPI, botx_client: TestClient) -> httpx.AsyncClient:
     async with LifespanManager(app):
         async with httpx.AsyncClient(
             base_url="http://testserver", app=app
         ) as app_client:
             yield app_client
-
-
-@pytest.fixture(autouse=True)
-async def botx_client(bot: Bot) -> TestClient:
-    with TestClient(bot) as client:
-        yield client
 
 
 @pytest.fixture
