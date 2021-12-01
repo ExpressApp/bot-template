@@ -1,28 +1,29 @@
 """Record repo."""
 
-from sqlalchemy import insert, select
 
-from app.db.models import Record
+from app.db.crud import CRUD
+from app.db.models import RecordModel
 from app.db.sqlalchemy import AsyncSession
+from app.schemas.domains import Record
 
 
 class RecordRepo:
     def __init__(self, session: AsyncSession):
-        self._session = session
+        """Initialize repo with CRUD."""
+        self._crud = CRUD(session=session, cls_model=RecordModel)
 
     async def create_record(
         self,
         text: str,
-    ) -> None:
+    ) -> Record:
         """Create record row in db."""
-        query = insert(Record).values(record_data=text)
-        await self._session.execute(query)
+        row = await self._crud.create(model_data={"record_data": text})
+        record_in_db = await self._crud.get(pkey_val=row.id)
+        return Record.from_orm(record_in_db)
 
-    async def get_all(  # noqa: WPS218
+    async def get_all(
         self,
     ) -> list[Record]:
         """Get all objects."""
-        query = select(Record)
-
-        rows = await self._session.execute(query)
-        return rows.scalars().all()
+        records_in_db = await self._crud.all()
+        return [Record.from_orm(record) for record in records_in_db]

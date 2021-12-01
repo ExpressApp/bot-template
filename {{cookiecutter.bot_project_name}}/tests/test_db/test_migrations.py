@@ -1,6 +1,7 @@
+import warnings
+
 import alembic.config
 import pytest
-import warnings
 
 
 @pytest.fixture
