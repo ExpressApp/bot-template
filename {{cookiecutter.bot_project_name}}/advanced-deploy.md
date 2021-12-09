@@ -3,7 +3,7 @@
 * `BOT_CREDENTIALS`: Учётные данные бота. Состоят из блоков
   `cts_host@secret_key@bot_id`, разделённых запятыми (один бот может быть
   зарегистрирован на нескольких CTS). `cts_host` -- адрес админки, `secret_key` и
-  `bot_id` можно получить после регистрации бота, кликнув на его имя. Инструкция по
+  `bot_id` можно получить после регистрации бота, нажав на его имя. Инструкция по
   регистрации бота находится в [Руководстве
   администратора](https://express.ms/admin_guide.pdf) `->` Эксплуатация корпоративного
   сервера `->` Управление контактами `->` Чат-боты.
@@ -137,7 +137,7 @@ docker build -t {{cookiecutter.bot_project_name}}
 version: "3.8"
 
 services:
-  todo-bot:
+  {{cookiecutter.bot_project_name}}:
     image: {{cookiecutter.bot_project_name}}
     container_name: {{cookiecutter.bot_project_name}}
     env_file: .env
@@ -159,7 +159,7 @@ networks:
       name: express_bots_storages
 ```
    
-5. Создайте бота в админке eXpress. Хост CTS (в строке браузера, когда вы в админке) и
+5. Создайте бота в панели администратора eXpress. Хост CTS (в строке браузера, когда вы в админке) и
    "Secret key" пригодятся для заполнения переменной окружения `BOT_CREDENTIALS`. 
    Заполните `.env` необходимыми данными:
 

@@ -7,7 +7,7 @@
 
 ### Changed
 * Add easy deploy instruction in `README.md`
-* Add optional installation private dependencies in `Dockerfile`
+* Add optional installation of private dependencies in `Dockerfile`
 
 
 ## 0.20.0 (Dec 02, 2021)

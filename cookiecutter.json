@@ -3,7 +3,7 @@
   "bot_display_name": "AsyncBox bot",
   "bot_short_description": "TODO",
   "bot_docs_link": "TODO",
-  "is_private_dependencies": false,
+  "has_private_dependencies": false,
   "test_cov": 0,
 
   "bot_image_name_prefix": "registry.example.com/bots/",

@@ -27,10 +27,7 @@ COPY poetry.lock pyproject.toml ./
 RUN pip install --user --no-cache-dir poetry==1.1.6 && \
   poetry config virtualenvs.in-project true
 
-{% if cookiecutter.is_private_dependencies == "False"  %}
-RUN poetry install --no-dev && \
-    rm -rf ~/.cache/pypoetry
-{% else %}
+{% if cookiecutter.has_private_dependencies == "True"  %}
 ARG CI_JOB_TOKEN=""
 ARG GIT_HOST=""
 ARG GIT_PASSWORD=${CI_JOB_TOKEN}
@@ -40,6 +37,9 @@ RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" 
     poetry install --no-dev && \
     rm -rf ~/.cache/pypoetry && \
     rm -rf ~/.netrc
+{% else %}
+RUN poetry install --no-dev && \
+    rm -rf ~/.cache/pypoetry
 {% endif %}
 
 COPY alembic.ini .
