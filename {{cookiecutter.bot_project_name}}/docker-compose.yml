@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  todo-bot:
+    build: ..
+    container_name: todo-bot
+    environment:
+      - BOT_CREDENTIALS=cts_host@secret_key@bot_id
+      - DB_CONNECTION=postgres://postgres:postgres@todo-bot-postgres/todo_bot_db
+      - REDIS_DSN=redis://todo-bot-redis/0
+      - DEBUG=true
+    ports:
+      - "8000:8000"  # Отредактируйте порт хоста (первый), если он уже занят
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  postgres:
+    image: postgres:13.2-alpine
+    container_name: todo-bot-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=todo_bot_db
+    restart: always
+    volumes:
+      - ./.storages/postgresdata:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: todo-bot-redis
+    restart: always
+    volumes:
+      - ./.storages/redisdata:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
