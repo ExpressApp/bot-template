@@ -8,11 +8,6 @@ EXPOSE 8000
 ENV APP_USER=appuser
 RUN useradd --create-home $APP_USER
 
-ARG CI_JOB_TOKEN=""
-ARG GIT_HOST=""
-ARG GIT_PASSWORD=${CI_JOB_TOKEN}
-ARG GIT_LOGIN="gitlab-ci-token"
-
 RUN apt-get update && \
     apt-get install -y sudo git curl && \
     echo "${APP_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
@@ -32,11 +27,20 @@ COPY poetry.lock pyproject.toml ./
 RUN pip install --user --no-cache-dir poetry==1.1.6 && \
   poetry config virtualenvs.in-project true
 
+{% if cookiecutter.has_private_dependencies == "True"  %}
+ARG CI_JOB_TOKEN=""
+ARG GIT_HOST=""
+ARG GIT_PASSWORD=${CI_JOB_TOKEN}
+ARG GIT_LOGIN="gitlab-ci-token"
 # Poetry can't read password to download private repos
 RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" > ~/.netrc && \
     poetry install --no-dev && \
     rm -rf ~/.cache/pypoetry && \
     rm -rf ~/.netrc
+{% else %}
+RUN poetry install --no-dev && \
+    rm -rf ~/.cache/pypoetry
+{% endif %}
 
 COPY alembic.ini .
 COPY app app

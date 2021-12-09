@@ -1,3 +1,15 @@
+## 0.20.1 (Dec 09, 2021)
+
+### Added
+
+* Add `advanced-deploy.md`
+* Add `docker-compose.yml` for easy deploy
+
+### Changed
+* Add easy deploy instruction in `README.md`
+* Add optional installation of private dependencies in `Dockerfile`
+
+
 ## 0.20.0 (Dec 02, 2021)
 
 ### Added
