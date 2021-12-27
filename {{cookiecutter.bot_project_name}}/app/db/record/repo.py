@@ -2,9 +2,9 @@
 
 
 from app.db.crud import CRUD
-from app.db.models import RecordModel
+from app.db.record.models import RecordModel
 from app.db.sqlalchemy import AsyncSession
-from app.schemas.domains import Record
+from app.schemas.record import Record
 
 
 class RecordRepo:

@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
-set -e
-set -x
+set -ex
 
+black --check --diff app
+isort --profile black --check-only app
 
 mypy app
 flake8 app
-
-black --check app --diff
-isort --check-only app

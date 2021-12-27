@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-set -x
-source .env
-
-POSTGRES_DSN="${TEST_POSTGRES_DSN}" pytest -m "db" ${@}

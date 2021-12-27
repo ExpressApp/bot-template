@@ -1,43 +1,64 @@
 """Endpoints for communication with botx."""
 
-from botx import IncomingMessage, Status
-from botx.models.status import StatusRecipient
-from fastapi import APIRouter, Depends
-from loguru import logger
-from starlette.status import HTTP_202_ACCEPTED
+from http import HTTPStatus
 
-from app.api.dependencies.status_recipient import get_status_recipient
-from app.bot.bot import bot
-from app.schemas.notification_callback import (
-    BotXCallback,
-    ErrorCallback,
-    SuccessCallback,
+from botx import (
+    Bot,
+    UnknownBotAccountError,
+    build_bot_disabled_response,
+    build_command_accepted_response,
 )
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
+
+from app.api.dependencies.bot import bot_dependency
+from app.logger import logger
 
 router = APIRouter()
 
 
-@router.post("/command", name="botx:command", status_code=HTTP_202_ACCEPTED)
-async def bot_command(message: IncomingMessage) -> None:
+@router.post("/command")
+async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
     """Receive commands from users. Max timeout - 5 seconds."""
-    await bot.execute_command(message.dict())
+
+    try:
+        bot.async_execute_raw_bot_command(await request.json())
+    except ValueError:
+        error_label = "Bot command validation error"
+        logger.exception(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+    except UnknownBotAccountError as exc:
+        error_label = f"No credentials for bot {exc.bot_id}"
+        logger.warning(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+
+    return JSONResponse(
+        build_command_accepted_response(), status_code=HTTPStatus.ACCEPTED
+    )
 
 
-@router.get("/status", name="botx:status", response_model=Status)
-async def bot_status(
-    recipient: StatusRecipient = Depends(get_status_recipient),
-) -> Status:
-    """Send commands with short descriptions."""
-    return await bot.status()
+@router.get("/status")
+async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
+    """Show bot status and commands list."""
+
+    status = await bot.raw_get_status(dict(request.query_params))
+    return JSONResponse(status)
 
 
-@router.post(
-    "/notification/callback", name="botx:callback", status_code=HTTP_202_ACCEPTED
-)
-async def bot_callback(callback: BotXCallback) -> None:
-    """Receive callbacks for async methods."""
-    payload = callback.dict()
-    if isinstance(callback, SuccessCallback):
-        logger.bind(payload=payload).debug("Received succsess callback.")
-    elif isinstance(callback, ErrorCallback):
-        logger.bind(payload=payload).warning("Received error callback.")
+@router.post("/notification/callback")
+async def callback_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
+    """Process BotX methods callbacks."""
+
+    bot.set_raw_botx_method_result(await request.json())
+    return JSONResponse(
+        build_command_accepted_response(),
+        status_code=HTTPStatus.ACCEPTED,
+    )

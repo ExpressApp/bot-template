@@ -2,40 +2,6 @@ name: Tests
 on: push
 jobs:
 
-  tests:
-    name: Tests
-    runs-on: ubuntu-20.04
-    container: python:3.9
-
-    services:
-      postgres:
-        image: postgres:12
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis:6
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: install cookiecutter
-        run: pip install cookiecutter
-      - name: run tests
-        run: |
-          ./scripts/test
-        env:
-          POSTGRES_DSN: postgres://postgres:postgres@postgres/postgres
-          REDIS_DSN: redis://redis/0
-
   test-image:
     name: Test app start
     runs-on: ubuntu-20.04

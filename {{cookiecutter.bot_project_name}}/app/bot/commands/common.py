@@ -2,82 +2,68 @@
 
 from os import environ
 
-from botx import Bot, Collector, Message, SendingMessage
+from botx import (
+    Bot,
+    BubbleMarkup,
+    ChatCreatedEvent,
+    HandlerCollector,
+    IncomingMessage,
+    StatusRecipient,
+)
 
-from app.bot.dependencies.db import session_factory_dependency
-from app.db.repos.record_repo import RecordRepo
-from app.db.sqlalchemy import AsyncSessionFactory
+from app.bot.middlewares.db_session import db_session_middleware
+from app.db.record.repo import RecordRepo
 from app.resources import strings
 
-collector = Collector()
+collector = HandlerCollector(middlewares=[db_session_middleware])
 
 
-@collector.default(include_in_status=False)
+@collector.default_message_handler
 async def default_handler(
-    message: Message,
-    session_factory: AsyncSessionFactory = session_factory_dependency,
+    message: IncomingMessage,
+    bot: Bot,
 ) -> None:
-    """Run if command not found."""
+    """Run if command handler not found."""
+
     # add text to history
     # example of using database
-    async with session_factory() as session, session.begin():
-        record_repo = RecordRepo(session)
+    record_repo = RecordRepo(message.state.db_session)
+    await record_repo.create_record(text=message.body)
 
-        await record_repo.create_record(text=message.body)
+    await bot.answer_message("Hello!")
 
 
 @collector.chat_created
-async def chat_created(
-    message: Message,
-    bot: Bot,
-) -> None:
+async def chat_created_handler(event: ChatCreatedEvent, bot: Bot) -> None:
     """Send a welcome message and the bot functionality in new created chat."""
-    text = strings.CHAT_CREATED_TEMPLATE.format(
+
+    answer_body = strings.CHAT_CREATED_TEMPLATE.format(
         bot_project_name=strings.BOT_DISPLAY_NAME
     )
-    reply = SendingMessage.from_message(text=text, message=message)
-    reply.add_bubble(command=bot.command_for("help"), label=strings.HELP_LABEL)
-    await bot.send(reply)
+    bubbles = BubbleMarkup()
+    bubbles.add_button(command="/help", label=strings.HELP_LABEL)
+
+    await bot.answer_message(answer_body, bubbles=bubbles)
 
 
-@collector.handler(
-    command="/help", name="help", description=strings.HELP_COMMAND_DESCRIPTION
-)
-async def show_help(message: Message, bot: Bot) -> None:
-    """Справка по командам."""
-    status = await message.bot.status()
+@collector.command("/help", description="Get available commands")
+async def help_handler(message: IncomingMessage, bot: Bot) -> None:
+    """Show commands list."""
 
-    # For each public command:
-    # * collect full description or
-    # * collect short description like in status or
-    # * skip command without any description
-    commands = []
-    for command in status.result.commands:
-        command_handler = message.bot.handler_for(command.name)
-        description = command_handler.full_description or command_handler.description
-        if description:
-            commands.append((command.body, description))
+    status_recipient = StatusRecipient.from_incoming_message(message)
 
-    text = strings.HELP_COMMAND_MESSAGE_TEMPLATE.format(commands=commands)
-    await bot.answer_message(text, message)
+    status = await bot.get_status(status_recipient)
+    command_map = dict(sorted(status.items()))
+
+    answer_body = "\n".join(
+        f"`{command}` -- {description}" for command, description in command_map.items()
+    )
+
+    await bot.answer_message(answer_body)
 
 
-@collector.hidden(command="/_debug:git-commit-sha")
-async def git_commit_sha(message: Message, bot: Bot) -> None:
+@collector.command("/_debug:git-commit-sha", visible=False)
+async def git_commit_sha(message: IncomingMessage, bot: Bot) -> None:
     """Show git commit SHA."""
+
     await bot.answer_message(environ.get("GIT_COMMIT_SHA", "<undefined>"), message)
-
-
-@collector.hidden(command="/_history")
-async def history(
-    message: Message,
-    bot: Bot,
-    session_factory: AsyncSessionFactory = session_factory_dependency,
-) -> None:
-    """Show history of unhandled messages."""
-    async with session_factory() as session, session.begin():
-        record_repo = RecordRepo(session)
-        records = await record_repo.get_all()
-
-    text = "\n".join(row.record_data for row in records)
-    await bot.answer_message(text, message)

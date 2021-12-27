@@ -2,13 +2,11 @@
 
 from typing import Callable
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from app.settings.config import get_app_settings
+from app.settings import settings
 
-POSTGRES_DSN = get_app_settings().POSTGRES_DSN
-SQL_DEBUG = get_app_settings().SQL_DEBUG
 AsyncSessionFactory = Callable[..., AsyncSession]
 
 
@@ -25,6 +23,17 @@ def make_url_sync(url: str) -> str:
 Base = declarative_base()
 
 
-def build_db_session_factory() -> AsyncSessionFactory:
-    engine = create_async_engine(make_url_async(POSTGRES_DSN), echo=SQL_DEBUG)
+async def build_db_session_factory() -> AsyncSessionFactory:
+    engine = create_async_engine(
+        make_url_async(settings.POSTGRES_DSN),
+        echo=settings.SQL_DEBUG,
+    )
+
+    await verify_db_connection(engine)
+
     return sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
+
+
+async def verify_db_connection(engine: AsyncEngine) -> None:
+    connection = await engine.connect()
+    await connection.close()

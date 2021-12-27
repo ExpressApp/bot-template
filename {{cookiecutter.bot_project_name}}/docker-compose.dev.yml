@@ -7,8 +7,6 @@ services:
       - "5432:5432"
     env_file:
       - .env
-    volumes:
-      - ./scripts/pg-init-scripts:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:6.2-alpine

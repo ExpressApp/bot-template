@@ -79,7 +79,9 @@ class CRUD:
 
     async def get_by_field(self, *, field: str, field_value: Any) -> Any:
         """Return objects from db with condition field=val."""
-        query = select(self._cls_model).where(getattr(self._cls_model, field) == field_value)
+        query = select(self._cls_model).where(
+            getattr(self._cls_model, field) == field_value
+        )
 
         rows = await self._session.execute(query)
         return rows.scalars().all()

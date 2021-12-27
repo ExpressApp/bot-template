@@ -1,10 +1,12 @@
 """Repository for work with redis."""
+
 # flake8: noqa
+# TODO: Fix linter errors
 import hashlib
 import pickle
 from typing import Any, Hashable, Optional
 
-import aioredis  # type: ignore
+import aioredis
 from starlette.datastructures import URL
 
 

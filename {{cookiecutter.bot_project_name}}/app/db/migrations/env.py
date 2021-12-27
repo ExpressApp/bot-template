@@ -8,11 +8,14 @@ from sqlalchemy import engine_from_config, pool
 # init config
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
 
-from app.settings.config import get_app_settings  # isort:skip
+# Imports from `app` should go after `path` patch
+from app.settings import settings  # isort:skip
 from app.db.sqlalchemy import Base, make_url_sync  # isort:skip
-import app.db.models  # isort:skip
 
-postgres_dsn = make_url_sync(get_app_settings().POSTGRES_DSN)
+# Import models to make them visible by alembic
+import app.db.record.models  # isort:skip
+
+postgres_dsn = make_url_sync(settings.POSTGRES_DSN)
 context_config = context.config
 fileConfig(context_config.config_file_name)
 target_metadata = Base.metadata

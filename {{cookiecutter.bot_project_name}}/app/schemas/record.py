@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 
-from app.db.models import RecordModel
+from app.db.record.models import RecordModel
 
 
 class Record(BaseModel):

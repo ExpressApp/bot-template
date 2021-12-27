@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED 1
 ENV UVICORN_CMD_ARGS ""
@@ -9,7 +9,7 @@ ENV APP_USER=appuser
 RUN useradd --create-home $APP_USER
 
 RUN apt-get update && \
-    apt-get install -y sudo git curl && \
+    apt-get install -y sudo git curl gcc && \
     echo "${APP_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
     apt-get clean autoclean && \
     apt-get autoremove --yes && \
@@ -24,7 +24,7 @@ USER $APP_USER
 
 COPY poetry.lock pyproject.toml ./
 
-RUN pip install --user --no-cache-dir poetry==1.1.6 && \
+RUN pip install --user --no-cache-dir poetry==1.1.12 && \
   poetry config virtualenvs.in-project true
 
 {% if cookiecutter.has_private_dependencies == "True"  %}
