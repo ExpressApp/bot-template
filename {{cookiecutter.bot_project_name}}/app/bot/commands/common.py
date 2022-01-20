@@ -15,7 +15,44 @@ from app.bot.middlewares.db_session import db_session_middleware
 from app.db.record.repo import RecordRepo
 from app.resources import strings
 
-collector = HandlerCollector(middlewares=[db_session_middleware])
+collector = HandlerCollector()
+
+
+@collector.command("/_test-fail", visible=False)
+async def test_fail(message: IncomingMessage, bot: Bot) -> None:
+    """Testing internal error."""
+    raise ValueError
+
+
+@collector.command("/_test-redis", visible=False)
+async def test_redis(message: IncomingMessage, bot: Bot) -> None:
+    """Testing redis."""
+    # This test just for coverage
+    # Better to assert bot answers instead of using direct DB/Redis access
+
+    redis_repo = bot.state.redis_repo
+
+    await redis_repo.set("test_key", "test_value")
+
+
+@collector.command("/_test-db", visible=False, middlewares=[db_session_middleware])
+async def test_db(message: IncomingMessage, bot: Bot) -> None:
+    """Testing db session."""
+    # This test just for coverage
+    # Better to assert bot answers instead of using direct DB/Redis access
+
+    # add text to history
+    # example of using database
+    record_repo = RecordRepo(message.state.db_session)
+
+    await record_repo.create(record_data="test 1")
+    await record_repo.update(record_id=1, record_data="test 1 (updated)")
+
+    await record_repo.create(record_data="test 2")
+    await record_repo.delete(record_id=2)
+
+    await record_repo.create(record_data="test not unique data")
+    await record_repo.create(record_data="test not unique data")
 
 
 @collector.default_message_handler
@@ -24,11 +61,6 @@ async def default_handler(
     bot: Bot,
 ) -> None:
     """Run if command handler not found."""
-
-    # add text to history
-    # example of using database
-    record_repo = RecordRepo(message.state.db_session)
-    await record_repo.create_record(text=message.body)
 
     await bot.answer_message("Hello!")
 
@@ -66,4 +98,4 @@ async def help_handler(message: IncomingMessage, bot: Bot) -> None:
 async def git_commit_sha(message: IncomingMessage, bot: Bot) -> None:
     """Show git commit SHA."""
 
-    await bot.answer_message(environ.get("GIT_COMMIT_SHA", "<undefined>"), message)
+    await bot.answer_message(environ.get("GIT_COMMIT_SHA", "<undefined>"))

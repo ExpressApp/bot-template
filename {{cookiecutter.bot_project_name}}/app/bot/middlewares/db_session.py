@@ -12,3 +12,4 @@ async def db_session_middleware(
         message.state.db_session = db_session
 
         await call_next(message, bot)
+        await db_session.commit()

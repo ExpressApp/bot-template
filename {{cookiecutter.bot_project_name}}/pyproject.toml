@@ -10,7 +10,7 @@ authors = []
 [tool.poetry.dependencies]
 python = "~3.10"
 
-botx = { git = "https://github.com/ExpressApp/pybotx", rev = "1f0456a" }
+botx = { git = "https://github.com/ExpressApp/pybotx", rev = "e385471" }
 # TODO: Add pybotx-fsm
 
 fastapi = "~0.70.1"
@@ -35,7 +35,11 @@ isort = "5.10.1"
 mypy = "0.910.0"
 wemake-python-styleguide = "0.16.0"
 
-# TODO: Add pytest
+pytest = "^6.2.5"
+pytest-asyncio = "^0.17.0"
+pytest-cov = "^3.0.0"
+asgi-lifespan = "^1.0.1"
+respx = "^0.19.1"
 
 
 [build-system]
