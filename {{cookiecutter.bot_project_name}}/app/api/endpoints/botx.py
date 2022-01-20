@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.dependencies.bot import bot_dependency
 from app.logger import logger
+from app.settings import settings
 
 router = APIRouter()
 
@@ -25,7 +26,11 @@ async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONRe
         bot.async_execute_raw_bot_command(await request.json())
     except ValueError:
         error_label = "Bot command validation error"
-        logger.exception(error_label)
+
+        if settings.DEBUG:
+            logger.exception(error_label)
+        else:
+            logger.warning(error_label)
 
         return JSONResponse(
             build_bot_disabled_response(error_label),
