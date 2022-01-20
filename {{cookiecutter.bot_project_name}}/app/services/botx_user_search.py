@@ -24,9 +24,9 @@ async def search_user_on_each_cts(
         except UserNotFoundError:
             continue
 
-        name = user.name.lower()
+        name = user.username.lower()
         if name.endswith("bot") or name.endswith("бот"):  # TODO: user_kind
-            raise UserIsBotError()
+            raise UserIsBotError
 
         return user, bot_account
 
