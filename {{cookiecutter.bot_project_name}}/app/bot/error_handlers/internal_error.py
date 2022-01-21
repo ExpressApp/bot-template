@@ -11,8 +11,9 @@ async def internal_error_handler(
 ) -> None:
     logger.exception("Internal error:")
 
+    is_bot_active = not isinstance(exc, BotShuttingDownError)
     await bot.answer_message(
         strings.SOMETHING_GOES_WRONG,
         # We can't receive callback when bot is shutting down
-        wait_callback=isinstance(exc, BotShuttingDownError),
+        wait_callback=is_bot_active,
     )

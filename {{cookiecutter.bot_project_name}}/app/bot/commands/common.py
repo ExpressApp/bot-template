@@ -4,6 +4,7 @@ from os import environ
 
 from botx import (
     Bot,
+    BotShuttingDownError,
     BubbleMarkup,
     ChatCreatedEvent,
     HandlerCollector,
@@ -16,6 +17,12 @@ from app.db.record.repo import RecordRepo
 from app.resources import strings
 
 collector = HandlerCollector()
+
+
+@collector.command("/_test-fail-shutting-down", visible=False)
+async def test_fail_shutting_down(message: IncomingMessage, bot: Bot) -> None:
+    """Testing fail while shutting down."""
+    raise BotShuttingDownError("test")
 
 
 @collector.command("/_test-fail", visible=False)
