@@ -23,6 +23,29 @@ from app.schemas.record import Record
 
 
 @pytest.mark.asyncio
+async def test_fail_handler_while_shutting_down(
+    bot: Bot,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-fail-shutting-down")
+
+    # - Act -
+    await execute_bot_command(bot, message)
+
+    # - Assert -
+    bot.answer_message.assert_awaited_once_with(
+        (
+            "При обработке сообщения или нажатия на кнопку произошла "
+            "непредвиденная ошибка.\n"
+            "Пожалуйста, сообщите об этом вашему администратору бота."
+        ),
+        wait_callback=False,
+    )
+
+
+@pytest.mark.asyncio
 async def test_fail_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -41,7 +64,7 @@ async def test_fail_handler(
             "непредвиденная ошибка.\n"
             "Пожалуйста, сообщите об этом вашему администратору бота."
         ),
-        wait_callback=False,
+        wait_callback=True,
     )
 
 
