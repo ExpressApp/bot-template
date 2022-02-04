@@ -4,6 +4,7 @@ from http import HTTPStatus
 
 from botx import (
     Bot,
+    BotXMethodCallbackNotFoundError,
     UnknownBotAccountError,
     build_bot_disabled_response,
     build_command_accepted_response,
@@ -54,7 +55,16 @@ async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONRe
 async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
     """Show bot status and commands list."""
 
-    status = await bot.raw_get_status(dict(request.query_params))
+    try:
+        status = await bot.raw_get_status(dict(request.query_params))
+    except UnknownBotAccountError as exc:
+        error_label = f"Unknown bot_id: {exc.bot_id}"
+        logger.warning(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
     return JSONResponse(status)
 
 
@@ -62,7 +72,17 @@ async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONRes
 async def callback_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
     """Process BotX methods callbacks."""
 
-    bot.set_raw_botx_method_result(await request.json())
+    try:
+        bot.set_raw_botx_method_result(await request.json())
+    except BotXMethodCallbackNotFoundError as exc:
+        error_label = f"Unexpected callback with sync_id: {exc.sync_id}"
+        logger.warning(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+
     return JSONResponse(
         build_command_accepted_response(),
         status_code=HTTPStatus.ACCEPTED,
