@@ -10,7 +10,7 @@ authors = []
 [tool.poetry.dependencies]
 python = "~3.10"
 
-botx = { git = "https://github.com/ExpressApp/pybotx", rev = "ed479be" }
+botx = { git = "https://github.com/ExpressApp/pybotx", rev = "e9155bd" }
 # TODO: Add pybotx-fsm
 
 fastapi = "~0.70.1"

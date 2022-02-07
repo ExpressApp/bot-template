@@ -10,7 +10,7 @@ from app.main import get_application
 
 
 @respx.mock
-def test__web_app__bot_status(
+def test__web_app__bot_status_response_ok(
     bot_id: UUID,
     bot: Bot,
 ) -> None:
@@ -20,6 +20,7 @@ def test__web_app__bot_status(
         "chat_type": "chat",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
+
     # - Act -
     with TestClient(get_application()) as test_client:
         response = test_client.get(
@@ -46,15 +47,17 @@ def test__web_app__bot_status(
 
 
 @respx.mock
-def test__web_app__bot_status_unknown_bot_failed(
+def test__web_app__bot_status_unknown_bot_response_service_unavailable(
     bot_id: UUID,
     bot: Bot,
 ) -> None:
+    # - Arrange -
     query_params = {
         "bot_id": "f3e176d5-ff46-4b18-b260-25008338c06e",
         "chat_type": "chat",
         "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
     }
+
     # - Act -
     with TestClient(get_application()) as test_client:
         response = test_client.get(
@@ -67,7 +70,7 @@ def test__web_app__bot_status_unknown_bot_failed(
 
 
 @respx.mock
-def test__web_app__bot_command(
+def test__web_app__bot_command_response_accepted(
     bot_id: UUID,
     host: str,
     bot: Bot,
@@ -149,63 +152,12 @@ def test__web_app__bot_command(
 
 
 @respx.mock
-def test__web_app__bot_command_failed(
+def test__web_app__bot_command_response_service_unavailable(
     bot_id: UUID,
     host: str,
     bot: Bot,
 ) -> None:
     # - Arrange -
-    direct_notification_endpoint = respx.post(
-        f"https://{host}/api/v4/botx/notifications/direct",
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.SERVICE_UNAVAILABLE,
-            json={
-                "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
-            },
-        ),
-    )
-
-    command_payload = {
-        "bot_id": str(bot_id),
-        "command": {
-            "body": "/test",
-            "command_type": "user",
-            "data": {},
-            "metadata": {},
-        },
-        "attachments": [],
-        "async_files": [],
-        "entities": [],
-        "source_sync_id": None,
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": None,
-            "ad_login": None,
-            "app_version": None,
-            "chat_type": "chat",
-            "device": None,
-            "device_meta": {
-                "permissions": None,
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": None,
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": None,
-            "platform": None,
-            "platform_package_id": None,
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": None,
-        },
-        "proto_version": 4,
-    }
-
     callback_payload = {
         "status": "ok",
         "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
@@ -214,24 +166,17 @@ def test__web_app__bot_command_failed(
 
     # - Act -
     with TestClient(get_application()) as test_client:
-        command_response = test_client.post(
-            "/command",
-            json=command_payload,
-        )
-
         callback_response = test_client.post(
             "/notification/callback",
             json=callback_payload,
         )
 
     # - Assert -
-    assert command_response.status_code == HTTPStatus.ACCEPTED
-    assert direct_notification_endpoint.called
     assert callback_response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
 
 @respx.mock
-def test__web_app__unknown_bot_response(
+def test__web_app__unknown_bot_response_service_unavailable(
     bot: Bot,
 ) -> None:
     # - Arrange -
