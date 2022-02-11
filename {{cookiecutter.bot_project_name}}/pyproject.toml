@@ -20,13 +20,14 @@ aioredis = "~1.3.1"
 loguru = ">=0.6.0,<0.7.0"
 mako = "~1.1.4"
 pydantic = { version = "~1.8.2", extras = ["dotenv"] }
-typing-extensions = { version = "^3.7.4", python = "<3.8" }
 
 alembic = "~1.7.5"
 SQLAlchemy = "~1.4.28"
 asyncpg = "~0.25.0"  # DB backend for application
 psycopg2-binary = "~2.9.2"  # DB backend for alembic (migration tool)
-
+importlib-resources = { version = "^5.4.0", python = "<3.9" }
+zipp = { version = "^3.7.0", python = "<3.9" }
+importlib-metadata = { version = "^4.11.0", python = "<3.9" }
 
 [tool.poetry.dev-dependencies]
 add-trailing-comma = "2.2.1"

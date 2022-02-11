@@ -1,6 +1,6 @@
 """CRUD implementation."""
 
-from typing import Any, TypeVar
+from typing import Any, Dict, TypeVar
 
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.inspection import inspect
@@ -17,7 +17,7 @@ class CRUD:
         self._session = session
         self._cls_model = cls_model
 
-    async def create(self, *, model_data: dict[str, Any]) -> Any:
+    async def create(self, *, model_data: Dict[str, Any]) -> Any:
         """Create object."""
         query = insert(self._cls_model).values(**model_data)
 
@@ -28,7 +28,7 @@ class CRUD:
         self,
         *,
         pkey_val: Any,
-        model_data: dict[str, Any],
+        model_data: Dict[str, Any],
     ) -> None:
         """Update object by primary key."""
         primary_key = inspect(self._cls_model).primary_key[0]

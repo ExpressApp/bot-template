@@ -1,6 +1,6 @@
 """Record repo."""
 
-from typing import Optional
+from typing import List, Optional
 
 from app.db.crud import CRUD
 from app.db.record.models import RecordModel
@@ -42,12 +42,12 @@ class RecordRepo:
 
         return None
 
-    async def get_all(self) -> list[Record]:
+    async def get_all(self) -> List[Record]:
         """Get all objects."""
         records_in_db = await self._crud.all()
         return [Record.from_orm(record) for record in records_in_db]
 
-    async def filter_by_record_data(self, record_data: str) -> list[Record]:
+    async def filter_by_record_data(self, record_data: str) -> List[Record]:
         """Get all objects."""
         records_in_db = await self._crud.get_by_field(
             field="record_data",
