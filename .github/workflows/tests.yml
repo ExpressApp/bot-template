@@ -45,8 +45,10 @@ jobs:
   test-template:
     name: Test template
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [ "3.9", "3.10"]
     env:
-      python_version: "3.10"
       poetry_version: "1.1.12"
       project_name: "async-box-bot"
 
@@ -80,24 +82,29 @@ jobs:
           pip install cookiecutter
           cookiecutter --no-input .
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.python_version }}
+          python-version: ${{ matrix.python-version }}
 
       - name: Get full Python version
         id: full-python-version
         run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
 
+      - name: Set up cache
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('poetry.lock') }}
+
       - name: Install dependencies
-        shell: bash
         working-directory: ${{ env.project_name }}
         run: |
           python -m venv .venv
           source .venv/bin/activate
           pip install poetry==${{ env.poetry_version }}
           poetry config virtualenvs.in-project true
-          poetry install 
+          poetry install
 
       - name: Run tests
         env:

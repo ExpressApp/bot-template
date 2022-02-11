@@ -92,7 +92,9 @@ build:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
     - CONTAINER_RELEASE_IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
   script:
+    - docker pull $CONTAINER_RELEASE_IMAGE || true
     - docker build
+      --cache-from $CONTAINER_RELEASE_IMAGE
       --build-arg GIT_HOST=$GIT_HOST
       --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN
       --build-arg CI_COMMIT_SHA=$CI_COMMIT_SHA
