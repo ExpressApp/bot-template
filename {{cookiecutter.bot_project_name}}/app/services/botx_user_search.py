@@ -1,6 +1,6 @@
 """Module for user searching on cts."""
 
-from typing import Optional
+from typing import Tuple, Optional
 from uuid import UUID
 
 from botx import Bot, BotAccount, UserFromSearch, UserNotFoundError
@@ -12,7 +12,7 @@ class UserIsBotError(Exception):
 
 async def search_user_on_each_cts(
     bot: Bot, huid: UUID
-) -> Optional[tuple[UserFromSearch, BotAccount]]:
+) -> Optional[Tuple[UserFromSearch, BotAccount]]:
     """Search user by huid on all cts on which bot is registered.
 
     return type: tuple of UserFromSearch instance and host.

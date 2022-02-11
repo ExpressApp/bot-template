@@ -1,6 +1,6 @@
 """Application settings."""
 
-from typing import Any
+from typing import Any, List
 from uuid import UUID
 
 from botx import BotAccountWithSecret
@@ -27,7 +27,7 @@ class AppSettings(BaseSettings):
 
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
-    def parse_bot_credentials(cls, raw_credentials: Any) -> list[BotAccountWithSecret]:
+    def parse_bot_credentials(cls, raw_credentials: Any) -> List[BotAccountWithSecret]:
         """Parse bot credentials separated by comma.
 
         Each entry must be separated by "@" or "|".
