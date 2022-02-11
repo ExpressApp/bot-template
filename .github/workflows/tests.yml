@@ -2,9 +2,11 @@ name: Tests
 on: push
 jobs:
 
+
   test-image:
     name: Test app start
     runs-on: ubuntu-20.04
+
     services:
       postgres:
         image: postgres:12
@@ -26,14 +28,90 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Install cookiecutter
         run: pip install cookiecutter
+
       - name: Test image
         env:
           REDIS_DSN: redis://localhost:6379/0
           POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
         run: ./scripts/test_image
+
+
+  test-template:
+    name: Test template
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [ "3.9", "3.10"]
+    env:
+      poetry_version: "1.1.12"
+      project_name: "async-box-bot"
+
+    services:
+      postgres:
+        image: postgres:12
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install cookiecutter
+        run: |
+          pip install cookiecutter
+          cookiecutter --no-input .
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Get full Python version
+        id: full-python-version
+        run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
+
+      - name: Set up cache
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Install dependencies
+        working-directory: ${{ env.project_name }}
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install poetry==${{ env.poetry_version }}
+          poetry config virtualenvs.in-project true
+          poetry install
+
+      - name: Run tests
+        env:
+          BOT_CREDENTIALS: example.ru@6d624b45b67f843322ebaa1143132a24@7a1c7744-23c9-4ba9-a7dc-5381f090a52d
+          REDIS_DSN: redis://localhost:6379/0
+          POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+        working-directory: ${{ env.project_name }}
+        run: |
+          source .venv/bin/activate
+          poetry run ./scripts/test
