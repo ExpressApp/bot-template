@@ -43,6 +43,7 @@
 
 # Jobs
 variables:
+  GIT_DEPTH: 1  # Fetch only latest commit
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
 stages:
