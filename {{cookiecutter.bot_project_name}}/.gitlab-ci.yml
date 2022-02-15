@@ -29,7 +29,10 @@
   - poetry install
 
 .cache_dependencies: &cache_dependencies
-  key: "$CI_JOB_NAME"
+  key:
+    files:
+      - poetry.lock
+    prefix: "venv"
   paths:
     - .cache/pip
     - .venv
