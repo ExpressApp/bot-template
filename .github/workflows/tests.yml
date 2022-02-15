@@ -1,8 +1,13 @@
 name: Tests
 on: push
+env:
+    BOT_CREDENTIALS: example.ru@6d624b45b67f843322ebaa1143132a24@7a1c7744-23c9-4ba9-a7dc-5381f090a52d
+    REDIS_DSN: redis://localhost:6379/0
+    POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+    poetry_version: "1.1.12"
+    project_name: "async-box-bot"
+
 jobs:
-
-
   test-image:
     name: Test app start
     runs-on: ubuntu-20.04
@@ -19,6 +24,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
       redis:
         image: redis:6
         ports:
@@ -28,6 +34,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -37,8 +44,8 @@ jobs:
 
       - name: Test image
         env:
-          REDIS_DSN: redis://localhost:6379/0
-          POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+          REDIS_DSN: ${{ env.REDIS_DSN }}
+          POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
         run: ./scripts/test_image
 
 
@@ -47,10 +54,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10" ]
-    env:
-      poetry_version: "1.1.12"
-      project_name: "async-box-bot"
+        python-version: ["3.8", "3.9", "3.10"]
 
     services:
       postgres:
@@ -64,6 +68,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
       redis:
         image: redis:6
         ports:
@@ -73,6 +78,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -92,16 +98,17 @@ jobs:
         run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
 
       - name: Set up cache
+        id: cache
         uses: actions/cache@v2
         with:
-          path: .venv
+          path: |
+            ~/.cache/pip
+            ${{ env.project_name }}/.venv
           key: venv-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('poetry.lock') }}
 
       - name: Install dependencies
         working-directory: ${{ env.project_name }}
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
           pip install poetry==${{ env.poetry_version }}
           poetry config virtualenvs.in-project true
           poetry install
@@ -113,5 +120,64 @@ jobs:
           POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
         working-directory: ${{ env.project_name }}
         run: |
-          source .venv/bin/activate
           poetry run ./scripts/test
+
+      - name: Run lint
+        env:
+          BOT_CREDENTIALS: ${{ env.BOT_CREDENTIALS }}
+          REDIS_DSN: ${{ env.REDIS_DSN }}
+          POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
+        working-directory: ${{ env.project_name }}
+        run: |
+          poetry run ./scripts/lint
+          
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Get full Python version
+        id: full-python-version
+        run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
+
+      - name: Install cookiecutter
+        run: |
+          pip install cookiecutter
+          cookiecutter --no-input .
+
+      - name: Set up cache
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+            ${{ env.project_name }}/.venv
+          key: venv-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Install dependencies
+        working-directory: ${{ env.project_name }}
+        run: |
+          pip install poetry==${{ env.poetry_version }}
+          poetry config virtualenvs.in-project true
+          poetry install
+
+      - name: Run linters
+        env:
+          BOT_CREDENTIALS: ${{ env.BOT_CREDENTIALS }}
+          REDIS_DSN: ${{ env.REDIS_DSN }}
+          POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
+        working-directory: ${{ env.project_name }}
+        run: |
+          poetry run ./scripts/lint

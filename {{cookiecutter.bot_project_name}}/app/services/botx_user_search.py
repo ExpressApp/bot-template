@@ -1,6 +1,6 @@
 """Module for user searching on cts."""
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 from uuid import UUID
 
 from botx import Bot, BotAccount, UserFromSearch, UserNotFoundError
