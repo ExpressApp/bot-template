@@ -24,7 +24,7 @@
 
 .install_dependencies: &install_dependencies
   - echo -e "machine ${GIT_HOST}\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
-  - pip install poetry
+  - pip install -q poetry
   - poetry config virtualenvs.in-project true
   - poetry install
 
