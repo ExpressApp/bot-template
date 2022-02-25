@@ -78,6 +78,7 @@ test:
     - redis:6.0.1-alpine
   cache: *cache_dependencies
   variables:
+    BOT_CREDENTIALS: cts.example.com@secret@123e4567-e89b-12d3-a456-426655440000
     POSTGRES_DSN: postgres://postgres:postgres@postgres/postgres
     REDIS_DSN: redis://redis/0
   before_script:
