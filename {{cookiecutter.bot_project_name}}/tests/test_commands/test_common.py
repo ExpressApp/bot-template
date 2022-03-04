@@ -22,7 +22,6 @@ from app.db.record.repo import RecordRepo
 from app.schemas.record import Record
 
 
-@pytest.mark.asyncio
 async def test_fail_handler_while_shutting_down(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -45,7 +44,6 @@ async def test_fail_handler_while_shutting_down(
     )
 
 
-@pytest.mark.asyncio
 async def test_fail_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -68,7 +66,6 @@ async def test_fail_handler(
     )
 
 
-@pytest.mark.asyncio
 async def test_redis_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -87,7 +84,6 @@ async def test_redis_handler(
 
 
 @pytest.mark.db
-@pytest.mark.asyncio
 async def test_db_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -119,7 +115,6 @@ async def test_db_handler(
     ]
 
 
-@pytest.mark.asyncio
 async def test_default_message_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -135,7 +130,6 @@ async def test_default_message_handler(
     bot.answer_message.assert_awaited_once_with("Hello!")
 
 
-@pytest.mark.asyncio
 async def test_chat_created_handler(
     bot: Bot,
     bot_id: UUID,
@@ -185,7 +179,6 @@ async def test_chat_created_handler(
     )
 
 
-@pytest.mark.asyncio
 async def test_help_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -201,7 +194,6 @@ async def test_help_handler(
     bot.answer_message.assert_awaited_once_with("`/help` -- Get available commands")
 
 
-@pytest.mark.asyncio
 async def test_git_commit_sha_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
