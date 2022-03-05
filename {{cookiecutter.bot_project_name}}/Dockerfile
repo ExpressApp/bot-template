@@ -5,41 +5,40 @@ ENV UVICORN_CMD_ARGS ""
 
 EXPOSE 8000
 
+# Install system-wide dependencies
+RUN apt-get update && \
+  apt-get install --no-install-recommends -y git curl gcc python3-dev && \
+  apt-get clean autoclean && \
+  apt-get autoremove --yes && \
+  rm -rf /var/lib/apt/lists/*
+
+# Create user for app
 ENV APP_USER=appuser
 RUN useradd --create-home $APP_USER
+WORKDIR /home/$APP_USER
+USER $APP_USER
 
-RUN apt-get update && \
-    apt-get install -y sudo git curl gcc && \
-    echo "${APP_USER} ALL = NOPASSWD: /usr/sbin/update-ca-certificates" > /etc/sudoers.d/express_bot && \
-    apt-get clean autoclean && \
-    apt-get autoremove --yes && \
-    rm -rf /var/lib/{apt,dpkg,cache,log}/
-
+# Use venv directly via PATH
 ENV VENV_PATH=/home/$APP_USER/.venv/bin
 ENV USER_PATH=/home/$APP_USER/.local/bin
 ENV PATH="$VENV_PATH:$USER_PATH:$PATH"
 
-WORKDIR /home/$APP_USER
-USER $APP_USER
+RUN pip install --user --no-cache-dir poetry==1.1.13 && \
+  poetry config virtualenvs.in-project true
 
 COPY poetry.lock pyproject.toml ./
 
-RUN pip install --user --no-cache-dir poetry==1.1.12 && \
-  poetry config virtualenvs.in-project true
-
-{% if cookiecutter.has_private_dependencies == "True"  %}
+{% if cookiecutter.has_private_dependencies == "y"  %}
 ARG CI_JOB_TOKEN=""
 ARG GIT_HOST=""
 ARG GIT_PASSWORD=${CI_JOB_TOKEN}
 ARG GIT_LOGIN="gitlab-ci-token"
 # Poetry can't read password to download private repos
 RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" > ~/.netrc && \
-    poetry install --no-dev && \
-    rm -rf ~/.cache/pypoetry && \
-    rm -rf ~/.netrc
+  poetry install --no-dev && \
+  rm -rf ~/.netrc
 {% else %}
-RUN poetry install --no-dev && \
-    rm -rf ~/.cache/pypoetry
+RUN poetry install --no-dev
 {% endif %}
 
 COPY alembic.ini .
@@ -48,6 +47,5 @@ COPY app app
 ARG CI_COMMIT_SHA=""
 ENV GIT_COMMIT_SHA=${CI_COMMIT_SHA}
 
-CMD sudo update-ca-certificates && \
-    alembic upgrade head && \
-    uvicorn --host=0.0.0.0 $UVICORN_CMD_ARGS app.main:app
+CMD alembic upgrade head && \
+  uvicorn --host=0.0.0.0 $UVICORN_CMD_ARGS app.main:app
