@@ -1,6 +1,7 @@
 """Configured application logger."""
 
 import logging
+import sys
 from typing import TYPE_CHECKING
 
 from loguru import logger as _logger
@@ -33,14 +34,26 @@ class InterceptHandler(logging.Handler):
 
 
 def setup_logger() -> "Logger":
-    # Intercept everything at the root logger
-    logging.root.handlers = [InterceptHandler()]
-    logging.root.setLevel(logging.DEBUG if settings.DEBUG else logging.INFO)
-
-    # Remove every other logger's handlers and propagate to root logger
+    # Remove every logger's handlers and propagate to root logger
     for name in logging.root.manager.loggerDict.keys():
         logging.getLogger(name).handlers = []
         logging.getLogger(name).propagate = True
+
+    # Intercept everything at the root logger
+    logging.basicConfig(handlers=[InterceptHandler()], level=0)
+
+    # Enable botx logger
+    _logger.enable("botx")
+
+    # Setup loguru main logger
+    _logger.configure(
+        handlers=[
+            {
+                "sink": sys.stdout,
+                "level": logging.DEBUG if settings.DEBUG else logging.INFO,
+            }
+        ],
+    )
 
     return _logger
 

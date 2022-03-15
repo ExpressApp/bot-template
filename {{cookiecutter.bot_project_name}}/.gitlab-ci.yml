@@ -15,6 +15,7 @@
     -e POSTGRES_DSN="${POSTGRES_DSN}"
     -e REDIS_DSN="${REDIS_DSN}"
     -e BOT_CREDENTIALS="${BOT_CREDENTIALS}"
+    -e DEBUG="${DEBUG:-false}"
     $CONTAINER_RELEASE_IMAGE
 
 .create_db: &create_db
