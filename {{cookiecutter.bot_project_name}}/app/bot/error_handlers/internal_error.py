@@ -1,6 +1,6 @@
 """Handler to work with unexpected errors."""
 
-from botx import Bot, BotShuttingDownError, IncomingMessage
+from pybotx import Bot, BotShuttingDownError, IncomingMessage
 
 from app.logger import logger
 from app.resources import strings

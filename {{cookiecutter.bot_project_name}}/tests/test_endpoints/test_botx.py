@@ -1,11 +1,11 @@
 from http import HTTPStatus
 from uuid import UUID
 
+import httpx
 import respx
 from fastapi.testclient import TestClient
-import httpx
+from pybotx import Bot
 
-from botx import Bot
 from app.main import get_application
 
 

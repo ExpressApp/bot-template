@@ -1,6 +1,6 @@
 """Middleware for creating db_session per-request."""
 
-from botx import Bot, IncomingMessage, IncomingMessageHandlerFunc
+from pybotx import Bot, IncomingMessage, IncomingMessageHandlerFunc
 
 
 async def db_session_middleware(

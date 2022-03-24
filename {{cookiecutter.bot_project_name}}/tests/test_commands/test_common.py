@@ -2,7 +2,7 @@ from typing import Awaitable, Callable
 from uuid import UUID
 
 import pytest
-from botx import (
+from pybotx import (
     Bot,
     BotAccount,
     BubbleMarkup,
@@ -14,7 +14,7 @@ from botx import (
     IncomingMessage,
     UserKinds,
 )
-from botx.models.commands import BotCommand
+from pybotx.models.commands import BotCommand
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.caching.redis_repo import RedisRepo
