@@ -3,7 +3,7 @@
 from typing import Any, List
 from uuid import UUID
 
-from botx import BotAccountWithSecret
+from pybotx import BotAccountWithSecret
 from pydantic import BaseSettings, validator
 
 

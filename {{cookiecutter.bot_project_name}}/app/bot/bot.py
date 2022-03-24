@@ -1,6 +1,6 @@
 """Configuration for bot instance."""
 
-from botx import Bot
+from pybotx import Bot
 
 from app.bot.commands import common
 from app.bot.error_handlers.internal_error import internal_error_handler

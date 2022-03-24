@@ -2,7 +2,7 @@ from uuid import UUID
 from unittest.mock import AsyncMock
 
 import pytest
-from botx import Bot, UserFromSearch, UserNotFoundError
+from pybotx import Bot, UserFromSearch, UserNotFoundError
 
 from app.services.botx_user_search import search_user_on_each_cts, UserIsBotError
 

@@ -2,15 +2,15 @@
 
 from http import HTTPStatus
 
-from botx import (
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
+from pybotx import (
     Bot,
     BotXMethodCallbackNotFoundError,
     UnknownBotAccountError,
     build_bot_disabled_response,
     build_command_accepted_response,
 )
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
 
 from app.api.dependencies.bot import bot_dependency
 from app.logger import logger

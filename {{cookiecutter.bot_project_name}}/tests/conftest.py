@@ -8,7 +8,7 @@ import pytest
 import respx
 from alembic import config as alembic_config
 from asgi_lifespan import LifespanManager
-from botx import (
+from pybotx import (
     Bot,
     BotAccount,
     Chat,
@@ -18,7 +18,7 @@ from botx import (
     UserSender,
     lifespan_wrapper,
 )
-from botx.models.commands import BotCommand
+from pybotx.models.commands import BotCommand
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.caching.redis_repo import RedisRepo

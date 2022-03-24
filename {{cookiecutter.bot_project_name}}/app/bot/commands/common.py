@@ -2,7 +2,7 @@
 
 from os import environ
 
-from botx import (
+from pybotx import (
     Bot,
     BotShuttingDownError,
     BubbleMarkup,
