@@ -4,10 +4,12 @@
 # TODO: Fix linter errors
 import hashlib
 import pickle
-from typing import Any, Hashable, Optional
+from typing import Any, Hashable, Optional, Union
 
 import aioredis
 from starlette.datastructures import URL
+
+from app.schemas.enums import HealthCheckStatuses
 
 
 class RedisRepo:
@@ -36,6 +38,15 @@ class RedisRepo:
         repo = cls(dsn=dsn, prefix=prefix, expire=expire)
         repo.redis = await aioredis.create_redis_pool(repo.dsn)
         return repo
+
+    async def ping(self) -> Optional[str]:
+        """Healthcheck the redis server."""
+        try:
+            await self.redis.ping(message="ping", encoding="utf-8")
+        except Exception as exc:
+            return str(exc)
+
+        return None
 
     async def close(self) -> None:
         """Close connection to redis."""
