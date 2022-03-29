@@ -4,12 +4,10 @@
 # TODO: Fix linter errors
 import hashlib
 import pickle
-from typing import Any, Hashable, Optional, Union
+from typing import Any, Hashable, Optional
 
 import aioredis
 from starlette.datastructures import URL
-
-from app.schemas.enums import HealthCheckStatuses
 
 
 class RedisRepo:
