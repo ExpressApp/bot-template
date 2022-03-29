@@ -70,6 +70,25 @@ def test__web_app__bot_status_unknown_bot_response_service_unavailable(
 
 
 @respx.mock
+def test__web_app__bot_status_without_parameters_response_bad_request(
+    bot_id: UUID,
+    bot: Bot,
+) -> None:
+    # - Arrange -
+    query_params = {}
+
+    # - Act -
+    with TestClient(get_application()) as test_client:
+        response = test_client.get(
+            "/status",
+            params=query_params,
+        )
+
+    # - Assert -
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+@respx.mock
 def test__web_app__bot_command_response_accepted(
     bot_id: UUID,
     host: str,
