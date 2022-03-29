@@ -38,7 +38,7 @@ def get_application() -> FastAPI:
     """Create configured server application instance."""
     bot = get_bot()
 
-    application = FastAPI(title=strings.BOT_PROJECT_NAME)
+    application = FastAPI(title=strings.BOT_PROJECT_NAME, openapi_url=None)
     application.state.bot = bot
 
     application.add_event_handler("startup", partial(startup, bot))
