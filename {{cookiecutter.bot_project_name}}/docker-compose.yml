@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   {{cookiecutter.bot_project_name}}:
-    build: ..
+    build: .
     container_name: {{cookiecutter.bot_project_name}}
     environment:
       - BOT_CREDENTIALS=cts_host@secret_key@bot_id
