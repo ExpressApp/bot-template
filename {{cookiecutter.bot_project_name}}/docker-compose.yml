@@ -2,11 +2,11 @@ version: "3.8"
 
 services:
   {{cookiecutter.bot_project_name}}:
-    build: ..
+    build: .
     container_name: {{cookiecutter.bot_project_name}}
     environment:
       - BOT_CREDENTIALS=cts_host@secret_key@bot_id
-      - DB_CONNECTION=postgres://postgres:postgres@{{cookiecutter.bot_project_name}}-postgres/{{cookiecutter.bot_name_underscored}}_db
+      - POSTGRES_DSN=postgres://postgres:postgres@{{cookiecutter.bot_project_name}}-postgres/{{cookiecutter.bot_name_underscored}}_db
       - REDIS_DSN=redis://{{cookiecutter.bot_project_name}}-redis/0
       - DEBUG=true
     ports:
@@ -20,6 +20,11 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
 
   postgres:
     image: postgres:13.2-alpine

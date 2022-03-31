@@ -42,8 +42,10 @@ def setup_logger() -> "Logger":
     # Intercept everything at the root logger
     logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
-    # Enable botx logger
-    _logger.enable("botx")
+    # httpx duplicates pybotx logs
+    _logger.disable("httpx")
+
+    _logger.enable("pybotx")
 
     # Setup loguru main logger
     _logger.configure(
@@ -51,6 +53,7 @@ def setup_logger() -> "Logger":
             {
                 "sink": sys.stdout,
                 "level": logging.DEBUG if settings.DEBUG else logging.INFO,
+                "enqueue": True,
             }
         ],
     )
