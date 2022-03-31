@@ -1,5 +1,6 @@
 """Configuration for bot instance."""
 
+from httpx import AsyncClient, Limits
 from pybotx import Bot
 
 from app.bot.commands import common
@@ -15,4 +16,8 @@ def get_bot() -> Bot:
         bot_accounts=settings.BOT_CREDENTIALS,
         exception_handlers={Exception: internal_error_handler},
         default_callback_timeout=BOTX_CALLBACK_TIMEOUT,
+        httpx_client=AsyncClient(
+            timeout=60,
+            limits=Limits(max_keepalive_connections=None, max_connections=None),
+        ),
     )

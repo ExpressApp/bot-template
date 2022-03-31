@@ -53,6 +53,7 @@ def setup_logger() -> "Logger":
             {
                 "sink": sys.stdout,
                 "level": logging.DEBUG if settings.DEBUG else logging.INFO,
+                "enqueue": True,
             }
         ],
     )
