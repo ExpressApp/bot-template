@@ -93,8 +93,14 @@ def host() -> str:
 
 
 @pytest.fixture
+def user_huid() -> UUID:
+    return UUID("cd069aaa-46e6-4223-950b-ccea42b89c06")
+
+
+@pytest.fixture
 def incoming_message_factory(
     bot_id: UUID,
+    user_huid: UUID,
     host: str,
 ) -> Callable[..., IncomingMessage]:
     def factory(
@@ -114,7 +120,7 @@ def incoming_message_factory(
             data={},
             metadata={},
             sender=UserSender(
-                huid=uuid4(),
+                huid=user_huid,
                 ad_login=ad_login,
                 ad_domain=ad_domain,
                 username=None,

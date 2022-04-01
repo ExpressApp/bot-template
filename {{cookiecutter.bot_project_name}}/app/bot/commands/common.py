@@ -3,20 +3,83 @@
 from os import environ
 
 from pybotx import (
+    AttachmentTypes,
     Bot,
     BotShuttingDownError,
     BubbleMarkup,
     ChatCreatedEvent,
     HandlerCollector,
     IncomingMessage,
+    KeyboardMarkup,
+    OutgoingMessage,
     StatusRecipient,
 )
+from pybotx.models.attachments import AttachmentVideo
 
 from app.bot.middlewares.db_session import db_session_middleware
 from app.db.record.repo import RecordRepo
 from app.resources import strings
+from app.services.answer_error import AnswerError, AnswerMessageError
 
 collector = HandlerCollector()
+
+
+@collector.command("/_test-answer-message-error", visible=False)
+async def test_answer_message_error(message: IncomingMessage, bot: Bot) -> None:
+    """Testing AnswerMessageError error exception."""
+    raise AnswerMessageError(
+        "test",
+        metadata={"test": 1},
+        bubbles=BubbleMarkup([[]]),
+        keyboard=KeyboardMarkup([[]]),
+        file=AttachmentVideo(
+            type=AttachmentTypes.VIDEO,
+            filename="test_file.mp4",
+            size=len(b"Hello, world!\n"),
+            is_async_file=False,
+            content=b"Hello, world!\n",
+            duration=10,
+        ),
+        recipients=[message.sender.huid],
+        silent_response=False,
+        markup_auto_adjust=False,
+        stealth_mode=False,
+        send_push=False,
+        ignore_mute=False,
+        wait_callback=True,
+        callback_timeout=1,
+    )
+
+
+@collector.command("/_test-answer-error", visible=False)
+async def test_answer_error(message: IncomingMessage, bot: Bot) -> None:
+    """Testing AnswerError exception."""
+    raise AnswerError(
+        message=OutgoingMessage(
+            bot_id=message.bot.id,
+            chat_id=message.chat.id,
+            body="test",
+            metadata={"test": 1},
+            bubbles=BubbleMarkup([[]]),
+            keyboard=KeyboardMarkup([[]]),
+            file=AttachmentVideo(
+                type=AttachmentTypes.VIDEO,
+                filename="test_file.mp4",
+                size=len(b"Hello, world!\n"),
+                is_async_file=False,
+                content=b"Hello, world!\n",
+                duration=10,
+            ),
+            recipients=[message.sender.huid],
+            silent_response=False,
+            markup_auto_adjust=False,
+            stealth_mode=False,
+            send_push=False,
+            ignore_mute=False,
+        ),
+        wait_callback=True,
+        callback_timeout=1,
+    )
 
 
 @collector.command("/_test-fail-shutting-down", visible=False)
