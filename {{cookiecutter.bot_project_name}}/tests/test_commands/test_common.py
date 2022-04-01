@@ -1,8 +1,10 @@
 from typing import Awaitable, Callable
-from uuid import UUID
+from unittest.mock import AsyncMock
+from uuid import UUID, uuid4
 
 import pytest
 from pybotx import (
+    AttachmentTypes,
     Bot,
     BotAccount,
     BubbleMarkup,
@@ -12,14 +14,97 @@ from pybotx import (
     ChatCreatedMember,
     ChatTypes,
     IncomingMessage,
+    KeyboardMarkup,
+    OutgoingMessage,
     UserKinds,
 )
 from pybotx.models.commands import BotCommand
 from sqlalchemy.ext.asyncio import AsyncSession
+from pybotx.models.attachments import AttachmentVideo
 
 from app.caching.redis_repo import RedisRepo
 from app.db.record.repo import RecordRepo
 from app.schemas.record import Record
+
+
+
+async def test_answer_error_exception_middleware(
+    bot: Bot,
+    user_huid: UUID,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-answer-error")
+    bot.send = AsyncMock(return_value=uuid4())
+
+    # - Act -
+    await execute_bot_command(bot, message)
+
+    # - Assert -
+    bot.send.assert_awaited_once_with(
+        message=OutgoingMessage(
+            bot_id=message.bot.id,
+            chat_id=message.chat.id,
+            body="test",
+            metadata={"test": 1},
+            bubbles=BubbleMarkup([[]]),
+            keyboard=KeyboardMarkup([[]]),
+            file=AttachmentVideo(
+                type=AttachmentTypes.VIDEO,
+                filename="test_file.mp4",
+                size=len(b"Hello, world!\n"),
+                is_async_file=False,
+                content=b"Hello, world!\n",
+                duration=10,
+            ),
+            recipients=[user_huid],
+            silent_response=False,
+            markup_auto_adjust=False,
+            stealth_mode=False,
+            send_push=False,
+            ignore_mute=False,
+        ),
+        wait_callback=True,
+        callback_timeout=1,
+    )
+
+
+async def test_answer_message_error_exception_middleware(
+    bot: Bot,
+    user_huid: UUID,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-answer-message-error")
+
+    # - Act -
+    await execute_bot_command(bot, message)
+
+    # - Assert -
+    bot.answer_message.assert_awaited_once_with(
+        body="test",
+        metadata={"test": 1},
+        bubbles=BubbleMarkup([[]]),
+        keyboard=KeyboardMarkup([[]]),
+        file=AttachmentVideo(
+            type=AttachmentTypes.VIDEO,
+            filename="test_file.mp4",
+            size=len(b"Hello, world!\n"),
+            is_async_file=False,
+            content=b"Hello, world!\n",
+            duration=10,
+        ),
+        recipients=[user_huid],
+        silent_response=False,
+        markup_auto_adjust=False,
+        stealth_mode=False,
+        send_push=False,
+        ignore_mute=False,
+        wait_callback=True,
+        callback_timeout=1,
+    )
 
 
 async def test_fail_handler_while_shutting_down(
