@@ -131,7 +131,7 @@ deploy.botstest:
     - BOT_URL="${BOT_PROJECT_NAME}.${DEV_SERVER_HOST}"
     - BOT_CREDENTIALS=$DEV_BOT_CREDENTIALS
     - *postgres_envs
-    - REDIS_DSN=redis://${PROD_REDIS_HOST}/1
+    - REDIS_DSN=redis://${DOCKER_NETWORK_IP}/1
   script:
     - echo "Use URL 'https://${BOT_URL}/' in your cts admin site"
     - echo "Using credentials ${BOT_CREDENTIALS}"
@@ -171,7 +171,7 @@ deploy.botsprod:
     - CONTAINER_RELEASE_IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
     - BOT_URL="${BOT_PROJECT_NAME}.${PROD_SERVER_HOST}"
     - *postgres_envs
-    - REDIS_DSN=redis://${PROD_REDIS_HOST}/1
+    - REDIS_DSN=redis://${DOCKER_NETWORK_ID}/1
   script:
     - echo "Use URL 'https://${BOT_URL}/' in your cts admin site"
     - echo "Using credentials ${BOT_CREDENTIALS}"
