@@ -1,10 +1,10 @@
 """Exceptions to break command handling and answer message."""
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 from uuid import UUID
 
 from pybotx import BubbleMarkup, KeyboardMarkup, OutgoingAttachment, OutgoingMessage
-from pybotx.missing import Missing, MissingOptional, Undefined
+from pybotx.missing import Missing, Undefined
 from pybotx.models.attachments import IncomingFileAttachment
 
 
@@ -24,7 +24,7 @@ class AnswerMessageError(Exception):
         send_push: Missing[bool] = Undefined,
         ignore_mute: Missing[bool] = Undefined,
         wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
+        callback_timeout: Optional[float] = None,
     ):
         self.body = body
         self.metadata = metadata
@@ -49,7 +49,7 @@ class AnswerError(Exception):
         *,
         message: OutgoingMessage,
         wait_callback: bool = True,
-        callback_timeout: MissingOptional[int] = Undefined,
+        callback_timeout: Optional[float] = None,
     ):
         self.message = message
         self.wait_callback = wait_callback
