@@ -1,6 +1,6 @@
 """Exceptions to break command handling and answer message."""
 
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pybotx import BubbleMarkup, KeyboardMarkup, OutgoingAttachment, OutgoingMessage
