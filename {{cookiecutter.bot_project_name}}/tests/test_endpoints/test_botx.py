@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Dict
 from uuid import UUID
 
 import httpx
@@ -33,11 +34,11 @@ def test__web_app__bot_status_response_ok(
     assert response.json() == {
         "result": {
             "commands": [
-                {'body': '/help',
-                 'description': 'Get available commands',
-                 'name': '/help',
-                 }
-
+                {
+                    "body": "/help",
+                    "description": "Get available commands",
+                    "name": "/help",
+                }
             ],
             "enabled": True,
             "status_message": "Bot is working",
@@ -75,7 +76,7 @@ def test__web_app__bot_status_without_parameters_response_bad_request(
     bot: Bot,
 ) -> None:
     # - Arrange -
-    query_params = {}
+    query_params: Dict[str, str] = {}
 
     # - Act -
     with TestClient(get_application()) as test_client:

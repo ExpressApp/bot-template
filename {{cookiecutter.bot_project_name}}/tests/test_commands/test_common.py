@@ -18,14 +18,13 @@ from pybotx import (
     OutgoingMessage,
     UserKinds,
 )
+from pybotx.models.attachments import AttachmentVideo
 from pybotx.models.commands import BotCommand
 from sqlalchemy.ext.asyncio import AsyncSession
-from pybotx.models.attachments import AttachmentVideo
 
 from app.caching.redis_repo import RedisRepo
 from app.db.record.repo import RecordRepo
 from app.schemas.record import Record
-
 
 
 async def test_answer_error_exception_middleware(
@@ -257,7 +256,7 @@ async def test_chat_created_handler(
     # - Assert -
     bot.answer_message.assert_awaited_once_with(
         (
-            f"Вас приветствует {{cookiecutter.bot_display_name}}!\n\n"
+            "Вас приветствует {{cookiecutter.bot_display_name}}!\n\n"
             "Для более подробной информации нажмите кнопку `/help`"
         ),
         bubbles=BubbleMarkup([[Button(command="/help", label="/help")]]),

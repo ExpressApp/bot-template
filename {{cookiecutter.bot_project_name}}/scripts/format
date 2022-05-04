@@ -5,6 +5,6 @@ set -ex
 autoflake --recursive --in-place \
   --remove-all-unused-imports \
   --ignore-init-module-imports \
-  app
-isort --profile black app
-black app
+  app tests
+isort --profile black app tests
+black app tests
