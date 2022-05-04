@@ -2,8 +2,8 @@
 
 set -ex
 
-black --check --diff app
-isort --profile black --check-only app
+black --check --diff app tests
+isort --profile black --check-only app tests
 
-mypy app
-flake8 app
+mypy app tests
+flake8 app tests
