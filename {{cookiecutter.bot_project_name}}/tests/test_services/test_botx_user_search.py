@@ -22,7 +22,7 @@ async def test_search_user_on_each_cts_user_is_bot_error_raised(
         emails=[],
     )
 
-    bot.search_user_by_huid = AsyncMock(return_value=bot_user)
+    bot.search_user_by_huid = AsyncMock(return_value=bot_user)  # type: ignore
 
     # - Act -
     with pytest.raises(UserIsBotError):
@@ -33,7 +33,9 @@ async def test_search_user_on_each_cts_not_found(
     bot: Bot,
 ) -> None:
     # - Arrange -
-    bot.search_user_by_huid = AsyncMock(side_effect=UserNotFoundError("not found"))
+    bot.search_user_by_huid = AsyncMock(  # type: ignore
+        side_effect=UserNotFoundError("not found")
+    )
 
     # - Act -
     search_result = await search_user_on_each_cts(
@@ -59,7 +61,7 @@ async def test_search_user_on_each_cts_suceed(
         emails=[],
     )
 
-    bot.search_user_by_huid = AsyncMock(return_value=user)
+    bot.search_user_by_huid = AsyncMock(return_value=user)  # type: ignore
 
     # - Act -
     search_result = await search_user_on_each_cts(

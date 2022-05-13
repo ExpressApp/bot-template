@@ -35,7 +35,7 @@ async def test_answer_error_exception_middleware(
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-answer-error")
-    bot.send = AsyncMock(return_value=uuid4())
+    bot.send = AsyncMock(return_value=uuid4())  # type: ignore
 
     # - Act -
     await execute_bot_command(bot, message)
@@ -82,7 +82,7 @@ async def test_answer_message_error_exception_middleware(
     await execute_bot_command(bot, message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with(
+    bot.answer_message.assert_awaited_once_with(  # type: ignore
         body="test",
         metadata={"test": 1},
         bubbles=BubbleMarkup([[]]),
@@ -118,7 +118,7 @@ async def test_fail_handler_while_shutting_down(
     await execute_bot_command(bot, message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with(
+    bot.answer_message.assert_awaited_once_with(  # type: ignore
         (
             "При обработке сообщения или нажатия на кнопку произошла "
             "непредвиденная ошибка.\n"
@@ -140,7 +140,7 @@ async def test_fail_handler(
     await execute_bot_command(bot, message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with(
+    bot.answer_message.assert_awaited_once_with(  # type: ignore
         (
             "При обработке сообщения или нажатия на кнопку произошла "
             "непредвиденная ошибка.\n"
@@ -211,7 +211,7 @@ async def test_default_message_handler(
     await execute_bot_command(bot, message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with("Hello!")
+    bot.answer_message.assert_awaited_once_with("Hello!")  # type: ignore
 
 
 async def test_chat_created_handler(
@@ -254,7 +254,7 @@ async def test_chat_created_handler(
     await execute_bot_command(bot, command)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with(
+    bot.answer_message.assert_awaited_once_with(  # type: ignore
         (
             "Вас приветствует {{cookiecutter.bot_display_name}}!\n\n"
             "Для более подробной информации нажмите кнопку `/help`"
@@ -275,7 +275,9 @@ async def test_help_handler(
     await execute_bot_command(bot, message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with("`/help` -- Get available commands")
+    bot.answer_message.assert_awaited_once_with(  # type: ignore
+        "`/help` -- Get available commands"
+    )
 
 
 async def test_git_commit_sha_handler(
@@ -290,4 +292,4 @@ async def test_git_commit_sha_handler(
     await execute_bot_command(bot, message)
 
     # - Assert -
-    bot.answer_message.assert_awaited_once_with("<undefined>")
+    bot.answer_message.assert_awaited_once_with("<undefined>")  # type: ignore

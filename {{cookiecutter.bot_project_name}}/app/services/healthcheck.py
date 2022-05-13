@@ -24,9 +24,12 @@ class HealthCheckFailed(BaseModel):
     status: Literal[HealthCheckStatuses.ERROR] = HealthCheckStatuses.ERROR
 
 
+HealthCheckResult = Union[HealthCheckSucceed, HealthCheckFailed]
+
+
 class HealthCheckResponse(BaseModel):
     status: Optional[HealthCheckStatuses]
-    services: List[Union[HealthCheckSucceed, HealthCheckFailed]]
+    services: List[HealthCheckResult]
 
 
 class HealthCheckResponseBuilder:
@@ -37,6 +40,7 @@ class HealthCheckResponseBuilder:
         self._healthcheck_results.append(service)
 
     def build(self) -> HealthCheckResponse:
+        healthcheck: HealthCheckResult
         healthchecks = []
         healthy = True
         for healthcheck_result in self._healthcheck_results:
