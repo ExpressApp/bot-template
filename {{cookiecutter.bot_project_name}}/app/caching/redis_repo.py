@@ -7,7 +7,6 @@ import pickle
 from typing import Any, Hashable, Optional
 
 import aioredis
-from starlette.datastructures import URL
 
 
 class RedisRepo:
@@ -18,7 +17,7 @@ class RedisRepo:
     expire: Optional[int]
 
     def __init__(
-        self, dsn: URL, prefix: Optional[str] = None, expire: Optional[int] = None
+        self, dsn: str, prefix: Optional[str] = None, expire: Optional[int] = None
     ) -> None:
         """Init repository object."""
 
@@ -29,7 +28,7 @@ class RedisRepo:
 
     @classmethod
     async def init(
-        cls, dsn: URL, prefix: Optional[str] = None, expire: Optional[int] = None
+        cls, dsn: str, prefix: Optional[str] = None, expire: Optional[int] = None
     ) -> "RedisRepo":
         """Init repository object."""
 
