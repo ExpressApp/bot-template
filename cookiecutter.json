@@ -8,5 +8,8 @@
 
   "bot_image_name_prefix": "registry.example.com/bots/",
 
-  "bot_name_underscored": "{{ cookiecutter.bot_project_name|replace('-', '_') }}"
+  "bot_name_underscored": "{{ cookiecutter.bot_project_name|replace('-', '_') }}",
+  "_copy_without_render": [
+    ".venv"
+  ]
 }
