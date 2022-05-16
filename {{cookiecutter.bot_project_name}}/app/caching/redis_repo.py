@@ -8,52 +8,27 @@ import aioredis
 
 
 class RedisRepo:
-    redis: aioredis.Redis
-    dsn: str
-    prefix: Optional[str]
-    delimiter: str
-    expire: Optional[int]
-
     def __init__(
-        self, dsn: str, prefix: Optional[str] = None, expire: Optional[int] = None
+        self,
+        redis: aioredis.Redis,
+        prefix: Optional[str] = None,
+        expire: Optional[int] = None,
     ) -> None:
-        """Init repository object."""
-
-        self.dsn = str(dsn)
-        self.prefix = prefix
-        self.expire = expire
-        self.delimiter = "_"
-
-    @classmethod
-    async def init(
-        cls, dsn: str, prefix: Optional[str] = None, expire: Optional[int] = None
-    ) -> "RedisRepo":
-        """Init repository object."""
-
-        repo = cls(dsn=dsn, prefix=prefix, expire=expire)
-        repo.redis = await aioredis.create_redis_pool(repo.dsn)
-        return repo
+        self._redis = redis
+        self._prefix = prefix
+        self._expire = expire
+        self._delimiter = "_"
 
     async def ping(self) -> Optional[str]:
-        """Healthcheck the redis server."""
-
         try:
-            await self.redis.ping(message="ping", encoding="utf-8")
+            await self._redis.ping()
         except Exception as exc:
             return str(exc)
 
         return None
 
-    async def close(self) -> None:
-        """Close connection to redis."""
-
-        self.redis.close()
-        await self.redis.wait_closed()
-
     async def get(self, key: Hashable, default: Any = None) -> Any:
-        """Get value from redis."""
-
-        cached_data = await self.redis.get(self._key(key))
+        cached_data = await self._redis.get(self._key(key))
         if cached_data is None:
             return default
 
@@ -62,29 +37,23 @@ class RedisRepo:
     async def set(
         self, key: Hashable, storage_value: Any, expire: Optional[int] = None
     ) -> None:
-        """Set value into redis."""
-
         if expire is None:
-            expire = self.expire
+            expire = self._expire
 
         dumps = pickle.dumps(storage_value)
-        await self.redis.set(self._key(key), dumps, expire=expire)
+        await self._redis.set(self._key(key), dumps, ex=expire)
 
     async def delete(self, key: Hashable) -> None:
-        """Remove value from redis."""
-
-        await self.redis.delete(self._key(key))
+        await self._redis.delete(self._key(key))
 
     async def rget(self, key: Hashable, default: Any = None) -> Any:
-        """Get value and remove it from redis."""
-
         storage_value = await self.get(key, default)
         await self.delete(key)
         return storage_value
 
     def _key(self, arg: Hashable) -> str:
-        if self.prefix is not None:
-            prefix = self.prefix + self.delimiter
+        if self._prefix is not None:
+            prefix = self._prefix + self._delimiter
         else:
             prefix = ""
 
