@@ -2,7 +2,6 @@ from typing import Awaitable, Callable
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
-import pytest
 from pybotx import (
     AttachmentTypes,
     Bot,
@@ -167,7 +166,6 @@ async def test_redis_handler(
     assert await redis_repo.get("test_key") is None
 
 
-@pytest.mark.db
 async def test_db_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],

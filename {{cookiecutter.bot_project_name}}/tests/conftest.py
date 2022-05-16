@@ -27,10 +27,18 @@ from app.settings import settings
 
 
 @pytest.fixture
-def db() -> Generator:
+def db_migrations() -> Generator:
     alembic_config.main(argv=["upgrade", "head"])
     yield
     alembic_config.main(argv=["downgrade", "base"])
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
+    # We can't use autouse, because it appends fixture to the end
+    # but session from db_session fixture must be closed before migrations downgrade
+    for item in items:
+        item.fixturenames = ["db_migrations"] + item.fixturenames
 
 
 @pytest.fixture
@@ -42,13 +50,6 @@ async def db_session(bot: Bot) -> AsyncSession:
 @pytest.fixture
 async def redis_repo(bot: Bot) -> RedisRepo:
     return bot.state.redis_repo
-
-
-@pytest.hookimpl(trylast=True)
-def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
-    for item in items:
-        if item.get_closest_marker("db"):
-            item.fixturenames = ["db"] + item.fixturenames
 
 
 def mock_authorization(
