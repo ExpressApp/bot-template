@@ -2,6 +2,7 @@
 
 from functools import partial
 
+import aioredis
 from fastapi import FastAPI
 from pybotx import Bot
 
@@ -21,8 +22,9 @@ async def startup(bot: Bot) -> None:
     bot.state.db_session_factory = await build_db_session_factory()
 
     # -- Redis --
-    bot.state.redis_repo = await RedisRepo.init(
-        dsn=settings.REDIS_DSN, prefix=strings.BOT_PROJECT_NAME
+    bot.state.redis = aioredis.from_url(settings.REDIS_DSN)
+    bot.state.redis_repo = RedisRepo(
+        redis=bot.state.redis, prefix=strings.BOT_PROJECT_NAME
     )
 
 
@@ -31,7 +33,7 @@ async def shutdown(bot: Bot) -> None:
     await bot.shutdown()
 
     # -- Redis --
-    await bot.state.redis_repo.close()
+    await bot.state.redis.close()
 
 
 def get_application() -> FastAPI:
