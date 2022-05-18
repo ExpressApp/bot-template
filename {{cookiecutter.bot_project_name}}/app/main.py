@@ -2,9 +2,9 @@
 
 from functools import partial
 
-import aioredis
 from fastapi import FastAPI
 from pybotx import Bot
+from redis import asyncio as aioredis
 
 from app.api.routers import router
 from app.bot.bot import get_bot

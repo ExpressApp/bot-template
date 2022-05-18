@@ -4,7 +4,7 @@ import hashlib
 import pickle  # noqa: S403
 from typing import Any, Hashable, Optional
 
-import aioredis
+from redis import asyncio as aioredis
 
 
 class RedisRepo:
