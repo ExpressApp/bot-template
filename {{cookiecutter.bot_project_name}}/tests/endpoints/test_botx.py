@@ -70,9 +70,7 @@ def test__web_app__bot_status_unknown_bot_response_service_unavailable(
     assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
 
     status_message = response.json()["error_data"]["status_message"]
-    assert status_message == (
-        "Unknown bot_id: f3e176d5-ff46-4b18-b260-25008338c06e"
-    )
+    assert status_message == "Unknown bot_id: f3e176d5-ff46-4b18-b260-25008338c06e"
 
 
 @respx.mock
