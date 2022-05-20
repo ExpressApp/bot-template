@@ -50,7 +50,7 @@ async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONRe
     except UnsupportedBotAPIVersionError as exc:
         error_label = (
             f"Unsupported Bot API version: `{exc.version}`. "
-            f"Update protocol version to `{BOT_API_VERSION}` in Admin panel."
+            f"Set protocol version to `{BOT_API_VERSION}` in Admin panel."
         )
         logger.warning(error_label)
 
