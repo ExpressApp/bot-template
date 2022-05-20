@@ -8,9 +8,11 @@ from pybotx import (
     Bot,
     BotXMethodCallbackNotFoundError,
     UnknownBotAccountError,
+    UnsupportedBotAPIVersionError,
     build_bot_disabled_response,
     build_command_accepted_response,
 )
+from pybotx.constants import BOT_API_VERSION
 
 from app.api.dependencies.bot import bot_dependency
 from app.logger import logger
@@ -39,6 +41,17 @@ async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONRe
         )
     except UnknownBotAccountError as exc:
         error_label = f"No credentials for bot {exc.bot_id}"
+        logger.warning(error_label)
+
+        return JSONResponse(
+            build_bot_disabled_response(error_label),
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+        )
+    except UnsupportedBotAPIVersionError as exc:
+        error_label = (
+            f"Unsupported Bot API version: `{exc.version}`. "
+            f"Set protocol version to `{BOT_API_VERSION}` in Admin panel."
+        )
         logger.warning(error_label)
 
         return JSONResponse(
