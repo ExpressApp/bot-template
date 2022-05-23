@@ -103,10 +103,10 @@ docker exec -it storages_postgres_1 psql --user postgres
 ```
 
 ```sql
-CREATE USER {{cookiecutter.bot_name_underscored}}_user PASSWORD '<GENERATE>';
-CREATE DATABASE {{cookiecutter.bot_name_underscored}}_db;
-GRANT ALL PRIVILEGES ON DATABASE {{cookiecutter.bot_name_underscored}}_db 
-  TO {{cookiecutter.bot_name_underscored}}_user;
+CREATE USER {{cookiecutter.__bot_name_underscored}}_user PASSWORD '<GENERATE>';
+CREATE DATABASE {{cookiecutter.__bot_name_underscored}}_db;
+GRANT ALL PRIVILEGES ON DATABASE {{cookiecutter.__bot_name_underscored}}_db 
+  TO {{cookiecutter.__bot_name_underscored}}_user;
 ```
 
 2. Скачайте репозиторий на сервер:
