@@ -24,10 +24,7 @@ Base = declarative_base()
 
 
 async def build_db_session_factory() -> AsyncSessionFactory:
-    engine = create_async_engine(
-        make_url_async(settings.POSTGRES_DSN),
-        echo=settings.SQL_DEBUG,
-    )
+    engine = create_async_engine(make_url_async(settings.POSTGRES_DSN))
 
     await verify_db_connection(engine)
 

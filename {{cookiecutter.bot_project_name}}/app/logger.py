@@ -41,6 +41,8 @@ def setup_logger() -> "Logger":
 
     # Intercept everything at the root logger
     logging.basicConfig(handlers=[InterceptHandler()], level=0)
+    if settings.SQL_DEBUG:
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
     # httpx duplicates pybotx logs
     _logger.disable("httpx")
