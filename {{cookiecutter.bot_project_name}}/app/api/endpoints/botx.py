@@ -94,7 +94,7 @@ async def callback_handler(request: Request, bot: Bot = bot_dependency) -> JSONR
     """Process BotX methods callbacks."""
 
     try:
-        bot.set_raw_botx_method_result(await request.json())
+        await bot.set_raw_botx_method_result(await request.json())
     except BotXMethodCallbackNotFoundError as exc:
         error_label = f"Unexpected callback with sync_id: {exc.sync_id}"
         logger.warning(error_label)

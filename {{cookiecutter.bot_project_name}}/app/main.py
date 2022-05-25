@@ -1,9 +1,10 @@
 """Application with configuration for events, routers and middleware."""
 
 from functools import partial
+from typing import Optional
 
 from fastapi import FastAPI
-from pybotx import Bot
+from pybotx import Bot, CallbackRepoProto
 from redis import asyncio as aioredis
 
 from app.api.routers import router
@@ -36,9 +37,13 @@ async def shutdown(bot: Bot) -> None:
     await bot.state.redis.close()
 
 
-def get_application() -> FastAPI:
+def get_application(
+    add_internal_error_handler: bool = True,
+    callback_repo: Optional[CallbackRepoProto] = None,
+) -> FastAPI:
     """Create configured server application instance."""
-    bot = get_bot()
+
+    bot = get_bot(add_internal_error_handler, callback_repo)
 
     application = FastAPI(title=strings.BOT_PROJECT_NAME, openapi_url=None)
     application.state.bot = bot
@@ -49,6 +54,5 @@ def get_application() -> FastAPI:
     application.include_router(router)
 
     return application
-
 
 app = get_application()
