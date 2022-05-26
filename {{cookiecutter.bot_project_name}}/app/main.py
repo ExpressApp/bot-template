@@ -54,5 +54,3 @@ def get_application(
     application.include_router(router)
 
     return application
-
-app = get_application()
