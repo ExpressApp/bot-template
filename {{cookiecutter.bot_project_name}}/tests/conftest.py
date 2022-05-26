@@ -1,3 +1,5 @@
+import logging
+from asyncio import Task
 from http import HTTPStatus
 from typing import Any, AsyncGenerator, Awaitable, Callable, Generator, List, Optional
 from unittest.mock import AsyncMock
@@ -18,6 +20,7 @@ from pybotx import (
     UserSender,
     lifespan_wrapper,
 )
+from pybotx.logger import logger
 from pybotx.models.commands import BotCommand
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -155,8 +158,23 @@ async def execute_bot_command() -> Callable[[Bot, BotCommand], Awaitable[None]]:
     async def executor(
         bot: Bot,
         command: BotCommand,
-    ) -> None:
+    ) -> Task:  # type: ignore
         async with lifespan_wrapper(bot):
-            bot.async_execute_bot_command(command)
+            return bot.async_execute_bot_command(command)
 
-    return executor
+    return executor  # type: ignore
+
+
+@pytest.fixture()
+def loguru_caplog(
+    caplog: pytest.LogCaptureFixture,
+) -> Generator[pytest.LogCaptureFixture, None, None]:
+    # https://github.com/Delgan/loguru/issues/59
+
+    class PropogateHandler(logging.Handler):  # noqa: WPS431
+        def emit(self, record: logging.LogRecord) -> None:
+            logging.getLogger(record.name).handle(record)
+
+    handler_id = logger.add(PropogateHandler(), format="{message}")
+    yield caplog
+    logger.remove(handler_id)

@@ -24,6 +24,27 @@ from app.services.answer_error import AnswerError, AnswerMessageError
 collector = HandlerCollector()
 
 
+@collector.command("/_test-redis-callback-repo", visible=False)
+async def test_redis_callback_repo(message: IncomingMessage, bot: Bot) -> None:
+    """Testing redis callback."""
+    await bot.answer_message("Hello!", callback_timeout=0.1)
+
+
+@collector.command("/_test-redis-callback-repo-wait", visible=False)
+async def test_redis_callback_repo_wait(message: IncomingMessage, bot: Bot) -> None:
+    """Testing redis wait callback."""
+    sync_id = await bot.answer_message(
+        "Hello!", callback_timeout=0.1, wait_callback=False
+    )
+    await bot.wait_botx_method_callback(sync_id)
+
+
+@collector.command("/_test-redis-callback-repo-no-wait", visible=False)
+async def test_redis_callback_repo_not_wait(message: IncomingMessage, bot: Bot) -> None:
+    """Testing redis repo callback not wait."""
+    await bot.answer_message("Hello!", callback_timeout=0, wait_callback=False)
+
+
 @collector.command("/_test-answer-message-error", visible=False)
 async def test_answer_message_error(message: IncomingMessage, bot: Bot) -> None:
     """Testing AnswerMessageError error exception."""
