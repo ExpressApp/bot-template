@@ -34,7 +34,7 @@ async def test_redis_callback_repo(message: IncomingMessage, bot: Bot) -> None:
 async def test_redis_callback_repo_wait(message: IncomingMessage, bot: Bot) -> None:
     """Testing redis wait callback."""
     sync_id = await bot.answer_message(
-        "Hello!", callback_timeout=0.1, wait_callback=False
+        "Hello!", callback_timeout=0.5, wait_callback=False
     )
     await bot.wait_botx_method_callback(sync_id)
 
