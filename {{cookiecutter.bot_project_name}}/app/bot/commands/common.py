@@ -6,6 +6,7 @@ from pybotx import (
     AttachmentTypes,
     Bot,
     BotShuttingDownError,
+    BotXMethodFailedCallbackReceivedError,
     BubbleMarkup,
     ChatCreatedEvent,
     HandlerCollector,
@@ -15,6 +16,8 @@ from pybotx import (
     StatusRecipient,
 )
 from pybotx.models.attachments import AttachmentVideo
+from pybotx.models.method_callbacks import BotXMethodCallback
+from pydantic import parse_obj_as
 
 from app.bot.middlewares.db_session import db_session_middleware
 from app.db.record.repo import RecordRepo
@@ -22,6 +25,37 @@ from app.resources import strings
 from app.services.answer_error import AnswerError, AnswerMessageError
 
 collector = HandlerCollector()
+
+
+@collector.command("/_test-http-exception-correct-logs", visible=False)
+async def test_http_exception_correct_logs(message: IncomingMessage, bot: Bot) -> None:
+    await bot.send(
+        message=OutgoingMessage(
+            bot_id=message.bot.id,
+            chat_id=message.chat.id,
+            body="Hello!",
+            # Wrong argument for field
+            recipients="all",  # type: ignore[arg-type]
+        )
+    )
+
+
+@collector.command("/_test-callback-exception-correct-logs", visible=False)
+async def test_callback_exception_correct_logs(
+    message: IncomingMessage, bot: Bot
+) -> None:
+    raise BotXMethodFailedCallbackReceivedError(
+        callback=parse_obj_as(
+            BotXMethodCallback,  # type: ignore[arg-type]
+            {
+                "status": "error",
+                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+                "reason": "test_reason",
+                "errors": [],
+                "error_data": {},
+            },
+        )
+    )
 
 
 @collector.command("/_test-redis-callback-repo", visible=False)
