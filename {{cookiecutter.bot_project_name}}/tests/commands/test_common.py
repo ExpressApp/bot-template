@@ -2,6 +2,7 @@ from typing import Awaitable, Callable
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
+import pytest
 from pybotx import (
     AttachmentTypes,
     Bot,
@@ -122,8 +123,7 @@ async def test_fail_handler_while_shutting_down(
             "При обработке сообщения или нажатия на кнопку произошла "
             "непредвиденная ошибка.\n"
             "Пожалуйста, сообщите об этом вашему администратору бота."
-        ),
-        wait_callback=False,
+        )
     )
 
 
@@ -131,6 +131,7 @@ async def test_fail_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
     execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
+    loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-fail")
@@ -144,9 +145,9 @@ async def test_fail_handler(
             "При обработке сообщения или нажатия на кнопку произошла "
             "непредвиденная ошибка.\n"
             "Пожалуйста, сообщите об этом вашему администратору бота."
-        ),
-        wait_callback=True,
+        )
     )
+    assert "Test smart_log output" in loguru_caplog.text
 
 
 async def test_redis_handler(

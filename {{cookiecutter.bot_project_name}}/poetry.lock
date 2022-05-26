@@ -178,11 +178,11 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "certifi"
-version = "2022.5.18.1"
+version = "2021.10.8"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = "*"
 
 [[package]]
 name = "charset-normalizer"
@@ -350,7 +350,7 @@ flake8 = ">=2"
 
 [[package]]
 name = "flake8-comprehensions"
-version = "3.10.0"
+version = "3.9.0"
 description = "A flake8 plugin to help you write better list/set/dict comprehensions."
 category = "dev"
 optional = false
@@ -547,7 +547,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "importlib-metadata"
-version = "4.11.4"
+version = "4.11.3"
 description = "Read metadata from Python packages"
 category = "main"
 optional = false
@@ -764,7 +764,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "pybotx"
-version = "0.43.0"
+version = "0.40.0"
 description = "A python library for interacting with eXpress BotX API"
 category = "main"
 optional = false
@@ -775,8 +775,34 @@ aiofiles = ">=0.7.0,<0.9.0"
 httpx = ">=0.18.0,<0.22.0"
 loguru = ">=0.6.0,<0.7.0"
 mypy-extensions = ">=0.2.0,<0.5.0"
-pydantic = ">=1.6.0,<1.10.0"
+pydantic = ">=1.6.0,<1.9.0"
 typing-extensions = ">=3.7.4,<5.0.0"
+
+[[package]]
+name = "pybotx-smart-logger"
+version = "0.7.0"
+description = "Shows logs when you need it"
+category = "main"
+optional = false
+python-versions = ">=3.8,<3.11"
+
+[package.dependencies]
+fastapi = ">=0.70.0,<0.75.0"
+pybotx = ">=0.32.0,<0.41.0"
+pybotx-smartapp-rpc = ">=0.4.2,<0.5.0"
+
+[[package]]
+name = "pybotx-smartapp-rpc"
+version = "0.4.2"
+description = "eXpress SmartApp JSON-RPC library"
+category = "main"
+optional = false
+python-versions = ">=3.8,<3.11"
+
+[package.dependencies]
+fastapi = ">=0.70.0,<0.75.0"
+pybotx = ">=0.32.0,<0.41.0"
+pydantic = ">=1.8.2,<2.0.0"
 
 [[package]]
 name = "pycodestyle"
@@ -1193,7 +1219,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "afa321d0b4ed4d383ee9d7bd8215c3b4e4917211491651bb53d7f5d08003e8a5"
+content-hash = "eb0a6d224dbac2f8456d87a3bf299eb67445fb008d99bde9f0d74d0e1191eae3"
 
 [metadata.files]
 add-trailing-comma = [
@@ -1297,8 +1323,8 @@ black = [
     {file = "black-22.3.0.tar.gz", hash = "sha256:35020b8886c022ced9282b51b5a875b6d1ab0c387b31a065b84db7c33085ca79"},
 ]
 certifi = [
-    {file = "certifi-2022.5.18.1-py3-none-any.whl", hash = "sha256:f1d53542ee8cbedbe2118b5686372fb33c297fcd6379b050cca0ef13a597382a"},
-    {file = "certifi-2022.5.18.1.tar.gz", hash = "sha256:9c5705e395cd70084351dd8ad5c41e65655e08ce46f2ec9cf6c2c08390f71eb7"},
+    {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
+    {file = "certifi-2021.10.8.tar.gz", hash = "sha256:78884e7c1d4b00ce3cea67b44566851c4343c120abd683433ce934a68ea58872"},
 ]
 charset-normalizer = [
     {file = "charset-normalizer-2.0.12.tar.gz", hash = "sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597"},
@@ -1395,8 +1421,8 @@ flake8-commas = [
     {file = "flake8_commas-2.1.0-py2.py3-none-any.whl", hash = "sha256:ebb96c31e01d0ef1d0685a21f3f0e2f8153a0381430e748bf0bbbb5d5b453d54"},
 ]
 flake8-comprehensions = [
-    {file = "flake8-comprehensions-3.10.0.tar.gz", hash = "sha256:181158f7e7aa26a63a0a38e6017cef28c6adee71278ce56ce11f6ec9c4905058"},
-    {file = "flake8_comprehensions-3.10.0-py3-none-any.whl", hash = "sha256:dad454fd3d525039121e98fa1dd90c46bc138708196a4ebbc949ad3c859adedb"},
+    {file = "flake8-comprehensions-3.9.0.tar.gz", hash = "sha256:20c2f6846090e8f265e757f0aa500614c88b0f9ffb0d954d330dcd8abd8f874e"},
+    {file = "flake8_comprehensions-3.9.0-py3-none-any.whl", hash = "sha256:ef3a069809d4eb60805cd9b0ea2aa1aae21b527a460e704c01e0dd3416c99aeb"},
 ]
 flake8-debugger = [
     {file = "flake8-debugger-4.1.2.tar.gz", hash = "sha256:52b002560941e36d9bf806fca2523dc7fb8560a295d5f1a6e15ac2ded7a73840"},
@@ -1511,8 +1537,8 @@ idna = [
     {file = "idna-3.3.tar.gz", hash = "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-4.11.4-py3-none-any.whl", hash = "sha256:c58c8eb8a762858f49e18436ff552e83914778e50e9d2f1660535ffb364552ec"},
-    {file = "importlib_metadata-4.11.4.tar.gz", hash = "sha256:5d26852efe48c0a32b0509ffbc583fda1a2266545a78d104a6f4aff3db17d700"},
+    {file = "importlib_metadata-4.11.3-py3-none-any.whl", hash = "sha256:1208431ca90a8cca1a6b8af391bb53c1a2db74e5d1cef6ddced95d4b2062edc6"},
+    {file = "importlib_metadata-4.11.3.tar.gz", hash = "sha256:ea4c597ebf37142f827b8f39299579e31685c31d3a438b59f469406afd0f2539"},
 ]
 importlib-resources = [
     {file = "importlib_resources-5.7.1-py3-none-any.whl", hash = "sha256:e447dc01619b1e951286f3929be820029d48c75eb25d265c28b92a16548212b8"},
@@ -1697,8 +1723,16 @@ py = [
     {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
 pybotx = [
-    {file = "pybotx-0.43.0-py3-none-any.whl", hash = "sha256:20696202d32adb4c60863fddad2189451d6919336f0d4c83c299de6b0477dcd5"},
-    {file = "pybotx-0.43.0.tar.gz", hash = "sha256:29f3bd656ecd0f3c57e4da386bb7da327caa693550624a34ac957faf5721c181"},
+    {file = "pybotx-0.40.0-py3-none-any.whl", hash = "sha256:c0c7f78cb2992d95340206f6b74aa2c9ac58b19991d3edfada6a6bdd86ae8c7a"},
+    {file = "pybotx-0.40.0.tar.gz", hash = "sha256:ac2a3a1c2a2a377672aea91f5eb3ea28bb8447da8020c49bf939e4d7b91c0719"},
+]
+pybotx-smart-logger = [
+    {file = "pybotx-smart-logger-0.7.0.tar.gz", hash = "sha256:b1318f6b2e090dd0b245428b266ddffc6d78b795af3a185230202508c699dfe8"},
+    {file = "pybotx_smart_logger-0.7.0-py3-none-any.whl", hash = "sha256:99e4880484f35c8e8142f81755d218967c24d6a60863a02c3622a8f5f16cf2a1"},
+]
+pybotx-smartapp-rpc = [
+    {file = "pybotx-smartapp-rpc-0.4.2.tar.gz", hash = "sha256:08b21fd6a1ecd3b13ce54f18258213c3f5c7302eebeb527333376c14ab12c77e"},
+    {file = "pybotx_smartapp_rpc-0.4.2-py3-none-any.whl", hash = "sha256:53ce1b91dab122ea71d8596e79c14e5c9d04a10f57c6ec4ec400e3278ed76131"},
 ]
 pycodestyle = [
     {file = "pycodestyle-2.8.0-py2.py3-none-any.whl", hash = "sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20"},

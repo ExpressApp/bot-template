@@ -15,6 +15,7 @@ from pybotx import (
     StatusRecipient,
 )
 from pybotx.models.attachments import AttachmentVideo
+from pybotx_smart_logger import smart_log
 
 from app.bot.middlewares.db_session import db_session_middleware
 from app.db.record.repo import RecordRepo
@@ -112,6 +113,7 @@ async def test_fail_shutting_down(message: IncomingMessage, bot: Bot) -> None:
 @collector.command("/_test-fail", visible=False)
 async def test_fail(message: IncomingMessage, bot: Bot) -> None:
     """Testing internal error."""
+    smart_log("Test smart_log output")
     raise ValueError
 
 
