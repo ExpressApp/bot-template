@@ -10,17 +10,15 @@ from pybotx.bot.exceptions import BotShuttingDownError, BotXMethodCallbackNotFou
 from pybotx.models.method_callbacks import BotXMethodCallback
 from redis import asyncio as aioredis
 
-from app.resources import strings
-
 
 class CallbackRedisRepo(CallbackRepoProto):
     def __init__(
         self,
         redis: aioredis.Redis,
-        prefix: Optional[str] = strings.BOT_PROJECT_NAME,
+        prefix: Optional[str] = None,
     ):
         self._redis = redis
-        self._prefix = prefix
+        self._prefix = prefix or ""
         self._pubsubs: Dict[UUID, aioredis.client.PubSub] = {}
         self._futures: Dict[UUID, asyncio.Future] = {}
 
