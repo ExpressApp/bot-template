@@ -1,4 +1,5 @@
 import asyncio
+import os
 from http import HTTPStatus
 from typing import AsyncGenerator, Callable
 
@@ -19,6 +20,10 @@ from app.caching.callback_redis_repo import CallbackRedisRepo
 from app.main import get_application
 from app.settings import settings
 from tests.conftest import mock_authorization
+
+pytestmark = pytest.mark.xfail(
+    os.getenv("CI") == "true", reason="CI is too slow for this tests"
+)
 
 
 @pytest.fixture
