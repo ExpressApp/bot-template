@@ -27,7 +27,7 @@ collector = HandlerCollector()
 @collector.command("/_test-redis-callback-repo", visible=False)
 async def test_redis_callback_repo(message: IncomingMessage, bot: Bot) -> None:
     """Testing redis callback."""
-    await bot.answer_message("Hello!", callback_timeout=0.1)
+    await bot.answer_message("Hello!", callback_timeout=0.5)
 
 
 @collector.command("/_test-redis-callback-repo-wait", visible=False)
