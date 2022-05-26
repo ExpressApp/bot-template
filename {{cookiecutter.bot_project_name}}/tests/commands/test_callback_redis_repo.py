@@ -187,7 +187,7 @@ async def test_callback_redis_repo_wait_callback(
     # - Act -
     async with lifespan_wrapper(bot):
         task = bot.async_execute_bot_command(message)
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
 
         await bot.set_raw_botx_method_result(
             {
