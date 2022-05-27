@@ -15,7 +15,7 @@
 * `SQL_DEBUG` [`false`]: Включает вывод запросов к БД PostgreSQL.
 
 
-## Продвинутая инструкция по развертыванию {{cookiecutter.bot_project_name}}
+## Продвинутая инструкция по развертыванию {{bot_project_name}}
 
 **Примечание**: Чтобы легко добавлять новых ботов на сервер, хранилища находятся в
 отдельной docker-сети и используются несколькими ботами сразу (каждый обращается к своей
@@ -103,43 +103,43 @@ docker exec -it storages_postgres_1 psql --user postgres
 ```
 
 ```sql
-CREATE USER {{cookiecutter.bot_name_underscored}}_user PASSWORD '<GENERATE>';
-CREATE DATABASE {{cookiecutter.bot_name_underscored}}_db;
-GRANT ALL PRIVILEGES ON DATABASE {{cookiecutter.bot_name_underscored}}_db 
-  TO {{cookiecutter.bot_name_underscored}}_user;
+CREATE USER {{bot_name_underscored}}_user PASSWORD '<GENERATE>';
+CREATE DATABASE {{bot_name_underscored}}_db;
+GRANT ALL PRIVILEGES ON DATABASE {{bot_name_underscored}}_db 
+  TO {{bot_name_underscored}}_user;
 ```
 
 2. Скачайте репозиторий на сервер:
 
 ```bash
-git clone <THIS_REPOSITORY> /opt/express/bots/{{cookiecutter.bot_project_name}}
-cd /opt/express/bots/{{cookiecutter.bot_project_name}}
+git clone <THIS_REPOSITORY> /opt/express/bots/{{bot_project_name}}
+cd /opt/express/bots/{{bot_project_name}}
 ```
 
 3. Соберите образ:
 
 ```bash
-docker build -t {{cookiecutter.bot_project_name}} .
+docker build -t {{bot_project_name}} .
 ```
 
 При необходимости можно добавить
 [дополнительные параметры](https://www.uvicorn.org/#command-line-options). Например:
 
 ```bash
-docker build -t {{cookiecutter.bot_project_name}} 
+docker build -t {{bot_project_name}} 
   --build-args UVICORN_CMD_ARGS="--ssl-ca-certs TEXT" .
 ```
 
-4. В директории `/opt/express/bots/{{cookiecutter.bot_project_name}}` создайте файл
+4. В директории `/opt/express/bots/{{bot_project_name}}` создайте файл
    `docker-compose.deploy.yml` со следующим содержимым:
 
 ```yaml
 version: "3.8"
 
 services:
-  {{cookiecutter.bot_project_name}}:
-    image: {{cookiecutter.bot_project_name}}
-    container_name: {{cookiecutter.bot_project_name}}
+  {{bot_project_name}}:
+    image: {{bot_project_name}}
+    container_name: {{bot_project_name}}
     env_file: .env
     ports:
       - "8000:8000"  # Отредактируйте порт хоста (первый), если он уже занят

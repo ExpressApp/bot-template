@@ -1,12 +1,12 @@
-# {{cookiecutter.bot_project_name}}
+# {{bot_project_name}}
 
 Бот создан на базе шаблона [async-box](https://github.com/ExpressApp/async-box).
 
 ## Описание
 
-{{cookiecutter.bot_short_description}}
+{{bot_description}}
 
-## Инструкция по развёртыванию {{cookiecutter.bot_project_name}}
+## Инструкция по развёртыванию {{bot_project_name}}
 
 **NOTE**: *Для развёртывания нескольких ботов на сервере используйте
 продвинутый вариант инструкции: [advanced-deploy.md](advanced-deploy.md).*
@@ -22,8 +22,8 @@
 4. Скачайте репозиторий на сервер:
 
 ```bash
-git clone <THIS_REPOSITORY> /opt/express/bots/{{cookiecutter.bot_project_name}}
-cd /opt/express/bots/{{cookiecutter.bot_project_name}}
+git clone <THIS_REPOSITORY> /opt/express/bots/{{bot_project_name}}
+cd /opt/express/bots/{{bot_project_name}}
 ```
 
 5. Отредактируйте `docker-compose.yml`, заменив `cts_host`, `secret_key` и `bot_id` на реальные значения.

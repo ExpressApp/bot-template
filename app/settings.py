@@ -18,6 +18,8 @@ class AppSettings(BaseSettings):
     # base kwargs
     DEBUG: bool = False
 
+    # TODO: Change type to `list[UUID]` after closing:
+    # https://github.com/samuelcolvin/pydantic/issues/1458
     # User huids for debug
     SMARTLOG_DEBUG_HUIDS: Any
 

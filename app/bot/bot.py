@@ -15,10 +15,6 @@ from app.settings import settings
 
 BOTX_CALLBACK_TIMEOUT = 30
 
-smart_logger_exception_handler = make_smart_logger_exception_handler(
-    strings.SOMETHING_GOES_WRONG
-)
-
 
 async def is_enabled_debug(message: IncomingMessage) -> bool:
     return message.sender.huid in settings.SMARTLOG_DEBUG_HUIDS
@@ -30,7 +26,9 @@ def get_bot(
 ) -> Bot:
     exception_handlers = {}
     if add_internal_error_handler:
-        exception_handlers[Exception] = smart_logger_exception_handler
+        exception_handlers[Exception] = make_smart_logger_exception_handler(
+            strings.SOMETHING_GOES_WRONG
+        )
 
     return Bot(
         collectors=[common.collector],
