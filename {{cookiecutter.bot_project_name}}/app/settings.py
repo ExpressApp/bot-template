@@ -26,7 +26,7 @@ class AppSettings(BaseSettings):
     REDIS_DSN: str
 
     # User huids for debug
-    SMARTLOG_DEBUG_HUIDS: List[UUID] = []
+    SMARTLOG_DEBUG_HUIDS: Any
 
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
@@ -42,6 +42,12 @@ class AppSettings(BaseSettings):
             cls._build_credentials_from_string(credentials_str)
             for credentials_str in raw_credentials.replace(",", " ").split()
         ]
+
+    @validator("SMARTLOG_DEBUG_HUIDS", pre=True)
+    @classmethod
+    def parse_smartlog_debug_huids(cls, raw_huids: Any) -> List[UUID]:
+        """Parse debug huids separated by comma."""
+        return [UUID(huid) for huid in raw_huids.split(",")]
 
     @classmethod
     def _build_credentials_from_string(
