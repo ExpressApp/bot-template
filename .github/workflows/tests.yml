@@ -39,14 +39,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install cookiecutter
-        run: pip install cookiecutter
+      - name: Install copier
+        run: pip install copier
 
       - name: Test image
         env:
           REDIS_DSN: ${{ env.REDIS_DSN }}
           POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
-        run: ./scripts/test_image
+        run: ./.github/scripts/test_image
 
 
   test-template:
@@ -83,10 +83,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install cookiecutter
+      - name: Install copier
         run: |
-          pip install cookiecutter
-          cookiecutter --no-input .
+          pip install copier
+          python -m copier --defaults . async-box-bot
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -134,10 +134,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install cookiecutter
+      - name: Install copier
         run: |
-          pip install cookiecutter
-          cookiecutter --no-input .
+          pip install copier
+          python -m copier --defaults . async-box-bot
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2

@@ -103,17 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Pycharm project files
 .idea/
-
-# VS Code project files
 .vscode/
 
-# Cookiecutter template for tests
-box-bot/
-
-# Temp files
-tmp/
-temp/
-tmp.*
-temp.*
+static/

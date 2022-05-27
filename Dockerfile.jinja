@@ -28,7 +28,7 @@ RUN pip install --user --no-cache-dir poetry==1.1.13 && \
 
 COPY poetry.lock pyproject.toml ./
 
-{% if cookiecutter.has_private_dependencies == "y"  %}
+{% if has_private_dependencies == "yes"  %}
 ARG CI_JOB_TOKEN=""
 ARG GIT_HOST=""
 ARG GIT_PASSWORD=${CI_JOB_TOKEN}

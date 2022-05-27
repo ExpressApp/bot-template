@@ -4,7 +4,7 @@ set -ex
 
 PROJECT_NAME=async-box-bot
 
-cookiecutter --no-input .
+python -m copier --defaults . async-box-bot
 docker build -t $PROJECT_NAME $PROJECT_NAME
 
 # there should be added `--fail` option to curl command when healthcheck endpoint is added

@@ -257,7 +257,7 @@ async def test_chat_created_handler(
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
         (
-            "Вас приветствует {{cookiecutter.bot_display_name}}!\n\n"
+            "Вас приветствует {{bot_display_name}}!\n\n"
             "Для более подробной информации нажмите кнопку `/help`"
         ),
         bubbles=BubbleMarkup([[Button(command="/help", label="/help")]]),
