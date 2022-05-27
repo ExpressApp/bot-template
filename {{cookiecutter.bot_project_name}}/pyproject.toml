@@ -10,8 +10,8 @@ authors = []
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 
-pybotx = "^0.43.0"
-pybotx-smart-logger = "^0.7.2"
+pybotx = "~0.43.0"
+pybotx-smart-logger = "~0.7.2"
 
 fastapi = "~0.74.1"
 uvicorn = { version = "~0.17.5", extras = ["standart"] }

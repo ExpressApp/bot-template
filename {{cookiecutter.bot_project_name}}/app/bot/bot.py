@@ -2,7 +2,7 @@
 from typing import Optional
 
 from httpx import AsyncClient, Limits
-from pybotx import Bot, CallbackRepoProto
+from pybotx import Bot, CallbackRepoProto, IncomingMessage
 from pybotx_smart_logger import (
     BotXSmartLoggerMiddleware,
     make_smart_logger_exception_handler,
@@ -18,6 +18,10 @@ BOTX_CALLBACK_TIMEOUT = 30
 smart_logger_exception_handler = make_smart_logger_exception_handler(
     strings.SOMETHING_GOES_WRONG
 )
+
+
+async def is_enabled_debug(message: IncomingMessage) -> bool:
+    return message.sender.huid in settings.SMARTLOG_DEBUG_HUIDS
 
 
 def get_bot(
@@ -39,7 +43,9 @@ def get_bot(
         ),
         middlewares=[
             answer_error_middleware,
-            BotXSmartLoggerMiddleware(debug_enabled_for_message=True).dispatch,
+            BotXSmartLoggerMiddleware(
+                debug_enabled_for_message=is_enabled_debug
+            ).dispatch,
         ],
         callback_repo=callback_repo,
     )

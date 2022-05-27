@@ -1219,7 +1219,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "5f6bca1ff1f3b1291d714a17087813239a7d295ff2adabc84fb9b3e31f912c45"
+content-hash = "4dd7ca0864e5ff7f42df1b270ee6e6e834f66a06c606b19fa94547820d663cc8"
 
 [metadata.files]
 add-trailing-comma = [

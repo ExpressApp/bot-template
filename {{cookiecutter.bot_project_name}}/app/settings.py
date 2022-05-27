@@ -25,6 +25,9 @@ class AppSettings(BaseSettings):
     # redis
     REDIS_DSN: str
 
+    # User huids for debug
+    SMARTLOG_DEBUG_HUIDS: List[UUID] = []
+
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
     def parse_bot_credentials(cls, raw_credentials: Any) -> List[BotAccountWithSecret]:
