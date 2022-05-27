@@ -124,7 +124,7 @@ async def test_fail_handler_while_shutting_down(
             "непредвиденная ошибка.\n"
             "Пожалуйста, сообщите об этом вашему администратору бота."
         ),
-        wait_callback=False
+        wait_callback=False,
     )
 
 
@@ -147,7 +147,7 @@ async def test_fail_handler(
             "непредвиденная ошибка.\n"
             "Пожалуйста, сообщите об этом вашему администратору бота."
         ),
-        wait_callback=False
+        wait_callback=False,
     )
     assert "Test smart_log output" in loguru_caplog.text
 
