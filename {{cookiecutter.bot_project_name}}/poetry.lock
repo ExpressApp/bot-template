@@ -780,7 +780,7 @@ typing-extensions = ">=3.7.4,<5.0.0"
 
 [[package]]
 name = "pybotx-smart-logger"
-version = "0.7.1"
+version = "0.7.2"
 description = "Shows logs when you need it"
 category = "main"
 optional = false
@@ -1219,7 +1219,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "a9a5f092ce972201a452bb8aa5d0f9c8a9d5b6ac608a179e49a76705a7e90631"
+content-hash = "5f6bca1ff1f3b1291d714a17087813239a7d295ff2adabc84fb9b3e31f912c45"
 
 [metadata.files]
 add-trailing-comma = [
@@ -1727,8 +1727,8 @@ pybotx = [
     {file = "pybotx-0.43.0.tar.gz", hash = "sha256:29f3bd656ecd0f3c57e4da386bb7da327caa693550624a34ac957faf5721c181"},
 ]
 pybotx-smart-logger = [
-    {file = "pybotx-smart-logger-0.7.1.tar.gz", hash = "sha256:b087e53cb1357b0ac28c584b4706d93cec58390625e601aa28faaf38c1cb67cd"},
-    {file = "pybotx_smart_logger-0.7.1-py3-none-any.whl", hash = "sha256:504fe2219a74abd9d48a21eebac4e4f48a2ab797f717098c81215157886ea322"},
+    {file = "pybotx-smart-logger-0.7.2.tar.gz", hash = "sha256:8e685ea964536a26dc5ec7af885aeabaeef44908b982160f1f8f99335d499d95"},
+    {file = "pybotx_smart_logger-0.7.2-py3-none-any.whl", hash = "sha256:e1304a64a6d2a28127e6a50eed5b6b59b4bb6e9a0a5b61a85ae2637669925f54"},
 ]
 pybotx-smartapp-rpc = [
     {file = "pybotx-smartapp-rpc-0.4.3.tar.gz", hash = "sha256:8945e5bc0e4985cad8616189b7c150e9edbcfd8533a6f40de4ae426789cc5c20"},

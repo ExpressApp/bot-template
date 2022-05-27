@@ -123,7 +123,8 @@ async def test_fail_handler_while_shutting_down(
             "При обработке сообщения или нажатия на кнопку произошла "
             "непредвиденная ошибка.\n"
             "Пожалуйста, сообщите об этом вашему администратору бота."
-        )
+        ),
+        wait_callback=False
     )
 
 
@@ -145,7 +146,8 @@ async def test_fail_handler(
             "При обработке сообщения или нажатия на кнопку произошла "
             "непредвиденная ошибка.\n"
             "Пожалуйста, сообщите об этом вашему администратору бота."
-        )
+        ),
+        wait_callback=False
     )
     assert "Test smart_log output" in loguru_caplog.text
 

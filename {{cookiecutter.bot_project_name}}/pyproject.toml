@@ -1,15 +1,17 @@
 # https://python-poetry.org/docs/
 
 [tool.poetry]
-name = "exex"
+name = "{{cookiecutter.bot_project_name}}"
 version = "0.1.0"
-description = "TODO"
+description = "{{cookiecutter.bot_short_description}}"
 authors = []
 
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 
+pybotx = "^0.43.0"
+pybotx-smart-logger = "^0.7.2"
 
 fastapi = "~0.74.1"
 uvicorn = { version = "~0.17.5", extras = ["standart"] }
@@ -26,8 +28,6 @@ importlib-resources = { version = "^5.4.0", python = "<3.9" }
 zipp = { version = "^3.7.0", python = "<3.9" }
 importlib-metadata = { version = "^4.11.0", python = "<3.9" }
 redis = "^4.3.1"
-pybotx-smart-logger = "^0.7.0"
-pybotx = "^0.43.0"
 
 [tool.poetry.dev-dependencies]
 add-trailing-comma = "2.2.1"
