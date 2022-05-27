@@ -47,6 +47,9 @@ class AppSettings(BaseSettings):
     @classmethod
     def parse_smartlog_debug_huids(cls, raw_huids: Any) -> List[UUID]:
         """Parse debug huids separated by comma."""
+        if not raw_huids:
+            return []
+
         return [UUID(huid) for huid in raw_huids.split(",")]
 
     @classmethod
