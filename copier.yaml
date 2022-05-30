@@ -28,3 +28,12 @@ has_private_dependencies:
     type: bool
     default: no
     when: false
+
+_jinja_extensions:
+    - copier_templates_extensions.TemplateExtensionLoader
+    - extensions/context.py:ContextUpdater
+
+_exclude:
+    - "extensions"
+    - ".git"
+    - "copier.yml"
