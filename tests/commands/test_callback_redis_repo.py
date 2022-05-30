@@ -13,12 +13,9 @@ from pybotx import (
     IncomingMessage,
     lifespan_wrapper,
 )
-from redis import asyncio as aioredis
 from respx import MockRouter
 
-from app.caching.callback_redis_repo import CallbackRedisRepo
 from app.main import get_application
-from app.settings import settings
 from tests.conftest import mock_authorization
 
 pytestmark = pytest.mark.xfail(
@@ -28,16 +25,13 @@ pytestmark = pytest.mark.xfail(
 
 @pytest.fixture
 async def bot() -> AsyncGenerator[Bot, None]:
-    redis_repo = CallbackRedisRepo(aioredis.from_url(settings.REDIS_DSN))
-    fastapi_app = get_application(
-        add_internal_error_handler=False, callback_repo=redis_repo
-    )
-    built_bot = fastapi_app.state.bot
+    fastapi_app = get_application(raise_bot_exceptions=True)
 
-    for bot_account in built_bot.bot_accounts:
-        mock_authorization(bot_account.host, bot_account.id)
+    mock_authorization()
 
     async with LifespanManager(fastapi_app):
+        built_bot = fastapi_app.state.bot
+
         yield built_bot
 
 
