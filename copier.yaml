@@ -11,6 +11,11 @@ bot_description:
     help: Description for README.md. First line will be added pyproject.toml
     default: TODO
 
+add_worker:
+    help: Include tasks worker in `docker-compose.yml`
+    type: bool
+    default: no
+
 
 bot_name_underscored:
     default: "{{bot_project_name|replace('-', '_')}}"
@@ -30,6 +35,7 @@ _jinja_extensions:
     - extensions/context.py:ContextUpdater
 
 _exclude:
-    - "extensions"
     - ".git"
+    - ".github"
     - "copier.yml"
+    - "extensions"

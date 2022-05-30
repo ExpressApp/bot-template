@@ -4,7 +4,7 @@ services:
   {{bot_project_name}}:
     build: .
     container_name: {{bot_project_name}}
-    environment:
+    environment: &environment
       - BOT_CREDENTIALS=cts_host@secret_key@bot_id
       - POSTGRES_DSN=postgres://postgres:postgres@{{bot_project_name}}-postgres/{{bot_name_underscored}}_db
       - REDIS_DSN=redis://{{bot_project_name}}-redis/0
@@ -12,20 +12,33 @@ services:
     ports:
       - "8000:8000"  # Отредактируйте порт хоста (первый), если он уже занят
     restart: always
-    depends_on:
+    depends_on: &depends_on
       - postgres
       - redis
-    logging:
+    logging: &logging
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "10"
-    ulimits:
+    ulimits: &ulimits
       nproc: 65535
       nofile:
         soft: 20000
         hard: 40000
 
+  {% if add_worker -%}
+  {{bot_project_name}}-worker:
+    build: .
+    container_name: {{bot_project_name}}-worker
+    # '$$' prevents docker-compose from interpolating a value
+    command: bash -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.worker.worker.settings'
+    environment: *environment
+    restart: always
+    depends_on: *depends_on
+    logging: *logging
+    ulimits: *ulimits
+
+  {% endif -%}
   postgres:
     image: postgres:13.2-alpine
     container_name: {{bot_project_name}}-postgres
@@ -36,11 +49,7 @@ services:
     restart: always
     volumes:
       - ./.storages/postgresdata:/var/lib/postgresql/data
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "10"
+    logging: *logging
 
   redis:
     image: redis:6.2-alpine
@@ -48,8 +57,4 @@ services:
     restart: always
     volumes:
       - ./.storages/redisdata:/data
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "10"
+    logging: *logging

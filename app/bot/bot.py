@@ -1,5 +1,4 @@
 """Configuration for bot instance."""
-from typing import Optional
 
 from httpx import AsyncClient, Limits
 from pybotx import Bot, CallbackRepoProto, IncomingMessage
@@ -20,12 +19,9 @@ async def is_enabled_debug(message: IncomingMessage) -> bool:
     return message.sender.huid in settings.SMARTLOG_DEBUG_HUIDS
 
 
-def get_bot(
-    add_internal_error_handler: bool,
-    callback_repo: Optional[CallbackRepoProto] = None,
-) -> Bot:
+def get_bot(callback_repo: CallbackRepoProto, raise_exceptions: bool) -> Bot:
     exception_handlers = {}
-    if add_internal_error_handler:
+    if not raise_exceptions:
         exception_handlers[Exception] = make_smart_logger_exception_handler(
             strings.SOMETHING_GOES_WRONG
         )

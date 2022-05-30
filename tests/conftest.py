@@ -55,11 +55,8 @@ async def redis_repo(bot: Bot) -> RedisRepo:
     return bot.state.redis_repo
 
 
-def mock_authorization(
-    host: str,
-    bot_id: UUID,
-) -> None:
-    respx.get(f"https://{host}/api/v2/botx/bots/{bot_id}/token",).mock(
+def mock_authorization() -> None:
+    respx.route(method="GET", path__regex="/api/v2/botx/bots/.*/token").mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
             json={
@@ -75,14 +72,14 @@ async def bot(
     respx_mock: Callable[..., Any],  # We can't apply pytest mark to fixture
 ) -> AsyncGenerator[Bot, None]:
     fastapi_app = get_application()
-    built_bot = fastapi_app.state.bot
 
-    for bot_account in built_bot.bot_accounts:
-        mock_authorization(bot_account.host, bot_account.id)
-
-    built_bot.answer_message = AsyncMock(return_value=uuid4())
+    mock_authorization()
 
     async with LifespanManager(fastapi_app):
+        built_bot = fastapi_app.state.bot
+
+        built_bot.answer_message = AsyncMock(return_value=uuid4())
+
         yield built_bot
 
 

@@ -2,7 +2,7 @@
 .run_bot: &run_bot
   - docker rm -f ${CONTAINER_NAME} || true
   - docker pull ${CONTAINER_RELEASE_IMAGE}
-  # Add new envs here. Don't forget to add them in example.env and docker-compose files.
+  # Add envs for app here. Don't forget to add them in example.env and docker-compose files.
   - docker run
     -d
     --name ${CONTAINER_NAME}
@@ -16,7 +16,23 @@
     -e REDIS_DSN="${REDIS_DSN}"
     -e BOT_CREDENTIALS="${BOT_CREDENTIALS}"
     -e DEBUG="${DEBUG:-false}"
-    $CONTAINER_RELEASE_IMAGE
+    ${CONTAINER_RELEASE_IMAGE}
+  {% if add_worker -%}
+  - docker rm -f ${CONTAINER_NAME}-worker || true
+  # Add envs for worker here
+  - docker run
+    -d
+    --name ${CONTAINER_NAME}-worker
+    --restart always
+    --log-opt max-size=10m
+    --log-opt max-file=5
+    -e POSTGRES_DSN="${POSTGRES_DSN}"
+    -e REDIS_DSN="${REDIS_DSN}"
+    -e BOT_CREDENTIALS="${BOT_CREDENTIALS}"
+    -e DEBUG="${DEBUG:-false}"
+    ${CONTAINER_RELEASE_IMAGE}
+    bash -c 'PYTHONPATH="$PYTHONPATH:$PWD" saq app.worker.worker.settings'
+  {%- endif %}
 
 .create_db: &create_db
   - psql -c "create user \"${POSTGRES_USER}\"" postgres || true
