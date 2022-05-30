@@ -16,8 +16,6 @@ docker run \
     -e REDIS_DSN=$REDIS_DSN \
     -e POSTGRES_DSN=$POSTGRES_DSN \
     -e BOT_CREDENTIALS="cts.example.com@secret@aab1b617-7694-4e75-bc59-145a2fd1502f"  \
-    -e PROD_SERVER_HOST="test-prod-server" \
-    -e DEV_SERVER_HOST="test-dev-server" \
     --health-cmd "curl http://localhost:8000/status || exit 1" \
     --health-interval 2s \
     --health-start-period 4s \

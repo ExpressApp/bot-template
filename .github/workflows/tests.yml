@@ -48,6 +48,8 @@ jobs:
         env:
           REDIS_DSN: ${{ env.REDIS_DSN }}
           POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
+          PROD_SERVER_HOST: "prod-server-host"
+          DEV_SERVER_HOST: "dev-server-host"
         run: ./.github/scripts/test_image
 
 
