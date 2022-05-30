@@ -40,7 +40,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install copier
-        run: pip install copier
+        run: |
+          pip install copier
+          pip install copier-templates-extensions
 
       - name: Test image
         env:
