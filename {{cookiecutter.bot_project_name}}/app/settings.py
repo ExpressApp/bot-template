@@ -18,6 +18,9 @@ class AppSettings(BaseSettings):
     # base kwargs
     DEBUG: bool = False
 
+    # User huids for debug
+    SMARTLOG_DEBUG_HUIDS: Any
+
     # database
     POSTGRES_DSN: str
     SQL_DEBUG: bool = False
@@ -39,6 +42,15 @@ class AppSettings(BaseSettings):
             cls._build_credentials_from_string(credentials_str)
             for credentials_str in raw_credentials.replace(",", " ").split()
         ]
+
+    @validator("SMARTLOG_DEBUG_HUIDS", pre=True)
+    @classmethod
+    def parse_smartlog_debug_huids(cls, raw_huids: Any) -> List[UUID]:
+        """Parse debug huids separated by comma."""
+        if not raw_huids:
+            return []
+
+        return [UUID(huid) for huid in raw_huids.split(",")]
 
     @classmethod
     def _build_credentials_from_string(
