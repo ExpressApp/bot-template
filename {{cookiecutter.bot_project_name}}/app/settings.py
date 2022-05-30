@@ -18,15 +18,15 @@ class AppSettings(BaseSettings):
     # base kwargs
     DEBUG: bool = False
 
+    # User huids for debug
+    SMARTLOG_DEBUG_HUIDS: Any
+
     # database
     POSTGRES_DSN: str
     SQL_DEBUG: bool = False
 
     # redis
     REDIS_DSN: str
-
-    # User huids for debug
-    SMARTLOG_DEBUG_HUIDS: Any
 
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
