@@ -50,6 +50,7 @@ jobs:
           POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
           PROD_SERVER_HOST: "prod.example.com"
           DEV_SERVER_HOST: "dev.example.com"
+          BOTS_REGISTRY_URL: "registry.example.com/bots/"
         run: ./.github/scripts/test_image
 
 
@@ -91,6 +92,7 @@ jobs:
         env:
           PROD_SERVER_HOST: "prod.example.com"
           DEV_SERVER_HOST: "dev.example.com"
+          BOTS_REGISTRY_URL: "registry.example.com/bots/"
         run: |
           pip install copier
           pip install copier-templates-extensions
@@ -146,6 +148,7 @@ jobs:
         env:
           PROD_SERVER_HOST: "prod.example.com"
           DEV_SERVER_HOST: "dev.example.com"
+          BOTS_REGISTRY_URL: "registry.example.com/bots/"
         run: |
           pip install copier
           pip install copier-templates-extensions
