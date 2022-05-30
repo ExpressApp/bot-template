@@ -48,8 +48,8 @@ jobs:
         env:
           REDIS_DSN: ${{ env.REDIS_DSN }}
           POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
-          PROD_SERVER_HOST: "prod-server-host"
-          DEV_SERVER_HOST: "dev-server-host"
+          PROD_SERVER_HOST: "prod.example.com"
+          DEV_SERVER_HOST: "dev.example.com"
         run: ./.github/scripts/test_image
 
 
@@ -89,8 +89,8 @@ jobs:
 
       - name: Install copier
         env:
-          PROD_SERVER_HOST: "prod-server-host"
-          DEV_SERVER_HOST: "dev-server-host"
+          PROD_SERVER_HOST: "prod.example.com"
+          DEV_SERVER_HOST: "dev.example.com"
         run: |
           pip install copier
           pip install copier-templates-extensions
@@ -144,8 +144,8 @@ jobs:
 
       - name: Install copier
         env:
-          PROD_SERVER_HOST: "prod-server-host"
-          DEV_SERVER_HOST: "dev-server-host"
+          PROD_SERVER_HOST: "prod.example.com"
+          DEV_SERVER_HOST: "dev.example.com"
         run: |
           pip install copier
           pip install copier-templates-extensions

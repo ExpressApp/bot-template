@@ -11,10 +11,6 @@ bot_description:
     help: Description for README.md. First line will be added pyproject.toml
     default: TODO
 
-registry_url:
-    help: Bot registry url 
-    default: registry.example.com/bots/
-
 
 bot_name_underscored:
     default: "{{bot_project_name|replace('-', '_')}}"
