@@ -6,6 +6,9 @@ env:
     POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
     poetry_version: "1.1.12"
     project_name: "async-box-bot"
+    PROD_SERVER_HOST: "prod.example.com"
+    DEV_SERVER_HOST: "dev.example.com"
+    BOTS_REGISTRY_URL: "registry.example.com/bots/"
 
 jobs:
   test-image:
@@ -48,9 +51,6 @@ jobs:
         env:
           REDIS_DSN: ${{ env.REDIS_DSN }}
           POSTGRES_DSN: ${{ env.POSTGRES_DSN }}
-          PROD_SERVER_HOST: "prod.example.com"
-          DEV_SERVER_HOST: "dev.example.com"
-          BOTS_REGISTRY_URL: "registry.example.com/bots/"
         run: ./.github/scripts/test_image
 
 
@@ -89,10 +89,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install copier
-        env:
-          PROD_SERVER_HOST: "prod.example.com"
-          DEV_SERVER_HOST: "dev.example.com"
-          BOTS_REGISTRY_URL: "registry.example.com/bots/"
         run: |
           pip install copier
           pip install copier-templates-extensions
@@ -145,10 +141,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install copier
-        env:
-          PROD_SERVER_HOST: "prod.example.com"
-          DEV_SERVER_HOST: "dev.example.com"
-          BOTS_REGISTRY_URL: "registry.example.com/bots/"
         run: |
           pip install copier
           pip install copier-templates-extensions
