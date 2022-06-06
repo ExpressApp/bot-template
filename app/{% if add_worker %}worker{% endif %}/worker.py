@@ -1,6 +1,6 @@
 """Tasks worker configuration."""
 
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
 from pybotx import Bot
 from redis import asyncio as aioredis
@@ -35,11 +35,15 @@ async def shutdown(ctx: SaqCtx) -> None:
     logger.info("Worker stopped")
 
 
+async def healthcheck(_: SaqCtx) -> Literal[True]:
+    return True
+
+
 queue = Queue.from_url(app_settings.REDIS_DSN)
 
 settings = {
     "queue": queue,
-    "functions": [],
+    "functions": [healthcheck],
     "cron_jobs": [],
     "concurrency": 8,
     "startup": startup,

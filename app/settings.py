@@ -30,6 +30,9 @@ class AppSettings(BaseSettings):
     # redis
     REDIS_DSN: str
 
+    # healthcheck
+    WORKER_TIMEOUT_SEC: float = 4
+
     @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
     def parse_bot_credentials(cls, raw_credentials: Any) -> List[BotAccountWithSecret]:

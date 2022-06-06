@@ -14,7 +14,7 @@ bot_description:
 add_worker:
     help: Include tasks worker in `docker-compose.yml`
     type: bool
-    default: no
+    default: yes
 
 
 bot_name_underscored:
