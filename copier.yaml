@@ -37,5 +37,6 @@ _jinja_extensions:
 _exclude:
     - ".git"
     - ".github"
+    - "LICENSE.md"
     - "copier.yml"
     - "extensions"
