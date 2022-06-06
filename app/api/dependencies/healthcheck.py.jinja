@@ -1,9 +1,17 @@
 """Bot dependency for healthcheck."""
 
+{% if add_worker -%}
+from asyncio.exceptions import TimeoutError
+{%- endif %}
 from typing import Optional
 
 from fastapi import Depends, Request
 from pybotx import Bot
+
+{% if add_worker -%}
+from app.settings import settings
+from app.worker.worker import queue
+{%- endif %}
 
 
 async def check_db_connection(request: Request) -> Optional[str]:
@@ -32,3 +40,21 @@ async def check_redis_connection(request: Request) -> Optional[str]:
 
 
 check_redis_connection_dependency = Depends(check_redis_connection)
+{%- if add_worker %}
+
+
+async def check_worker_status() -> Optional[str]:
+    job = await queue.enqueue("healthcheck")
+
+    try:
+        await job.refresh(settings.WORKER_TIMEOUT_SEC)
+    except TimeoutError:
+        return "Worker is overloaded or not launched"
+    except Exception as exc:
+        return str(exc)
+
+    return None
+
+
+check_worker_status_dependency = Depends(check_worker_status)
+{%- endif %}

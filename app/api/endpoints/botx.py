@@ -70,7 +70,6 @@ async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONRes
 
     try:
         status = await bot.raw_get_status(dict(request.query_params))
-
     except UnknownBotAccountError as exc:
         error_label = f"Unknown bot_id: {exc.bot_id}"
         logger.warning(exc)
@@ -78,7 +77,6 @@ async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONRes
             build_bot_disabled_response(error_label),
             status_code=HTTPStatus.SERVICE_UNAVAILABLE,
         )
-
     except ValueError:
         error_label = "Invalid params"
         logger.warning(error_label)

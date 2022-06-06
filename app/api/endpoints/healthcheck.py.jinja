@@ -7,6 +7,9 @@ from fastapi import APIRouter
 from app.api.dependencies.healthcheck import (
     check_db_connection_dependency,
     check_redis_connection_dependency,
+    {% if add_worker -%}
+    check_worker_status_dependency,
+    {%- endif %}
 )
 from app.services.healthcheck import (
     HealthCheckResponse,
@@ -21,6 +24,9 @@ router = APIRouter()
 async def healthcheck(
     redis_connection_error: Optional[str] = check_redis_connection_dependency,
     db_connection_error: Optional[str] = check_db_connection_dependency,
+    {% if add_worker -%}
+    worker_status_error: Optional[str] = check_worker_status_dependency,
+    {%- endif %}
 ) -> HealthCheckResponse:
     """Check the health of the bot and services."""
     healthcheck_builder = HealthCheckResponseBuilder()
@@ -30,5 +36,10 @@ async def healthcheck(
     healthcheck_builder.add_healthcheck_result(
         HealthCheckServiceResult(name="redis", error=redis_connection_error)
     )
+    {% if add_worker -%}
+    healthcheck_builder.add_healthcheck_result(
+        HealthCheckServiceResult(name="worker", error=worker_status_error)
+    )
+    {%- endif %}
 
     return healthcheck_builder.build()
