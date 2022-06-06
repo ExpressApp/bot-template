@@ -41,7 +41,7 @@ class AppSettings(BaseSettings):
         Each entry must be separated by "@" or "|".
         """
         if not raw_credentials:
-            raise ValueError("`BOT_CREDENTIALS` can't be empty")
+            return []
 
         return [
             cls._build_credentials_from_string(credentials_str)

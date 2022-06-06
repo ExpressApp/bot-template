@@ -5,7 +5,7 @@ services:
     build: .
     container_name: {{bot_project_name}}
     environment: &environment
-      - BOT_CREDENTIALS=cts_host@secret_key@bot_id
+      - BOT_CREDENTIALS=$BOT_CREDENTIALS  # cts_host@secret_key@bot_id
       - POSTGRES_DSN=postgres://postgres:postgres@{{bot_project_name}}-postgres/{{bot_name_underscored}}_db
       - REDIS_DSN=redis://{{bot_project_name}}-redis/0
       - DEBUG=true
