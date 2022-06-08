@@ -16,6 +16,11 @@ add_worker:
     type: bool
     default: yes
 
+from_ccsteam:
+    help: Are you from CCS team?
+    type: bool
+    default: yes
+
 
 bot_name_underscored:
     default: "{{bot_project_name|replace('-', '_')}}"
