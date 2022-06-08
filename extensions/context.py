@@ -10,7 +10,6 @@ class ContextUpdater(ContextHook):
             try:
                 context["PROD_SERVER_HOST"] = os.environ["PROD_SERVER_HOST"]
                 context["DEV_SERVER_HOST"] = os.environ["DEV_SERVER_HOST"]
-                context["BOTS_REGISTRY_URL"] = os.environ["BOTS_REGISTRY_URL"]
             except KeyError as exc:
                 raise UserMessageError(f"{exc.args[0]} is not provided in environment")
 
