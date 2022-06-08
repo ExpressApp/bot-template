@@ -45,3 +45,4 @@ _exclude:
     - "LICENSE.md"
     - "copier.yml"
     - "extensions"
+    - "README.md"
