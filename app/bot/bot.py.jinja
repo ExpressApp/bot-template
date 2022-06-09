@@ -7,7 +7,7 @@ from pybotx_smart_logger import (
     make_smart_logger_exception_handler,
 )
 
-from app.bot.commands import common
+from app.bot.commands import common{% if CI %}, test{% endif %}
 from app.bot.middlewares.answer_error import answer_error_middleware
 from app.resources import strings
 from app.settings import settings
@@ -27,7 +27,12 @@ def get_bot(callback_repo: CallbackRepoProto, raise_exceptions: bool) -> Bot:
         )
 
     return Bot(
-        collectors=[common.collector],
+        collectors=[
+            common.collector,
+            {%- if CI %}
+            test.collector,
+            {%- endif %}
+        ],
         bot_accounts=settings.BOT_CREDENTIALS,
         exception_handlers=exception_handlers,  # type: ignore
         default_callback_timeout=BOTX_CALLBACK_TIMEOUT,
