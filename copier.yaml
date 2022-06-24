@@ -1,10 +1,10 @@
 bot_project_name:
     help: Git project name
-    default: async-box-bot
+    default: bot-example
 
 bot_display_name:
     help: Bot name in messenger
-    default: AsyncBox Bot
+    default: Bot Example
 
 bot_description:
     multiline: true
