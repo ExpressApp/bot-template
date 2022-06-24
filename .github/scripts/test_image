@@ -2,7 +2,7 @@
 
 set -ex
 
-PROJECT_NAME=async-box-bot
+PROJECT_NAME=bot-example
 
 python -m copier --defaults . $PROJECT_NAME
 cd $PROJECT_NAME

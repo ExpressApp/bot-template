@@ -5,7 +5,7 @@ env:
     REDIS_DSN: redis://localhost:6379/0
     POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
     poetry_version: "1.1.12"
-    project_name: "async-box-bot"
+    project_name: "bot-example"
     PROD_SERVER_HOST: "prod.example.com"
     DEV_SERVER_HOST: "dev.example.com"
     BOTS_REGISTRY_URL: "registry.example.com/bots/"
@@ -69,7 +69,7 @@ jobs:
         run: |
           pip install copier
           pip install copier-templates-extensions
-          python -m copier --defaults . async-box-bot
+          python -m copier --defaults . bot-example
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -121,7 +121,7 @@ jobs:
         run: |
           pip install copier
           pip install copier-templates-extensions
-          python -m copier --defaults . async-box-bot
+          python -m copier --defaults . bot-example
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
