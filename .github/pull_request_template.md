@@ -1,6 +1,6 @@
 # Checklist
 
-- [ ] I've generated a new bot from the async-box template and checked that everything works:
+- [ ] I've generated a new bot from the bot-template and checked that everything works:
   - [ ] Linters and tests have passed
   - [ ] Bot answers on `/help` command
   - [ ] Bot suggests available commands
