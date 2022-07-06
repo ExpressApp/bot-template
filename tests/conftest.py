@@ -1,7 +1,6 @@
 import logging
-from asyncio import Task
 from http import HTTPStatus
-from typing import Any, AsyncGenerator, Awaitable, Callable, Generator, List, Optional
+from typing import Any, AsyncGenerator, Callable, Generator, List, Optional
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
@@ -18,10 +17,8 @@ from pybotx import (
     IncomingMessage,
     UserDevice,
     UserSender,
-    lifespan_wrapper,
 )
 from pybotx.logger import logger
-from pybotx.models.commands import BotCommand
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.caching.redis_repo import RedisRepo
@@ -148,18 +145,6 @@ def incoming_message_factory(
         )
 
     return factory
-
-
-@pytest.fixture
-async def execute_bot_command() -> Callable[[Bot, BotCommand], Awaitable[None]]:
-    async def executor(
-        bot: Bot,
-        command: BotCommand,
-    ) -> Task:  # type: ignore
-        async with lifespan_wrapper(bot):
-            return bot.async_execute_bot_command(command)
-
-    return executor  # type: ignore
 
 
 @pytest.fixture()

@@ -11,7 +11,6 @@ from pybotx import (
     BotXMethodFailedCallbackReceivedError,
     CallbackNotReceivedError,
     IncomingMessage,
-    lifespan_wrapper,
 )
 from respx import MockRouter
 
@@ -60,20 +59,19 @@ async def test_callback_redis_repo_successful_callback(
     )
 
     # - Act -
-    async with lifespan_wrapper(bot):
-        task = bot.async_execute_bot_command(message)
-        await asyncio.sleep(0)
+    task = bot.async_execute_bot_command(message)
+    await asyncio.sleep(0)
 
-        await bot.set_raw_botx_method_result(
-            {
-                "status": "ok",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "result": {},
-            }
-        )
-        await asyncio.sleep(0)
+    await bot.set_raw_botx_method_result(
+        {
+            "status": "ok",
+            "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+            "result": {},
+        }
+    )
+    await asyncio.sleep(0)
 
-        await task
+    await task
 
     # - Assert -
     assert task.exception() is None
@@ -104,21 +102,20 @@ async def test_callback_redis_repo_unsuccessful_callback(
     )
 
     # - Act -
-    async with lifespan_wrapper(bot):
-        task = bot.async_execute_bot_command(message)
-        await asyncio.sleep(0)
+    task = bot.async_execute_bot_command(message)
+    await asyncio.sleep(0)
 
-        await bot.set_raw_botx_method_result(
-            {
-                "status": "error",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "reason": "test_reason",
-                "errors": [],
-                "error_data": {},
-            }
-        )
-        with pytest.raises(BotXMethodFailedCallbackReceivedError) as exc:
-            await task
+    await bot.set_raw_botx_method_result(
+        {
+            "status": "error",
+            "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+            "reason": "test_reason",
+            "errors": [],
+            "error_data": {},
+        }
+    )
+    with pytest.raises(BotXMethodFailedCallbackReceivedError) as exc:
+        await task
 
     # - Assert -
     assert "test_reason" in str(exc.value)  # noqa: WPS441
@@ -149,11 +146,10 @@ async def test_callback_redis_repo_no_callback(
     )
 
     # - Act -
-    async with lifespan_wrapper(bot):
-        task = bot.async_execute_bot_command(message)
+    task = bot.async_execute_bot_command(message)
 
-        with pytest.raises(CallbackNotReceivedError) as exc:
-            await task
+    with pytest.raises(CallbackNotReceivedError) as exc:
+        await task
 
     # - Assert -
     assert "hasn't been received" in str(exc.value)  # noqa: WPS441
@@ -184,22 +180,21 @@ async def test_callback_redis_repo_wait_callback(
     )
 
     # - Act -
-    async with lifespan_wrapper(bot):
-        task = bot.async_execute_bot_command(message)
-        await asyncio.sleep(0.1)
+    task = bot.async_execute_bot_command(message)
+    await asyncio.sleep(0.1)
 
-        await bot.set_raw_botx_method_result(
-            {
-                "status": "error",
-                "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
-                "reason": "test_reason",
-                "errors": [],
-                "error_data": {},
-            }
-        )
-        await asyncio.sleep(0.1)
+    await bot.set_raw_botx_method_result(
+        {
+            "status": "error",
+            "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+            "reason": "test_reason",
+            "errors": [],
+            "error_data": {},
+        }
+    )
+    await asyncio.sleep(0.1)
 
-        await task
+    await task
 
     # - Assert -
     assert task.exception() is None
@@ -231,8 +226,8 @@ async def test_callback_redis_repo_no_wait_callback(
     )
 
     # - Act -
-    async with lifespan_wrapper(bot):
-        await bot.async_execute_bot_command(message)
+    await bot.async_execute_bot_command(message)
+    await asyncio.sleep(0)
 
     # - Assert -
     assert (
