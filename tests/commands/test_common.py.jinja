@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable
+from typing import Callable
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
@@ -19,7 +19,6 @@ from pybotx import (
     UserKinds,
 )
 from pybotx.models.attachments import AttachmentVideo
-from pybotx.models.commands import BotCommand
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.caching.redis_repo import RedisRepo
@@ -31,14 +30,13 @@ async def test_answer_error_exception_middleware(
     bot: Bot,
     user_huid: UUID,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-answer-error")
     bot.send = AsyncMock(return_value=uuid4())  # type: ignore
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     bot.send.assert_awaited_once_with(
@@ -73,13 +71,12 @@ async def test_answer_message_error_exception_middleware(
     bot: Bot,
     user_huid: UUID,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-answer-message-error")
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
@@ -109,13 +106,12 @@ async def test_answer_message_error_exception_middleware(
 async def test_fail_handler_while_shutting_down(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-fail-shutting-down")
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
@@ -131,14 +127,13 @@ async def test_fail_handler_while_shutting_down(
 async def test_fail_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
     loguru_caplog: pytest.LogCaptureFixture,
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-fail")
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
@@ -155,14 +150,13 @@ async def test_fail_handler(
 async def test_redis_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
     redis_repo: RedisRepo,
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-redis")
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     assert await redis_repo.rget("test_key") == "test_value"
@@ -172,7 +166,6 @@ async def test_redis_handler(
 async def test_db_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
     db_session: AsyncSession,
 ) -> None:
     # - Arrange -
@@ -180,7 +173,7 @@ async def test_db_handler(
     record_repo = RecordRepo(db_session)
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     assert await record_repo.get(record_id=1) == Record(
@@ -203,13 +196,12 @@ async def test_db_handler(
 async def test_default_message_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory()
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with("Hello!")  # type: ignore
@@ -219,7 +211,6 @@ async def test_chat_created_handler(
     bot: Bot,
     bot_id: UUID,
     host: str,
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
 ) -> None:
     # - Arrange -
     command = ChatCreatedEvent(
@@ -252,7 +243,7 @@ async def test_chat_created_handler(
     )
 
     # - Act -
-    await execute_bot_command(bot, command)
+    await bot.async_execute_bot_command(command)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
@@ -267,13 +258,12 @@ async def test_chat_created_handler(
 async def test_help_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/help")
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
@@ -284,13 +274,12 @@ async def test_help_handler(
 async def test_git_commit_sha_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
-    execute_bot_command: Callable[[Bot, BotCommand], Awaitable[None]],
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_debug:git-commit-sha")
 
     # - Act -
-    await execute_bot_command(bot, message)
+    await bot.async_execute_bot_command(message)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with("<undefined>")  # type: ignore
