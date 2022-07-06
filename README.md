@@ -1,4 +1,4 @@
-# Bot Temaplte Tutorial
+# Bot Template Tutorial
  
 ## Введение
 
