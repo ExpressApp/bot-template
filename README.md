@@ -62,7 +62,7 @@ $ alembic upgrade head
 ```
 5. Запускаем бота как приложение [FastAPI](https://fastapi.tiangolo.com/tutorial/) через [uvicorn](https://fastapi.tiangolo.com/tutorial/). Флаг `--reload` используется только при разработке для автоматического перезапуска сервера при изменениях в коде:
 ```bash
-$ uvicorn app.main:app --reload
+$ uvicorn --reload --factory app.main:get_application
 ```
 
 ----
