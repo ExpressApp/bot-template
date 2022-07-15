@@ -60,9 +60,4 @@ OTHER_CTS_WITH_BOT_MENTION_WARNING = "\n".join(
     ]
 )
 
-SOMETHING_GOES_WRONG = "\n".join(
-    [
-        "При обработке сообщения или нажатия на кнопку произошла непредвиденная ошибка.",
-        "Пожалуйста, сообщите об этом вашему администратору бота.",
-    ]
-)
+SOMETHING_GOES_WRONG = lookup.get_template("something_goes_wrong.txt.mako")
