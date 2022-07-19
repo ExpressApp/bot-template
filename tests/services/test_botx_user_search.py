@@ -20,6 +20,7 @@ async def test_search_user_on_each_cts_user_is_bot_error_raised(
         company_position=None,
         department=None,
         emails=[],
+        other_id=None,
     )
 
     bot.search_user_by_huid = AsyncMock(return_value=bot_user)  # type: ignore
@@ -59,6 +60,7 @@ async def test_search_user_on_each_cts_suceed(
         company_position=None,
         department=None,
         emails=[],
+        other_id=None,
     )
 
     bot.search_user_by_huid = AsyncMock(return_value=user)  # type: ignore
