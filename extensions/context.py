@@ -6,6 +6,8 @@ from copier.errors import UserMessageError
 
 class ContextUpdater(ContextHook):
     def hook(self, context):
+        context["CI"] = os.environ.get("CI", False)
+
         if context["from_ccsteam"]:
             try:
                 context["PROD_SERVER_HOST"] = os.environ["PROD_SERVER_HOST"]
