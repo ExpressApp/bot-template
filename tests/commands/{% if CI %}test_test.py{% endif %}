@@ -1,20 +1,32 @@
 import asyncio
 import os
+import re
 from http import HTTPStatus
 from typing import AsyncGenerator, Callable
+from unittest.mock import AsyncMock
+from uuid import UUID, uuid4
 
 import httpx
 import pytest
 from asgi_lifespan import LifespanManager
 from pybotx import (
+    AttachmentTypes,
     Bot,
     BotXMethodFailedCallbackReceivedError,
+    BubbleMarkup,
     CallbackNotReceivedError,
     IncomingMessage,
+    KeyboardMarkup,
+    OutgoingMessage,
 )
+from pybotx.models.attachments import AttachmentVideo
 from respx import MockRouter
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.caching.redis_repo import RedisRepo
+from app.db.record.repo import RecordRepo
 from app.main import get_application
+from app.schemas.record import Record
 from tests.conftest import mock_authorization
 
 pytestmark = pytest.mark.xfail(
@@ -234,3 +246,176 @@ async def test_callback_redis_repo_no_wait_callback(
         "Callback `21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3` wasn't waited"
         in loguru_caplog.text
     )
+
+
+async def test_answer_error_exception_middleware(
+    bot: Bot,
+    user_huid: UUID,
+    incoming_message_factory: Callable[..., IncomingMessage],
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-answer-error")
+    bot.send = AsyncMock(return_value=uuid4())  # type: ignore
+
+    # - Act -
+    await bot.async_execute_bot_command(message)
+
+    # - Assert -
+    bot.send.assert_awaited_once_with(
+        message=OutgoingMessage(
+            bot_id=message.bot.id,
+            chat_id=message.chat.id,
+            body="test",
+            metadata={"test": 1},
+            bubbles=BubbleMarkup([[]]),
+            keyboard=KeyboardMarkup([[]]),
+            file=AttachmentVideo(
+                type=AttachmentTypes.VIDEO,
+                filename="test_file.mp4",
+                size=len(b"Hello, world!\n"),
+                is_async_file=False,
+                content=b"Hello, world!\n",
+                duration=10,
+            ),
+            recipients=[user_huid],
+            silent_response=False,
+            markup_auto_adjust=False,
+            stealth_mode=False,
+            send_push=False,
+            ignore_mute=False,
+        ),
+        wait_callback=True,
+        callback_timeout=1,
+    )
+
+
+async def test_answer_message_error_exception_middleware(
+    bot: Bot,
+    user_huid: UUID,
+    incoming_message_factory: Callable[..., IncomingMessage],
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-answer-message-error")
+
+    # - Act -
+    await bot.async_execute_bot_command(message)
+
+    # - Assert -
+    bot.answer_message.assert_awaited_once_with(  # type: ignore
+        body="test",
+        metadata={"test": 1},
+        bubbles=BubbleMarkup([[]]),
+        keyboard=KeyboardMarkup([[]]),
+        file=AttachmentVideo(
+            type=AttachmentTypes.VIDEO,
+            filename="test_file.mp4",
+            size=len(b"Hello, world!\n"),
+            is_async_file=False,
+            content=b"Hello, world!\n",
+            duration=10,
+        ),
+        recipients=[user_huid],
+        silent_response=False,
+        markup_auto_adjust=False,
+        stealth_mode=False,
+        send_push=False,
+        ignore_mute=False,
+        wait_callback=True,
+        callback_timeout=1,
+    )
+
+
+async def test_fail_handler_while_shutting_down(
+    bot: Bot,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-fail-shutting-down")
+
+    # - Act -
+    await bot.async_execute_bot_command(message)
+
+    # - Assert -
+    assert re.search(r"Internal error ([a-z\d\-]*)", loguru_caplog.text)
+    assert re.search(
+        (
+            "При обработке сообщения или нажатия на кнопку произошла "
+            "непредвиденная ошибка.\n"
+            "Пожалуйста, сообщите об этом вашему администратору бота.\n"
+            r"\*\*Идентификатор ошибки\*\*: `([a-z\d\-]*)`."
+        ),
+        bot.answer_message.call_args[0][0],  # type: ignore
+    )
+
+
+@pytest.mark.xfail
+async def test_fail_handler(
+    bot: Bot,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    loguru_caplog: pytest.LogCaptureFixture,
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-fail")
+
+    # - Act -
+    await bot.async_execute_bot_command(message)
+
+    # - Assert -
+    assert re.search(r"Internal error ([a-z\d\-]*)", loguru_caplog.text)
+    assert re.search(
+        (
+            "При обработке сообщения или нажатия на кнопку произошла "
+            "непредвиденная ошибка.\n"
+            "Пожалуйста, сообщите об этом вашему администратору бота.\n"
+            r"\*\*Идентификатор ошибки\*\*: `([a-z\d\-]*)`."
+        ),
+        bot.answer_message.call_args[0][0],  # type: ignore
+    )
+    assert "Test smart_log output" in loguru_caplog.text
+
+
+async def test_redis_handler(
+    bot: Bot,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    redis_repo: RedisRepo,
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-redis")
+
+    # - Act -
+    await bot.async_execute_bot_command(message)
+
+    # - Assert -
+    assert await redis_repo.rget("test_key") == "test_value"
+    assert await redis_repo.get("test_key") is None
+
+
+async def test_db_handler(
+    bot: Bot,
+    incoming_message_factory: Callable[..., IncomingMessage],
+    db_session: AsyncSession,
+) -> None:
+    # - Arrange -
+    message = incoming_message_factory(body="/_test-db")
+    record_repo = RecordRepo(db_session)
+
+    # - Act -
+    await bot.async_execute_bot_command(message)
+
+    # - Assert -
+    assert await record_repo.get(record_id=1) == Record(
+        id=1, record_data="test 1 (updated)"
+    )
+    assert await record_repo.get_or_none(record_id=2) is None
+    assert await record_repo.filter_by_record_data(
+        record_data="test not unique data"
+    ) == [
+        Record(id=3, record_data="test not unique data"),
+        Record(id=4, record_data="test not unique data"),
+    ]
+    assert await record_repo.get_all() == [
+        Record(id=1, record_data="test 1 (updated)"),
+        Record(id=3, record_data="test not unique data"),
+        Record(id=4, record_data="test not unique data"),
+    ]
