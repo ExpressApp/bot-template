@@ -7,7 +7,7 @@ EXPOSE 8000
 
 # Install system-wide dependencies
 RUN apt-get update && \
-  apt-get install --no-install-recommends -y git curl gcc python3-dev && \
+  apt-get install --no-install-recommends -y git curl gcc && \
   apt-get clean autoclean && \
   apt-get autoremove --yes && \
   rm -rf /var/lib/apt/lists/*
