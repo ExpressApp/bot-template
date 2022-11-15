@@ -4,24 +4,29 @@ from typing import Any, List
 from uuid import UUID
 
 from pybotx import BotAccountWithSecret
-from pydantic import BaseSettings, validator
+from pydantic import BaseSettings
 
 
 class AppSettings(BaseSettings):
     class Config:  # noqa: WPS431
         env_file = ".env"
 
-    # TODO: Change type to `list[BotAccountWithSecret]` after closing:
-    # https://github.com/samuelcolvin/pydantic/issues/1458
-    BOT_CREDENTIALS: Any
+        @classmethod
+        def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
+            if field_name == "BOT_CREDENTIALS":
+                return AppSettings.parse_bot_credentials(raw_val)
+            elif field_name == "SMARTLOG_DEBUG_HUIDS":
+                return AppSettings.parse_smartlog_debug_huids(raw_val)
+
+            return cls.json_loads(raw_val)  # type: ignore[attr-defined]
+
+    BOT_CREDENTIALS: List[BotAccountWithSecret]
 
     # base kwargs
     DEBUG: bool = False
 
-    # TODO: Change type to `list[UUID]` after closing:
-    # https://github.com/samuelcolvin/pydantic/issues/1458
     # User huids for debug
-    SMARTLOG_DEBUG_HUIDS: Any
+    SMARTLOG_DEBUG_HUIDS: List[UUID]
 
     # database
     POSTGRES_DSN: str
@@ -33,7 +38,6 @@ class AppSettings(BaseSettings):
     # healthcheck
     WORKER_TIMEOUT_SEC: float = 4
 
-    @validator("BOT_CREDENTIALS", pre=True)
     @classmethod
     def parse_bot_credentials(cls, raw_credentials: Any) -> List[BotAccountWithSecret]:
         """Parse bot credentials separated by comma.
@@ -48,7 +52,6 @@ class AppSettings(BaseSettings):
             for credentials_str in raw_credentials.replace(",", " ").split()
         ]
 
-    @validator("SMARTLOG_DEBUG_HUIDS", pre=True)
     @classmethod
     def parse_smartlog_debug_huids(cls, raw_huids: Any) -> List[UUID]:
         """Parse debug huids separated by comma."""
