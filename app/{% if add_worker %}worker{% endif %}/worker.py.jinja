@@ -39,7 +39,7 @@ async def healthcheck(_: SaqCtx) -> Literal[True]:
     return True
 
 
-queue = Queue.from_url(app_settings.REDIS_DSN)
+queue = Queue(aioredis.from_url(app_settings.REDIS_DSN), name="{{bot_project_name}}")
 
 settings = {
     "queue": queue,
