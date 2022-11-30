@@ -17,7 +17,7 @@ fastapi = "~0.74.1"
 uvicorn = { version = "~0.17.5", extras = ["standart"] }
 
 loguru = ">=0.6.0,<0.7.0"
-mako = "~1.1.6"
+mako = "~1.2.2"
 pydantic = { version = "~1.8.2", extras = ["dotenv"] }
 
 alembic = "~1.7.6"
@@ -47,6 +47,7 @@ bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
 pytest = "~7.0.1"
 pytest-asyncio = "~0.18.2"
 pytest-cov = "~3.0.0"
+py = "^1.11.0"  # security, TODO: remove after pytest bump version
 
 asgi-lifespan = "~1.0.1"
 requests = "~2.27.1"
