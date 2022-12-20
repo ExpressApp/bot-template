@@ -8,6 +8,7 @@ EXPOSE 8000
 # Install system-wide dependencies
 RUN apt-get update && \
   apt-get install --no-install-recommends -y git curl gcc && \
+  python3 -m pip install setuptools && \
   apt-get clean autoclean && \
   apt-get autoremove --yes && \
   rm -rf /var/lib/apt/lists/*
@@ -23,7 +24,7 @@ ENV VENV_PATH=/home/$APP_USER/.venv/bin
 ENV USER_PATH=/home/$APP_USER/.local/bin
 ENV PATH="$VENV_PATH:$USER_PATH:$PATH"
 
-RUN pip install --user --no-cache-dir poetry==1.1.13 && \
+RUN pip install --user --no-cache-dir poetry==1.2.2 && \
   poetry config virtualenvs.in-project true
 
 COPY poetry.lock pyproject.toml ./
@@ -35,10 +36,10 @@ ARG GIT_PASSWORD=${CI_JOB_TOKEN}
 ARG GIT_LOGIN="gitlab-ci-token"
 # Poetry can't read password to download private repos
 RUN echo -e "machine ${GIT_HOST}\nlogin ${GIT_LOGIN}\npassword ${GIT_PASSWORD}" > ~/.netrc && \
-  poetry install --no-dev && \
+  poetry install --only main && \
   rm -rf ~/.netrc
 {% else %}
-RUN poetry install --no-dev
+RUN poetry install --only main
 {% endif %}
 
 COPY alembic.ini .
