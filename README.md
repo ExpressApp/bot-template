@@ -60,9 +60,14 @@ $ docker-compose -f docker-compose.dev.yml up -d
 ```bash
 $ alembic upgrade head
 ```
-5. Запускаем бота как приложение [FastAPI](https://fastapi.tiangolo.com/tutorial/) через [uvicorn](https://fastapi.tiangolo.com/tutorial/). Флаг `--reload` используется только при разработке для автоматического перезапуска сервера при изменениях в коде:
+5. Запускаем бота как приложение [FastAPI](https://fastapi.tiangolo.com/tutorial/) через [gunicorn](https://fastapi.tiangolo.com/deployment/server-workers/?h=gunicorn#run-gunicorn-with-uvicorn-workers).
+Флаг `--reload` используется только при разработке для автоматического перезапуска сервера при изменениях в коде:
 ```bash
-$ uvicorn --reload --factory app.main:get_application
+$ gunicorn "app.main:get_application()" --worker-class uvicorn.workers.UvicornWorker
+```
+По необходимости добавить флаг `--workers` и их колличество, в данном случае 4 рабочих процесса:
+```bash
+$ gunicorn "app.main:get_application()" --worker-class uvicorn.workers.UvicornWorker --workers 4
 ```
 
 ----
