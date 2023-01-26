@@ -9,6 +9,7 @@ services:
       - POSTGRES_DSN=postgres://postgres:postgres@{{bot_project_name}}-postgres/{{bot_name_underscored}}_db
       - REDIS_DSN=redis://{{bot_project_name}}-redis/0
       - DEBUG=true
+      - SMARTLOG_DEBUG_HUIDS=$SMARTLOG_DEBUG_HUIDS
     ports:
       - "8000:8000"  # Отредактируйте порт хоста (первый), если он уже занят
     restart: always
