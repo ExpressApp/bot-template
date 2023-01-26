@@ -4,6 +4,7 @@ env:
     BOT_CREDENTIALS: example.ru@6d624b45b67f843322ebaa1143132a24@7a1c7744-23c9-4ba9-a7dc-5381f090a52d
     REDIS_DSN: redis://localhost:6379/0
     POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+    SMARTLOG_DEBUG_HUIDS: 7d8eac87-8fc8-452c-9d57-34f988475368 
     poetry_version: "1.2.2"
     project_name: "bot-example"
     PROD_SERVER_HOST: "prod.example.com"
