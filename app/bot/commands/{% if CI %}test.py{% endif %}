@@ -1,12 +1,15 @@
 """Handlers for tests."""
 
-from pybotx import (
+from unittest.mock import AsyncMock
+
+from pybotx import (  # noqa: WPS235
     AttachmentTypes,
     Bot,
     BotShuttingDownError,
     BubbleMarkup,
     HandlerCollector,
     IncomingMessage,
+    IncomingMessageHandlerFunc,
     KeyboardMarkup,
     OutgoingMessage,
 )
@@ -17,7 +20,15 @@ from app.bot.middlewares.db_session import db_session_middleware
 from app.db.record.repo import RecordRepo
 from app.services.answer_error import AnswerError, AnswerMessageError
 
-collector = HandlerCollector()
+
+async def fsm_middleware(
+    message: IncomingMessage, bot: Bot, call_next: IncomingMessageHandlerFunc
+) -> None:
+    message.state.fsm = AsyncMock()
+    await call_next(message, bot)
+
+
+collector = HandlerCollector(middlewares=[fsm_middleware])
 
 
 @collector.command("/_test-redis-callback-repo", visible=False)

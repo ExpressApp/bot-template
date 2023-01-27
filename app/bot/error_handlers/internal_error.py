@@ -13,6 +13,10 @@ async def internal_error_handler(
     error_uuid = uuid4()
     logger.exception(f"Internal error {error_uuid}:")
 
+    fsm_manager = getattr(message.state, "fsm", None)
+    if fsm_manager:
+        await fsm_manager.drop_state()
+
     is_bot_active = not isinstance(exc, BotShuttingDownError)
     await bot.answer_message(
         strings.SOMETHING_GOES_WRONG.format(error_uuid=error_uuid),

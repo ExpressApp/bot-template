@@ -362,6 +362,7 @@ async def test_fail_handler(
     await bot.async_execute_bot_command(message)
 
     # - Assert -
+    message.state.fsm.drop_state.assert_awaited_once()
     assert re.search(r"Internal error ([a-z\d\-]*)", loguru_caplog.text)
     assert re.search(
         (
