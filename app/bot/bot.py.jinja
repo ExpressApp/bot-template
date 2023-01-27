@@ -6,6 +6,7 @@ from pybotx import Bot, CallbackRepoProto
 from app.bot.commands import common{% if CI %}, test{% endif %}
 from app.bot.error_handlers.internal_error import internal_error_handler
 from app.bot.middlewares.answer_error import answer_error_middleware
+from app.bot.middlewares.drop_state_fsm import drop_state_middleware
 from app.bot.middlewares.smart_logger import smart_logger_middleware
 from app.settings import settings
 
@@ -29,6 +30,7 @@ def get_bot(callback_repo: CallbackRepoProto, raise_exceptions: bool) -> Bot:
         middlewares=[
             smart_logger_middleware,
             answer_error_middleware,
+            drop_state_middleware,
         ],
         callback_repo=callback_repo,
     )
