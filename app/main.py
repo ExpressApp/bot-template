@@ -10,7 +10,7 @@ from app.api.routers import router
 from app.bot.bot import get_bot
 from app.caching.callback_redis_repo import CallbackRedisRepo
 from app.caching.redis_repo import RedisRepo
-from app.db.sqlalchemy import build_db_session_factory
+from app.db.sqlalchemy import build_db_session_factory, close_db_connections
 from app.resources import strings
 from app.settings import settings
 
@@ -44,6 +44,9 @@ async def shutdown(application: FastAPI) -> None:
     # -- Redis --
     redis_client: aioredis.Redis = application.state.redis
     await redis_client.close()
+
+    # -- Database --
+    await close_db_connections()
 
 
 def get_application(raise_bot_exceptions: bool = False) -> FastAPI:

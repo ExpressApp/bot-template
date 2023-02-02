@@ -1,9 +1,16 @@
 """SQLAlchemy helpers."""
 
+from asyncio import current_task
 from typing import Callable
 
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_scoped_session,
+    create_async_engine,
+)
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.pool.impl import AsyncAdaptedQueuePool
 
 from app.settings import settings
 
@@ -22,15 +29,23 @@ def make_url_sync(url: str) -> str:
 
 Base = declarative_base()
 
+engine: AsyncEngine = create_async_engine(
+    make_url_async(settings.POSTGRES_DSN), poolclass=AsyncAdaptedQueuePool
+)
+
 
 async def build_db_session_factory() -> AsyncSessionFactory:
-    engine = create_async_engine(make_url_async(settings.POSTGRES_DSN))
-
     await verify_db_connection(engine)
-
-    return sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
+    return async_scoped_session(
+        sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession),
+        scopefunc=current_task,
+    )
 
 
 async def verify_db_connection(engine: AsyncEngine) -> None:
     connection = await engine.connect()
     await connection.close()
+
+
+async def close_db_connections() -> None:
+    await engine.dispose()
