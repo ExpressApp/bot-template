@@ -3,7 +3,7 @@
 from typing import Optional, Tuple
 from uuid import UUID
 
-from pybotx import Bot, BotAccount, UserFromSearch, UserNotFoundError
+from pybotx import Bot, BotAccount, UserFromSearch, UserKinds, UserNotFoundError
 
 
 class UserIsBotError(Exception):
@@ -24,8 +24,7 @@ async def search_user_on_each_cts(
         except UserNotFoundError:
             continue
 
-        name = user.username.lower()
-        if name.endswith("bot") or name.endswith("бот"):  # TODO: user_kind
+        if user.user_kind == UserKinds.BOT:
             raise UserIsBotError
 
         return user, bot_account
