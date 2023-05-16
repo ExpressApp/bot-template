@@ -1,0 +1,43 @@
+### Quickstart
+# 1. Install poetry: pip install poetry
+# 2. Install dependencies: poetry install
+# 3. Add pre-commit to your project: poetry add --dev pre-commit
+# 4. Setup hooks: poetry run pre-commit install
+
+### Usage:
+# 1. Run checks automatically on each commit
+# 2. Run checks on staged files manually: poetry run pre-commit
+# 3. Skip checks on commit: add --no-verify to your git commit
+# 4. Delete hooks: rm -rf .git/hooks/pre-commit
+
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+# Feel free to update for your needs. Changes may require to reinstall hooks.
+repos:
+-   repo: local
+    hooks:
+    -   id: format
+        name: format
+        entry: poetry run ./scripts/format
+        language: system
+        always_run: true
+        verbose: true # show cli messages while executing
+        pass_filenames: true # apply to staged only
+
+    -   id: lint
+        name: lint
+        entry: poetry run ./scripts/lint
+        language: system
+        always_run: true
+        verbose: true
+        pass_filenames: true
+
+    # comment tests if not necessary (or too slow)
+    -   id: test
+        name: test
+        entry: poetry run ./scripts/test tests
+        language: system
+        always_run: false
+        verbose: true
+        pass_filenames: false # required
