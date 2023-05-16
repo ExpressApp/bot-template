@@ -12,6 +12,9 @@ python = ">=3.8,<3.11"
 
 pybotx = "~0.54.0"
 pybotx-smart-logger = "~0.9.8"
+{% if add_fsm %}
+pybotx-fsm = "~0.4.8"
+{% endif %}
 
 fastapi = "~0.74.1"
 uvicorn = { version = "~0.17.5", extras = ["standart"] }
