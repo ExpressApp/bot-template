@@ -5,7 +5,7 @@ env:
     REDIS_DSN: redis://localhost:6379/0
     POSTGRES_DSN: postgresql://postgres:postgres@localhost:5432/postgres
     SMARTLOG_DEBUG_HUIDS: 7d8eac87-8fc8-452c-9d57-34f988475368 
-    poetry_version: "1.2.2"
+    poetry_version: "1.5.0"
     project_name: "bot-example"
     PROD_SERVER_HOST: "prod.example.com"
     DEV_SERVER_HOST: "dev.example.com"
