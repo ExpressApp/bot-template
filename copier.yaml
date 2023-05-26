@@ -11,6 +11,11 @@ bot_description:
     help: Description for README.md. First line will be added pyproject.toml
     default: TODO
 
+add_fsm:
+    help: Add pybotx-fsm to project?
+    type: bool
+    default: no
+
 add_worker:
     help: Include tasks worker in `docker-compose.yml`
     type: bool

@@ -1,7 +1,8 @@
 """Configuration for bot instance."""
 
 from httpx import AsyncClient, Limits
-from pybotx import Bot, CallbackRepoProto
+from pybotx import Bot, CallbackRepoProto{% if add_fsm %}
+from pybotx_fsm import FSMMiddleware{% endif %}
 
 from app.bot.commands import common{% if CI %}, test{% endif %}
 from app.bot.error_handlers.internal_error import internal_error_handler
@@ -28,7 +29,11 @@ def get_bot(callback_repo: CallbackRepoProto, raise_exceptions: bool) -> Bot:
         ),
         middlewares=[
             smart_logger_middleware,
-            answer_error_middleware,
+            answer_error_middleware,{% if add_fsm %}
+            FSMMiddleware(
+                [],
+                state_repo_key="redis_repo",
+            ),{% endif %}
         ],
         callback_repo=callback_repo,
     )
