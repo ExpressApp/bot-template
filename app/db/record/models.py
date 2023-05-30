@@ -1,6 +1,6 @@
 """Database models declarations."""
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.sqlalchemy import Base
 
@@ -10,8 +10,10 @@ class RecordModel(Base):
 
     __tablename__ = "records"
 
-    id: int = Column(Integer, primary_key=True, autoincrement=True)  # noqa: WPS125
-    record_data: str = Column(String)
+    id: Mapped[int] = mapped_column(
+        primary_key=True, autoincrement=True
+    )  # noqa: WPS125
+    record_data: Mapped[str] = mapped_column()
 
     def __repr__(self) -> str:
         """Show string representation of record."""
