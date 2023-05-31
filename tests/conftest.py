@@ -42,7 +42,7 @@ def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
 
 
 @pytest.fixture
-async def db_session(bot: Bot) -> AsyncSession:
+async def db_session(bot: Bot) -> AsyncGenerator[AsyncSession, None]:
     async with bot.state.db_session_factory() as session:
         yield session
 

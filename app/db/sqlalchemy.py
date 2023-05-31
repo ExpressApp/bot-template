@@ -8,9 +8,10 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_scoped_session,
+    async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.pool.impl import AsyncAdaptedQueuePool
 
 from app.settings import settings
@@ -45,8 +46,9 @@ engine: AsyncEngine = create_async_engine(
 
 async def build_db_session_factory() -> AsyncSessionFactory:
     await verify_db_connection(engine)
+
     return async_scoped_session(
-        sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession),
+        async_sessionmaker(bind=engine, expire_on_commit=False),
         scopefunc=current_task,
     )
 

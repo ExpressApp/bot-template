@@ -21,8 +21,8 @@ class CRUD:
         """Create object."""
         query = insert(self._cls_model).values(**model_data)
 
-        res = await self._session.execute(query)
-        return res.inserted_primary_key
+        res = await self._session.execute(query)  # type: ignore
+        return res.inserted_primary_key  # type: ignore
 
     async def update(
         self,
@@ -33,7 +33,7 @@ class CRUD:
         """Update object by primary key."""
         primary_key = inspect(self._cls_model).primary_key[0]
         query = (
-            update(self._cls_model)
+            update(self._cls_model)  # type: ignore
             .where(primary_key == pkey_val)
             .values(**model_data)
             .execution_options(synchronize_session="fetch")
@@ -45,7 +45,7 @@ class CRUD:
         """Delete object by primary key value."""
         primary_key = inspect(self._cls_model).primary_key[0].name
         query = (
-            delete(self._cls_model)
+            delete(self._cls_model)  # type: ignore
             .where(getattr(self._cls_model, primary_key) == pkey_val)
             .execution_options(synchronize_session="fetch")
         )
@@ -57,7 +57,7 @@ class CRUD:
         primary_key = inspect(self._cls_model).primary_key[0]
         query = select(self._cls_model).where(primary_key == pkey_val)
 
-        rows = await self._session.execute(query)
+        rows = await self._session.execute(query)  # type: ignore
         return rows.scalars().one()
 
     async def get_or_none(self, *, pkey_val: Any) -> Any:
@@ -65,7 +65,7 @@ class CRUD:
         primary_key = inspect(self._cls_model).primary_key[0]
         query = select(self._cls_model).where(primary_key == pkey_val)
 
-        rows = await self._session.execute(query)
+        rows = await self._session.execute(query)  # type: ignore
         return rows.scalar()
 
     async def all(
@@ -83,5 +83,5 @@ class CRUD:
             getattr(self._cls_model, field) == field_value
         )
 
-        rows = await self._session.execute(query)
+        rows = await self._session.execute(query)  # type: ignore
         return rows.scalars().all()
