@@ -13,7 +13,7 @@ class RecordModel(Base):
     id: Mapped[int] = mapped_column(
         primary_key=True, autoincrement=True
     )  # noqa: WPS125
-    record_data: Mapped[str] = mapped_column()
+    record_data: Mapped[str]
 
     def __repr__(self) -> str:
         """Show string representation of record."""
