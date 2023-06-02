@@ -1367,7 +1367,7 @@ files = [
 name = "packaging"
 version = "23.1"
 description = "Core utilities for Python packages"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1826,20 +1826,19 @@ files = [
 
 [[package]]
 name = "redis"
-version = "4.3.6"
+version = "4.4.4"
 description = "Python client for Redis database and key-value store"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "redis-4.3.6-py3-none-any.whl", hash = "sha256:1ea4018b8b5d8a13837f0f1c418959c90bfde0a605cb689e8070cff368a3b177"},
-    {file = "redis-4.3.6.tar.gz", hash = "sha256:7a462714dcbf7b1ad1acd81f2862b653cc8535cdfc879e28bf4947140797f948"},
+    {file = "redis-4.4.4-py3-none-any.whl", hash = "sha256:da92a39fec86438d3f1e2a1db33c312985806954fe860120b582a8430e231d8f"},
+    {file = "redis-4.4.4.tar.gz", hash = "sha256:68226f7ede928db8302f29ab088a157f41061fa946b7ae865452b6d7838bbffb"},
 ]
 
 [package.dependencies]
 async-timeout = ">=4.0.2"
 hiredis = {version = ">=1.0.0", optional = true, markers = "extra == \"hiredis\""}
-packaging = ">=20.4"
 
 [package.extras]
 hiredis = ["hiredis (>=1.0.0)"]
@@ -2256,4 +2255,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "afd2c64e9b62e6f4379c2440181f8c4f31210a821b1951dd7f82bedf61fdec71"
+content-hash = "29ee7aa5bdc335dd14f8fe62fa9778d0f5d70328e686002d6eb49480da8e0a45"
