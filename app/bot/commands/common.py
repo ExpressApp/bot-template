@@ -1,6 +1,7 @@
 """Handlers for default bot commands and system events."""
 
 from os import environ
+from subprocess import PIPE, STDOUT, run
 
 from pybotx import (
     Bot,
@@ -60,3 +61,11 @@ async def git_commit_sha(message: IncomingMessage, bot: Bot) -> None:
     """Show git commit SHA."""
 
     await bot.answer_message(environ.get("GIT_COMMIT_SHA", "<undefined>"))
+
+
+@collector.command("/_debug:version", visible=False)
+async def build_version(message: IncomingMessage, bot: Bot) -> None:
+    """Show app version."""
+    cmd = "poetry version --short"
+    output = run(cmd.split(), stdout=PIPE, stderr=STDOUT, text=True).stdout
+    await bot.answer_message(output)
