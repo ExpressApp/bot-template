@@ -22,8 +22,10 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install copier
+          pip install copier==7.1.0
           pip install copier-templates-extensions
+          # hardcode pydantic version to avoid dependency conflict with copier
+          pip install pydantic==1.10.2
 
       - name: Test image
         env:
@@ -37,7 +39,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10" ]
+        python-version: [ "3.8", "3.9", "3.10"]
 
     services:
       postgres:
@@ -68,9 +70,12 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install copier
+          pip install copier==7.1.0
           pip install copier-templates-extensions
+          # hardcode pydantic version to avoid dependency conflict with copier
+          pip install pydantic==1.10.2
           python -m copier --defaults . bot-example
+
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -112,7 +117,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10" ]
+        python-version: ["3.8", "3.9", "3.10"]
 
     steps:
       - name: Checkout
@@ -120,8 +125,10 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install copier
+          pip install copier==7.1.0
           pip install copier-templates-extensions
+          # hardcode pydantic version to avoid dependency conflict with copier
+          pip install pydantic==1.10.2
           python -m copier --defaults . bot-example
 
       - name: Set up Python ${{ matrix.python-version }}
