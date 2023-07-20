@@ -296,6 +296,7 @@ async def test_answer_message_error_exception_middleware(
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-answer-message-error")
+    bot.answer_message = AsyncMock(return_value=uuid4())  # type: ignore
 
     # - Act -
     await bot.async_execute_bot_command(message)
@@ -332,11 +333,13 @@ async def test_fail_handler_while_shutting_down(
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-fail-shutting-down")
+    bot.answer_message = AsyncMock(return_value=uuid4())  # type: ignore
 
     # - Act -
     await bot.async_execute_bot_command(message)
 
     # - Assert -
+    message.state.fsm.drop_state.assert_awaited_once()
     assert re.search(r"Internal error ([a-z\d\-]*)", loguru_caplog.text)
     assert re.search(
         (
@@ -349,7 +352,6 @@ async def test_fail_handler_while_shutting_down(
     )
 
 
-@pytest.mark.xfail
 async def test_fail_handler(
     bot: Bot,
     incoming_message_factory: Callable[..., IncomingMessage],
@@ -357,6 +359,7 @@ async def test_fail_handler(
 ) -> None:
     # - Arrange -
     message = incoming_message_factory(body="/_test-fail")
+    bot.answer_message = AsyncMock(return_value=uuid4())  # type: ignore
 
     # - Act -
     await bot.async_execute_bot_command(message)
