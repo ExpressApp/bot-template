@@ -68,4 +68,4 @@ async def build_version(message: IncomingMessage, bot: Bot) -> None:
     """Show app version."""
     cmd = "poetry version --short"
     output = run(cmd.split(), stdout=PIPE, stderr=STDOUT, text=True).stdout
-    await bot.answer_message(output)
+    await bot.answer_message(output.strip("\n"))
