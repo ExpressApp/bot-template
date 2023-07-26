@@ -1,4 +1,3 @@
-import logging
 from http import HTTPStatus
 from typing import Any, AsyncGenerator, Callable, Generator, List, Optional
 from unittest.mock import AsyncMock
@@ -148,16 +147,12 @@ def incoming_message_factory(
     return factory
 
 
-@pytest.fixture()
+@pytest.fixture
 def loguru_caplog(
     caplog: pytest.LogCaptureFixture,
 ) -> Generator[pytest.LogCaptureFixture, None, None]:
     # https://github.com/Delgan/loguru/issues/59
 
-    class PropogateHandler(logging.Handler):  # noqa: WPS431
-        def emit(self, record: logging.LogRecord) -> None:
-            logging.getLogger(record.name).handle(record)
-
-    handler_id = logger.add(PropogateHandler(), format="{message}")
+    handler_id = logger.add(caplog.handler, format="{message}")
     yield caplog
     logger.remove(handler_id)
