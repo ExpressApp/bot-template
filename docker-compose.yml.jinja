@@ -41,7 +41,7 @@ services:
 
   {% endif -%}
   postgres:
-    image: postgres:13.2-alpine
+    image: postgres:15.3-alpine
     container_name: {{bot_project_name}}-postgres
     environment:
       - POSTGRES_USER=postgres
@@ -53,7 +53,7 @@ services:
     logging: *logging
 
   redis:
-    image: redis:6.2-alpine
+    image: redis:7.2-rc-alpine
     container_name: {{bot_project_name}}-redis
     restart: always
     volumes:
