@@ -91,8 +91,8 @@ test:
   tags:
     - docker
   services:
-    - postgres:11.4-alpine
-    - redis:6.0.1-alpine
+    - postgres:15.3-alpine
+    - redis:7.0-alpine
   cache: *cache_dependencies
   variables:
     BOT_CREDENTIALS: cts.example.com@secret@123e4567-e89b-12d3-a456-426655440000
