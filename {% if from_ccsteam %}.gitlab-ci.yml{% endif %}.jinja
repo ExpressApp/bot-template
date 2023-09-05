@@ -163,6 +163,9 @@ deploy.botstest.stop:
   extends: deploy.botstest
   script:
     - docker rm -f ${CONTAINER_NAME} || true
+    {% if add_worker -%}
+    - docker rm -f ${CONTAINER_NAME} ${CONTAINER_NAME}-worker || true
+    {%- endif %}  
     - psql -c "select pg_terminate_backend(pid) from pg_stat_activity \
       where datname = '${POSTGRES_DB}';" postgres || true
     - psql -c "drop database \"${POSTGRES_DB}\"" postgres || true
