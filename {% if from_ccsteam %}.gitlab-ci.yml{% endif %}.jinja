@@ -5,6 +5,7 @@
   # Add envs for app here. Don't forget to add them in example.env and docker-compose files.
   - docker run
     -d
+    $MEMORY_LIMIT
     --name ${CONTAINER_NAME}
     --restart always
     --label traefik.http.routers.${BOT_PROJECT_NAME}.rule="Host(\`${BOT_URL}\`)"
@@ -22,6 +23,7 @@
   # Add envs for worker here
   - docker run
     -d
+    $MEMORY_LIMIT_WORKER
     --name ${CONTAINER_NAME}-worker
     --restart always
     --log-opt max-size=10m
@@ -193,6 +195,10 @@ deploy.botsprod:
     - BOT_URL="${BOT_PROJECT_NAME}.${PROD_SERVER_HOST}"
     - *postgres_envs
     - REDIS_DSN=redis://${DOCKER_NETWORK_IP}/1
+    - MEMORY_LIMIT=--memory=100m
+    {% if add_worker -%}
+    - MEMORY_LIMIT_WORKER=-memory=130m
+    {%- endif %}
   script:
     - echo "Use URL 'https://${BOT_URL}/' in your cts admin site"
     - echo "Using credentials ${BOT_CREDENTIALS}"
