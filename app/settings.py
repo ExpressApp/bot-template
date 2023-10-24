@@ -62,6 +62,7 @@ class AppSettings(BaseSettings):
 
     # redis
     REDIS_DSN: str
+    CONNECTION_POOL_SIZE: int = 10
 
     # healthcheck
     WORKER_TIMEOUT_SEC: float = 4
