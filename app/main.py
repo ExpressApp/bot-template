@@ -1,5 +1,6 @@
 """Application with configuration for events, routers and middleware."""
 
+import asyncio
 from functools import partial
 
 from fastapi import FastAPI
@@ -9,6 +10,7 @@ from redis import asyncio as aioredis
 from app.api.routers import router
 from app.bot.bot import get_bot
 from app.caching.callback_redis_repo import CallbackRedisRepo
+from app.caching.exception_handlers import pubsub_exception_handler
 from app.caching.redis_repo import RedisRepo
 from app.db.sqlalchemy import build_db_session_factory, close_db_connections
 from app.resources import strings
@@ -21,10 +23,18 @@ async def startup(application: FastAPI, raise_bot_exceptions: bool) -> None:
 
     # -- Redis --
     redis_client = aioredis.from_url(settings.REDIS_DSN)
+    pool = aioredis.BlockingConnectionPool(
+        max_connections=settings.CONNECTION_POOL_SIZE,
+        **redis_client.connection_pool.connection_kwargs,
+    )
+    redis_client.connection_pool = pool
     redis_repo = RedisRepo(redis=redis_client, prefix=strings.BOT_PROJECT_NAME)
 
     # -- Bot --
     callback_repo = CallbackRedisRepo(redis_client)
+    process_callbacks_task = asyncio.create_task(
+        callback_repo.pubsub.run(exception_handler=pubsub_exception_handler)
+    )
     bot = get_bot(callback_repo, raise_exceptions=raise_bot_exceptions)
 
     await bot.startup()
@@ -34,12 +44,16 @@ async def startup(application: FastAPI, raise_bot_exceptions: bool) -> None:
 
     application.state.bot = bot
     application.state.redis = redis_client
+    application.state.process_callbacks_task = process_callbacks_task
 
 
 async def shutdown(application: FastAPI) -> None:
     # -- Bot --
     bot: Bot = application.state.bot
     await bot.shutdown()
+    process_callbacks_task: asyncio.Task = application.state.process_callbacks_task
+    process_callbacks_task.cancel()
+    await asyncio.gather(process_callbacks_task, return_exceptions=True)
 
     # -- Redis --
     redis_client: aioredis.Redis = application.state.redis
