@@ -1,9 +1,11 @@
+from datetime import datetime
 from http import HTTPStatus
-from typing import Any, AsyncGenerator, Callable, Generator, List, Optional
+from typing import Any, AsyncGenerator, Callable, Dict, Generator, List, Optional
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
 import httpx
+import jwt
 import pytest
 import respx
 from alembic import config as alembic_config
@@ -90,8 +92,37 @@ def host() -> str:
 
 
 @pytest.fixture
+def secret_key() -> str:
+    return settings.BOT_CREDENTIALS[0].secret_key
+
+
+@pytest.fixture
 def user_huid() -> UUID:
     return UUID("cd069aaa-46e6-4223-950b-ccea42b89c06")
+
+
+@pytest.fixture
+def authorization_token_payload(bot_id: UUID, host: str) -> Dict[str, Any]:
+    return {
+        "aud": [str(bot_id)],
+        "exp": datetime(year=3000, month=1, day=1).timestamp(),
+        "iat": datetime(year=2000, month=1, day=1).timestamp(),
+        "iss": host,
+        "jti": "2uqpju31h6dgv4f41c005e1i",
+        "nbf": datetime(year=2000, month=1, day=1).timestamp(),
+    }
+
+
+@pytest.fixture
+def authorization_header(
+    secret_key: str,
+    authorization_token_payload: Dict[str, Any],
+) -> Dict[str, str]:
+    token = jwt.encode(
+        payload=authorization_token_payload,
+        key=secret_key,
+    )
+    return {"authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
