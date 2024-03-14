@@ -1,5 +1,7 @@
 FROM python:3.10-slim
 
+{% if from_ccsteam %}LABEL Maintainer="eXpress Unlimited Production"{% endif %}
+
 ENV PYTHONUNBUFFERED 1
 ENV UVICORN_CMD_ARGS ""
 
