@@ -1,3 +1,4 @@
+import time
 from http import HTTPStatus
 from typing import Dict
 from uuid import UUID
@@ -173,6 +174,8 @@ def test__web_app__bot_command_response_accepted(
             json=command_payload,
             headers=authorization_header,
         )
+
+        time.sleep(0.1)
 
         callback_response = test_client.post(
             "/notification/callback",

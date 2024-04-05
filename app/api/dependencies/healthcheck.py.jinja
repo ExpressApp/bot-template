@@ -47,6 +47,9 @@ check_redis_connection_dependency = Depends(check_redis_connection)
 async def check_worker_status() -> Optional[str]:
     job = await queue.enqueue("healthcheck")
 
+    if not job:
+        return None
+
     try:
         await job.refresh(settings.WORKER_TIMEOUT_SEC)
     except TimeoutError:

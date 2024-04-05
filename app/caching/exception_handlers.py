@@ -1,9 +1,10 @@
 """Redis custom exception handlers."""
 
-from redis.asyncio.client import PubSub
+from redis.asyncio.client import PubSub, PubsubWorkerExceptionHandler
 
 from app.logger import logger
 
 
-async def pubsub_exception_handler(exc: BaseException, pubsub: PubSub) -> None:
-    logger.exception("Something went wrong in PubSub")
+class PubsubExceptionHandler(PubsubWorkerExceptionHandler):
+    def __call__(self, exc: BaseException, pubsub: PubSub) -> None:
+        logger.exception("Something went wrong in PubSub")

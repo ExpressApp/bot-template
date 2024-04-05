@@ -10,7 +10,7 @@ from redis import asyncio as aioredis
 from app.api.routers import router
 from app.bot.bot import get_bot
 from app.caching.callback_redis_repo import CallbackRedisRepo
-from app.caching.exception_handlers import pubsub_exception_handler
+from app.caching.exception_handlers import PubsubExceptionHandler
 from app.caching.redis_repo import RedisRepo
 from app.db.sqlalchemy import build_db_session_factory, close_db_connections
 from app.resources import strings
@@ -33,7 +33,7 @@ async def startup(application: FastAPI, raise_bot_exceptions: bool) -> None:
     # -- Bot --
     callback_repo = CallbackRedisRepo(redis_client)
     process_callbacks_task = asyncio.create_task(
-        callback_repo.pubsub.run(exception_handler=pubsub_exception_handler)
+        callback_repo.pubsub.run(exception_handler=PubsubExceptionHandler())
     )
     bot = get_bot(callback_repo, raise_exceptions=raise_bot_exceptions)
 

@@ -3,7 +3,13 @@
 from typing import Optional, Tuple
 from uuid import UUID
 
-from pybotx import Bot, BotAccount, UserFromSearch, UserKinds, UserNotFoundError
+from pybotx import (
+    Bot,
+    BotAccountWithSecret,
+    UserFromSearch,
+    UserKinds,
+    UserNotFoundError,
+)
 
 
 class UserIsBotError(Exception):
@@ -12,7 +18,7 @@ class UserIsBotError(Exception):
 
 async def search_user_on_each_cts(
     bot: Bot, huid: UUID
-) -> Optional[Tuple[UserFromSearch, BotAccount]]:
+) -> Optional[Tuple[UserFromSearch, BotAccountWithSecret]]:
     """Search user by huid on all cts on which bot is registered.
 
     return type: tuple of UserFromSearch instance and host.
