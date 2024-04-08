@@ -24,6 +24,7 @@ jobs:
         run: |
           pip install copier==7.1.0
           pip install copier-templates-extensions
+          pip install pyyaml-include==1.4.1
           # hardcode pydantic version to avoid dependency conflict with copier
           pip install pydantic==1.10.2
 
@@ -72,6 +73,7 @@ jobs:
         run: |
           pip install copier==7.1.0
           pip install copier-templates-extensions
+          pip install pyyaml-include==1.4.1
           # hardcode pydantic version to avoid dependency conflict with copier
           pip install pydantic==1.10.2
           python -m copier --defaults . bot-example
@@ -127,6 +129,7 @@ jobs:
         run: |
           pip install copier==7.1.0
           pip install copier-templates-extensions
+          pip install pyyaml-include==1.4.1
           # hardcode pydantic version to avoid dependency conflict with copier
           pip install pydantic==1.10.2
           python -m copier --defaults . bot-example

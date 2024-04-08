@@ -32,7 +32,7 @@ services:
     build: .
     container_name: {{bot_project_name}}-worker
     # '$$' prevents docker-compose from interpolating a value
-    command: bash -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.worker.worker.settings'
+    command: /bin/sh -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.worker.worker.settings'
     environment: *environment
     restart: always
     depends_on: *depends_on
