@@ -25,7 +25,7 @@ ENV USER_PATH=/home/$APP_USER/.local/bin
 ENV PATH="$VENV_PATH:$USER_PATH:$PATH"
 
 # Set app env vars
-ENV UVICORN_CMD_ARGS ""
+ENV GUNICORN_CMD_ARGS ""
 
 # Set build env vars
 ARG CI_COMMIT_SHA=""
@@ -55,4 +55,4 @@ COPY app app
 EXPOSE 8000
 
 CMD alembic upgrade head && \
-    uvicorn --host=0.0.0.0 $UVICORN_CMD_ARGS --factory app.main:get_application
+    gunicorn "app.main:get_application()" --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0 $GUNICORN_CMD_ARGS
