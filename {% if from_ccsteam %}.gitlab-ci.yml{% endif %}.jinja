@@ -71,6 +71,7 @@ variables:
 stages:
   - check
   - build
+  - security
   - deploy
 
 default:
@@ -105,6 +106,15 @@ test:
   script:
     - poetry run pytest --cov-config=setup.cfg
   coverage: '/Total coverage: \d\d\d.\d\d%/'
+
+security:
+  stage: security
+  allow_failure: true
+  trigger:
+    include:
+      - project: devsecops/pipelines
+        file: integration_templates/python.yml
+
 
 build:
   image: docker:latest
@@ -205,3 +215,5 @@ deploy.botsprod:
     - echo "Deploing Docker container ${CONTAINER_NAME}"
     - *create_db
     - *run_bot
+  needs:
+    - job: security
