@@ -1,11 +1,12 @@
 """empty message
 
 Revision ID: d6e3a38b1fbd
-Revises: 
+Revises:
 Create Date: 2021-07-09 13:40:29.058513
 
 Doc: https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script
 """
+
 import sqlalchemy as sa
 from alembic import op
 

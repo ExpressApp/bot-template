@@ -1,4 +1,5 @@
 """Module for enums."""
+
 from enum import Enum
 
 

@@ -1,6 +1,6 @@
-import time
+import asyncio
 from http import HTTPStatus
-from typing import Dict
+from typing import Any, Dict
 from uuid import UUID
 
 import httpx
@@ -103,11 +103,12 @@ def test__web_app__bot_status_without_parameters_response_bad_request(
 
 
 @respx.mock
-def test__web_app__bot_command_response_accepted(
+async def test__web_app__bot_command_response_accepted(
     bot_id: UUID,
     host: str,
     bot: Bot,
     authorization_header: Dict[str, str],
+    command_payload_v4: Dict[str, Any],
 ) -> None:
     # - Arrange -
     direct_notification_endpoint = respx.post(
@@ -117,53 +118,14 @@ def test__web_app__bot_command_response_accepted(
             HTTPStatus.ACCEPTED,
             json={
                 "status": "ok",
-                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"},
+                "result": {"sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e7"},
             },
         ),
     )
 
-    command_payload = {
-        "bot_id": str(bot_id),
-        "command": {
-            "body": "/debug",
-            "command_type": "user",
-            "data": {},
-            "metadata": {},
-        },
-        "attachments": [],
-        "async_files": [],
-        "entities": [],
-        "source_sync_id": None,
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": None,
-            "ad_login": None,
-            "app_version": None,
-            "chat_type": "chat",
-            "device": None,
-            "device_meta": {
-                "permissions": None,
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": None,
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": None,
-            "platform": None,
-            "platform_package_id": None,
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": None,
-        },
-        "proto_version": 4,
-    }
-
     callback_payload = {
         "status": "ok",
-        "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3",
+        "sync_id": "21a9ec9e-f21f-4406-ac44-1a78d2ccf9e7",
         "result": {},
     }
 
@@ -171,16 +133,21 @@ def test__web_app__bot_command_response_accepted(
     with TestClient(get_application()) as test_client:
         command_response = test_client.post(
             "/command",
-            json=command_payload,
+            json=command_payload_v4,
             headers=authorization_header,
         )
 
-        time.sleep(0.1)
-
-        callback_response = test_client.post(
-            "/notification/callback",
-            json=callback_payload,
-        )
+        max_attempts = 5
+        for attempt in range(max_attempts):
+            # Services are not always available within 0.1 seconds.
+            callback_response = test_client.post(
+                "/notification/callback",
+                json=callback_payload,
+            )
+            if callback_response.status_code == HTTPStatus.SERVICE_UNAVAILABLE:
+                await asyncio.sleep(0.1 * (attempt + 1))
+            else:
+                break
 
     # - Assert -
     assert command_response.status_code == HTTPStatus.ACCEPTED
@@ -220,54 +187,13 @@ def test__web_app__bot_command_response_service_unavailable(
 
 @respx.mock
 def test__web_app__unknown_bot_response_service_unavailable(
-    bot: Bot,
-    authorization_header: Dict[str, str],
+    bot: Bot, authorization_header: Dict[str, str], unknown_bot_payload: Dict[str, Any]
 ) -> None:
-    # - Arrange -
-    payload = {
-        "bot_id": "c755e147-30a5-45df-b46a-c75aa6089c8f",
-        "command": {
-            "body": "/debug",
-            "command_type": "user",
-            "data": {},
-            "metadata": {},
-        },
-        "attachments": [],
-        "async_files": [],
-        "entities": [],
-        "source_sync_id": None,
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": None,
-            "ad_login": None,
-            "app_version": None,
-            "chat_type": "chat",
-            "device": None,
-            "device_meta": {
-                "permissions": None,
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": None,
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": None,
-            "platform": None,
-            "platform_package_id": None,
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": None,
-        },
-        "proto_version": 4,
-    }
-
     # - Act -
     with TestClient(get_application()) as test_client:
         response = test_client.post(
             "/command",
-            json=payload,
+            json=unknown_bot_payload,
             headers=authorization_header,
         )
 
@@ -284,51 +210,13 @@ def test__web_app__unknown_bot_response_service_unavailable(
 def test__web_app__unsupported_bot_api_version_service_unavailable(
     bot: Bot,
     authorization_header: Dict[str, str],
+    command_payload_v3: Dict[str, Any],
 ) -> None:
-    # - Arrange -
-    payload = {
-        "bot_id": "c755e147-30a5-45df-b46a-c75aa6089c8f",
-        "command": {
-            "body": "/debug",
-            "command_type": "user",
-            "data": {},
-            "metadata": {},
-        },
-        "entities": [],
-        "file": None,
-        "source_sync_id": None,
-        "sync_id": "6f40a492-4b5f-54f3-87ee-77126d825b51",
-        "from": {
-            "ad_domain": None,
-            "ad_login": None,
-            "app_version": None,
-            "chat_type": "chat",
-            "device": None,
-            "device_meta": {
-                "permissions": None,
-                "pushes": False,
-                "timezone": "Europe/Moscow",
-            },
-            "device_software": None,
-            "group_chat_id": "30dc1980-643a-00ad-37fc-7cc10d74e935",
-            "host": "cts.example.com",
-            "is_admin": True,
-            "is_creator": True,
-            "locale": "en",
-            "manufacturer": None,
-            "platform": None,
-            "platform_package_id": None,
-            "user_huid": "f16cdc5f-6366-5552-9ecd-c36290ab3d11",
-            "username": None,
-        },
-        "proto_version": 3,
-    }
-
     # - Act -
     with TestClient(get_application()) as test_client:
         response = test_client.post(
             "/command",
-            json=payload,
+            json=command_payload_v3,
             headers=authorization_header,
         )
 

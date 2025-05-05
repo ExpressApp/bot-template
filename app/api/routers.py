@@ -1,4 +1,5 @@
 """Configuration of routers for all endpoints."""
+
 from fastapi import APIRouter
 
 from app.api.endpoints.botx import router as bot_router
