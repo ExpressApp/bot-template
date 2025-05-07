@@ -22,12 +22,8 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install --upgrade pip  # Ensure pip is updated
-          pip install --upgrade argcomplete>=1.9.4  # Update argcomplete first
-          pip install copier
-          pip install copier-templates-extensions
-          pip install pyyaml-include
-          
+          pip install copier==9.4.0
+          pip install copier-templates-extensions==0.3.1
 
       - name: Test image
         env:
@@ -41,7 +37,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10"]
+        python-version: [ "3.8", "3.9", "3.10", "3.11"]
 
     services:
       postgres:
@@ -72,11 +68,8 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install --upgrade pip  # Ensure pip is updated
-          pip install --upgrade argcomplete>=1.9.4  # Update argcomplete first
-          pip install copier
-          pip install copier-templates-extensions
-          pip install pyyaml-include
+          pip install copier==9.4.0
+          pip install copier-templates-extensions==0.3.1
           python -m copier copy --trust --force . bot-example
 
 
@@ -120,7 +113,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - name: Checkout
@@ -128,12 +121,8 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install --upgrade pip  # Ensure pip is updated
-          pip install --upgrade argcomplete>=1.9.4  # Update argcomplete first
-          pip install copier
-          pip install copier-templates-extensions
-          pip install pyyaml-include
-          pip install pydantic
+          pip install copier==9.4.0
+          pip install copier-templates-extensions==0.3.1
           python -m copier copy --trust --force . bot-example
 
       - name: Set up Python ${{ matrix.python-version }}
