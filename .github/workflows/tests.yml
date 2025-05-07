@@ -14,7 +14,7 @@ env:
 jobs:
   test-image:
     name: Test app start
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -22,11 +22,8 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install copier==7.1.0
-          pip install copier-templates-extensions
-          pip install pyyaml-include==1.4.1
-          # hardcode pydantic version to avoid dependency conflict with copier
-          pip install pydantic==1.10.2
+          pip install copier==9.4.0
+          pip install copier-templates-extensions==0.3.1
 
       - name: Test image
         env:
@@ -37,10 +34,10 @@ jobs:
 
   test-template:
     name: Test template
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10"]
+        python-version: [ "3.8", "3.9", "3.10", "3.11"]
 
     services:
       postgres:
@@ -71,12 +68,9 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install copier==7.1.0
-          pip install copier-templates-extensions
-          pip install pyyaml-include==1.4.1
-          # hardcode pydantic version to avoid dependency conflict with copier
-          pip install pydantic==1.10.2
-          python -m copier --defaults . bot-example
+          pip install copier==9.4.0
+          pip install copier-templates-extensions==0.3.1
+          python -m copier copy --trust --force . bot-example
 
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -90,7 +84,7 @@ jobs:
 
       - name: Set up cache
         id: cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -116,10 +110,10 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - name: Checkout
@@ -127,12 +121,9 @@ jobs:
 
       - name: Install copier
         run: |
-          pip install copier==7.1.0
-          pip install copier-templates-extensions
-          pip install pyyaml-include==1.4.1
-          # hardcode pydantic version to avoid dependency conflict with copier
-          pip install pydantic==1.10.2
-          python -m copier --defaults . bot-example
+          pip install copier==9.4.0
+          pip install copier-templates-extensions==0.3.1
+          python -m copier copy --trust --force . bot-example
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -145,7 +136,7 @@ jobs:
 
       - name: Set up cache
         id: cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip

@@ -1,4 +1,5 @@
 """Healthcheck service bot."""
+
 from dataclasses import dataclass
 from typing import List, Literal, Optional, Union
 

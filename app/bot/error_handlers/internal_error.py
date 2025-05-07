@@ -1,4 +1,5 @@
 """Handler to work with unexpected errors."""
+
 from uuid import uuid4
 
 from pybotx import Bot, BotShuttingDownError, IncomingMessage

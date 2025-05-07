@@ -3,11 +3,10 @@
 set -ex
 
 PROJECT_NAME=bot-example
-
-python -m copier --defaults . $PROJECT_NAME
+python -m copier copy --force --trust  . $PROJECT_NAME
 cd $PROJECT_NAME
 
-docker-compose up -d
+docker compose up -d
 sleep 10
 
-curl --silent --fail http://localhost:8000/healthcheck || exit 1
+curl --show-error --fail http://localhost:8000/healthcheck || exit 1

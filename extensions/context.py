@@ -8,7 +8,7 @@ class ContextUpdater(ContextHook):
     def hook(self, context):
         context["CI"] = os.environ.get("CI", False)
 
-        if context["from_ccsteam"]:
+        if context.get("from_ccsteam", False):
             try:
                 context["PROD_SERVER_HOST"] = os.environ["PROD_SERVER_HOST"]
                 context["DEV_SERVER_HOST"] = os.environ["DEV_SERVER_HOST"]
