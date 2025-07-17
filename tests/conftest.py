@@ -1,14 +1,20 @@
+import asyncio
+from asyncio import current_task
 from datetime import datetime
 from http import HTTPStatus
+from pathlib import Path
 from typing import Any, AsyncGenerator, Callable, Dict, Generator, List, Optional
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 from uuid import UUID, uuid4
+import os
 
 import httpx
 import jwt
 import pytest
 import respx
-from alembic import config as alembic_config
+import sqlalchemy
+from alembic import config as alembic_config, command
+from alembic.config import Config
 from asgi_lifespan import LifespanManager
 from pybotx import (
     Bot,
@@ -20,26 +26,88 @@ from pybotx import (
     UserSender,
 )
 from pybotx.logger import logger
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import NullPool, event
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    AsyncEngine,
+    create_async_engine,
+    async_scoped_session,
+    async_sessionmaker,
+)
+from sqlalchemy.orm import sessionmaker, Session, SessionTransaction
+from testcontainers.postgres import PostgresContainer
 
-from app.caching.redis_repo import RedisRepo
+from app.infrastructure.caching.redis_repo import RedisRepo
+from app.infrastructure.db.sqlalchemy import (
+    build_db_session_factory,
+    AsyncSessionFactory,
+    make_url_async,
+)
+from app.infrastructure.repositories.sample_record import SampleRecordRepository
 from app.main import get_application
-from app.settings import settings
+from app.settings import settings, AppSettings
+from tests.factories import SampleRecordModelFactory
+
+
+@pytest.fixture(scope="session")
+def postgres_container() -> Generator[PostgresContainer, None, None]:
+    """Starts a temporary PostgreSQL container for the test session."""
+    container_name = f"bot_testing_container"
+
+    with PostgresContainer("postgres:15").with_name(container_name) as postgres:
+        container_url = postgres.get_connection_url()
+        with patch.object(settings, "POSTGRES_DSN", container_url):
+            yield postgres
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """Create a session-scoped event loop for async session-scoped fixtures."""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="session")
+async def db_session_factory(postgres_container) -> AsyncSessionFactory:
+    engine: AsyncEngine = create_async_engine(
+        make_url_async(settings.POSTGRES_DSN), poolclass=NullPool
+    )
+
+    factory = async_scoped_session(
+        sessionmaker(
+            bind=engine,
+            expire_on_commit=False,
+            class_=AsyncSession,  # type:ignore
+        ),
+        scopefunc=current_task,
+    )
+    return factory
 
 
 @pytest.fixture
-def db_migrations() -> Generator:
-    alembic_config.main(argv=["upgrade", "head"])
-    yield
-    alembic_config.main(argv=["downgrade", "base"])
+async def isolated_session(db_session_factory):
+    """Isolated session with proper rollback to prevent test data leaks."""
+    alembic_cfg = Config(str(Path(__file__).parent.parent / "alembic.ini"))
+    command.upgrade(alembic_cfg, "head")
+    async with db_session_factory() as session:
+        yield session
+    command.downgrade(alembic_cfg, "base")
 
 
-@pytest.hookimpl(trylast=True)
-def pytest_collection_modifyitems(items: List[pytest.Function]) -> None:
-    # We can't use autouse, because it appends fixture to the end
-    # but session from db_session fixture must be closed before migrations downgrade
-    for item in items:
-        item.fixturenames = ["db_migrations"] + item.fixturenames
+@pytest.fixture
+async def sample_record_repository(isolated_session) -> SampleRecordRepository:
+    return SampleRecordRepository(isolated_session)
+
+
+@pytest.fixture
+def sample_record_factory(
+    isolated_session,
+) -> Generator[type[SampleRecordModelFactory], None, None]:
+    SampleRecordModelFactory._meta.sqlalchemy_session = isolated_session
+    yield SampleRecordModelFactory
+    SampleRecordModelFactory._meta.sqlalchemy_session = None
 
 
 @pytest.fixture

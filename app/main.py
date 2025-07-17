@@ -3,32 +3,32 @@
 import asyncio
 from functools import partial
 
+from dependency_injector.wiring import Provide
 from fastapi import FastAPI
 from pybotx import Bot
 from redis import asyncio as aioredis
 
-from app.api.routers import router
-from app.bot.bot import get_bot
-from app.caching.callback_redis_repo import CallbackRedisRepo
-from app.caching.exception_handlers import PubsubExceptionHandler
-from app.caching.redis_repo import RedisRepo
-from app.db.sqlalchemy import build_db_session_factory, close_db_connections
-from app.resources import strings
+from app.presentation.api.routers import router
+from app.presentation.bot.bot import get_bot
+from app.infrastructure.caching.callback_redis_repo import CallbackRedisRepo
+from app.infrastructure.caching.exception_handlers import PubsubExceptionHandler
+from app.infrastructure.containers import ApplicationStartupContainer
+from app.infrastructure.db.sqlalchemy import close_db_connections
+from app.presentation.bot.resources import strings
 from app.settings import settings
 
 
-async def startup(application: FastAPI, raise_bot_exceptions: bool) -> None:
-    # -- Database --
-    db_session_factory = await build_db_session_factory()
-
-    # -- Redis --
-    redis_client = aioredis.from_url(settings.REDIS_DSN)
+async def startup(
+    application: FastAPI,
+    raise_bot_exceptions: bool,
+    redis_client=Provide[ApplicationStartupContainer.redis_client],
+    redis_repo=Provide[ApplicationStartupContainer.redis_repo],
+) -> None:
     pool = aioredis.BlockingConnectionPool(
-        max_connections=settings.CONNECTION_POOL_SIZE,
+        max_connections=settings.REDIS_CONNECTION_POOL_SIZE,
         **redis_client.connection_pool.connection_kwargs,
     )
     redis_client.connection_pool = pool
-    redis_repo = RedisRepo(redis=redis_client, prefix=strings.BOT_PROJECT_NAME)
 
     # -- Bot --
     callback_repo = CallbackRedisRepo(redis_client)
@@ -39,7 +39,7 @@ async def startup(application: FastAPI, raise_bot_exceptions: bool) -> None:
 
     await bot.startup()
 
-    bot.state.db_session_factory = db_session_factory
+    # bot.state.db_session_factory = db_session_factory
     bot.state.redis_repo = redis_repo
 
     application.state.bot = bot
@@ -65,6 +65,10 @@ async def shutdown(application: FastAPI) -> None:
 
 def get_application(raise_bot_exceptions: bool = False) -> FastAPI:
     """Create configured server application instance."""
+
+    # Initialize the container
+    container = ApplicationStartupContainer()
+    container.wire(modules=["app.main"])
 
     application = FastAPI(title=strings.BOT_PROJECT_NAME, openapi_url=None)
 

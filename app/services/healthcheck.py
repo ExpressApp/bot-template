@@ -1,36 +1,17 @@
 """Healthcheck service bot."""
 
-from dataclasses import dataclass
-from typing import List, Literal, Optional, Union
+from typing import List
 
-from pydantic import BaseModel
-
-from app.schemas.enums import HealthCheckStatuses
-
-
-@dataclass
-class HealthCheckServiceResult:
-    name: str
-    error: Optional[str]
-
-
-class HealthCheckSucceed(BaseModel):
-    name: str
-    status: Literal[HealthCheckStatuses.OK] = HealthCheckStatuses.OK
-
-
-class HealthCheckFailed(BaseModel):
-    name: str
-    error: str
-    status: Literal[HealthCheckStatuses.ERROR] = HealthCheckStatuses.ERROR
-
-
-HealthCheckResult = Union[HealthCheckSucceed, HealthCheckFailed]
-
-
-class HealthCheckResponse(BaseModel):
-    status: Optional[HealthCheckStatuses]
-    services: List[HealthCheckResult]
+from app.domain.entities.healthcheck import (
+    HealthCheckServiceResult,
+    HealthCheckStatuses,
+)
+from app.presentation.api.schemas.healthcheck import (
+    HealthCheckSucceed,
+    HealthCheckFailed,
+    HealthCheckResult,
+    HealthCheckResponse,
+)
 
 
 class HealthCheckResponseBuilder:

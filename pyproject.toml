@@ -1,0 +1,78 @@
+# https://python-poetry.org/docs/
+
+[tool.poetry]
+name = "bot_refactor"
+version = "0.1.0"
+description = "TODO"
+authors = []
+
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+
+pybotx = "~0.75.1"
+pybotx-smart-logger = "~0.10.1"
+
+pybotx-fsm = "~0.6.1"
+
+
+fastapi = "~0.110.1"
+gunicorn = "~21.2.0"
+uvicorn = { version = "~0.29.0", extras = ["standart"] }
+
+loguru = ">=0.6.0,<0.7.0"
+mako = "~1.2.2"
+
+pydantic = { version = ">=1.10.5,<2.0.0", extras = ["dotenv"] }
+
+alembic = "~1.13.1"
+SQLAlchemy = "~2.0.0"
+asyncpg = "~0.29.0"  # DB backend for application
+psycopg2-binary = "~2.9.9"  # DB backend for alembic (migration tool)
+
+redis = "~5.0.3"
+saq = { version = "~0.12.4", extras = ["hiredis"] }
+
+importlib-resources = { version = "~5.4.0", python = "<3.9" }
+zipp = { version = "~3.7.0", python = "<3.9" }
+importlib-metadata = { version = "~4.11.0", python = "<3.9" }
+dependency-injector = "4.41.0"
+orjson = "^3.10.18"
+factory-boy = "^3.3.3"
+async-factory-boy = "^1.0.1"
+
+
+[tool.poetry.dev-dependencies]
+mypy = "1.16.1"
+ruff = "0.12.0"
+
+bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
+
+pytest = "~8.4.1"
+pytest-asyncio = "~0.18.2"
+pytest-cov = "~3.0.0"
+
+asgi-lifespan = "~1.0.1"
+requests = "~2.31.0"
+respx = "~0.20.0"
+httpx = ">=0.28.0,<0.29.0"
+
+markdown = "3.3.6"  # https://github.com/python-poetry/poetry/issues/4777
+testcontainers = { extras = ["postgresql"], version = "^4.10.0" }
+
+deepdiff = "^8.5.0"
+
+
+
+[build-system]
+requires = ["poetry>=1.1.12"]
+build-backend = "poetry.masonry.api"
+
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+asyncio_mode = "auto"
+markers = [
+    "unit: fast, offline tests",
+    "integ: slow integration tests; run only with --run-integ",
+]
