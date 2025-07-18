@@ -29,7 +29,7 @@ class BaseCommandHandler(ABC):
     @abc.abstractmethod
     async def handle_logic(
         self,
-        request_parameter: BaseModel | str,
+        request_parameter: BaseModel | str | None,
     ) -> None:
         pass
 
@@ -44,7 +44,7 @@ class BaseCommandHandler(ABC):
 
     async def execute(
         self,
-    ):
+    ) -> None:
         try:
             parameter = self.get_request_parameter()
             await self.handle_logic(parameter)

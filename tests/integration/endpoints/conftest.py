@@ -1,4 +1,4 @@
-from tests.presentation.endpoints.fixtures import (  # noqa: F401
+from tests.integration.endpoints.fixtures import (  # noqa: F401
     base_command_payload,
     command_payload_v3,
     command_payload_v4,

@@ -7,8 +7,8 @@ from fastapi import Depends, Request
 from pybotx import Bot
 from sqlalchemy.sql import text
 
-from app.settings import settings
 from app.infrastructure.worker.worker import queue
+from app.settings import settings
 
 
 async def check_db_connection(request: Request) -> Optional[str]:

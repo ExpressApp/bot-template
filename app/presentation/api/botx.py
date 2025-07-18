@@ -16,8 +16,8 @@ from pybotx import (
 )
 from pybotx.constants import BOT_API_VERSION
 
-from app.presentation.api.bot import bot_dependency
 from app.logger import logger
+from app.presentation.api.bot import bot_dependency
 from app.settings import settings
 
 router = APIRouter()
@@ -27,7 +27,7 @@ router = APIRouter()
 async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
     """Receive commands from users. Max timeout - 5 seconds."""
 
-    try:  # noqa: WPS225
+    try:
         bot.async_execute_raw_bot_command(
             await request.json(),
             request_headers=request.headers,

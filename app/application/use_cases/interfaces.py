@@ -4,9 +4,9 @@ from abc import ABC, abstractmethod
 
 from app.presentation.bot.schemas.sample_record import (
     SampleRecordCreateRequestSchema,
+    SampleRecordResponseListSchema,
     SampleRecordResponseSchema,
     SampleRecordUpdateRequestSchema,
-    SampleRecordResponseListSchema,
 )
 
 

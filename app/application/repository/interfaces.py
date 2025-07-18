@@ -1,7 +1,7 @@
 """Record repository interface."""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List
 
 from app.domain.entities.sample_record import SampleRecord
 
@@ -34,7 +34,7 @@ class ISampleRecordRepository(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, record_id: int) -> int:
+    async def delete(self, record_id: int) -> None:
         """
         Delete a record from the database by provided id
 
@@ -42,12 +42,7 @@ class ISampleRecordRepository(ABC):
             record_id: The unique identifier of the record to be deleted.
 
         Returns:
-            None
-
-        This method does not return any value.
-
-        Raises:
-            NotImplementedError: If this method is not overridden in the implementing class.
+            An id of the deleted record
         """
         pass
 

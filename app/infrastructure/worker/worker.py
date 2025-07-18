@@ -16,7 +16,7 @@ SaqCtx = Dict[str, Any]
 
 
 async def startup(ctx: SaqCtx) -> None:
-    from app.presentation.bot.bot import get_bot  # noqa: WPS433
+    from app.presentation.bot.bot import get_bot
 
     callback_repo = CallbackRedisRepo(aioredis.from_url(app_settings.REDIS_DSN))
     bot = get_bot(callback_repo, raise_exceptions=False)

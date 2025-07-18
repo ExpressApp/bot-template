@@ -1,6 +1,6 @@
 import pytest
 from deepdiff import DeepDiff
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.repository.exceptions import RecordDoesNotExistError
@@ -12,14 +12,14 @@ from tests.factories import SampleRecordModelFactory
 
 def assert_database_object_equal_domain(
     db_object: SampleRecordModel, domain_object: SampleRecord
-):
+) -> None:
     assert db_object.id == domain_object.id
     assert db_object.record_data == domain_object.record_data
 
 
 async def test_add_record(
     sample_record_repository: SampleRecordRepository,
-    sample_record_factory: SampleRecordModelFactory,
+    sample_record_factory: type[SampleRecordModelFactory],
     isolated_session: AsyncSession,
 ):
     """Test adding a new record."""
@@ -39,11 +39,11 @@ async def test_add_record(
 async def test_update_record(
     sample_record_repository: SampleRecordRepository,
     isolated_session: AsyncSession,
-    sample_record_factory: SampleRecordModelFactory,
+    sample_record_factory: type[SampleRecordModelFactory],
 ):
     """Test updating an existing record."""
 
-    existing_record = await sample_record_factory(record_data="test_update")
+    existing_record = await sample_record_factory.create(record_data="test_update")
 
     updated_record = SampleRecord(
         id=existing_record.id, record_data="test_update_new_value"
@@ -61,20 +61,16 @@ async def test_update_record(
 async def test_delete_record(
     sample_record_repository: SampleRecordRepository,
     isolated_session: AsyncSession,
-    sample_record_factory: SampleRecordModelFactory,
+    sample_record_factory: type[SampleRecordModelFactory],
 ):
     """Test deleting a record."""
-    print(isolated_session)
-    existing_record = await sample_record_factory(record_data="test_delete")
-    deleted_record_id = await sample_record_repository.delete(existing_record.id)
+    existing_record = await sample_record_factory.create(record_data="test_delete")
+    await sample_record_repository.delete(existing_record.id)
 
-    assert deleted_record_id == existing_record.id
-    count = await isolated_session.scalar(
+    db_records_count = await isolated_session.scalar(
         select(func.count()).select_from(SampleRecordModel)
     )
-    assert count == 0
-
-    assert existing_record
+    assert db_records_count == 0
 
 
 async def test_delete_non_exist_record(
@@ -89,7 +85,7 @@ async def test_delete_non_exist_record(
 async def test_get_record(
     sample_record_repository: SampleRecordRepository, sample_record_factory
 ):
-    existing_record = await sample_record_factory()
+    existing_record = await sample_record_factory.create()
     record_from_db = await sample_record_repository.get_by_id(existing_record.id)
 
     assert_database_object_equal_domain(existing_record, record_from_db)
@@ -107,7 +103,7 @@ async def test_get_non_existing_record(
 
 async def test_get_all_records(
     sample_record_repository: SampleRecordRepository,
-    sample_record_factory: SampleRecordModelFactory,
+    sample_record_factory: type[SampleRecordModelFactory],
 ):
     existing_records_map = {
         record.id: record for record in await sample_record_factory.create_batch(4)

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-set -ex
 # ---------------------------------------------------------------
 # 1. Проверяем форматирование (equivalent to: black --check --diff)
 #    --diff   → вывод изменений
@@ -9,8 +8,6 @@ set -ex
 # ---------------------------------------------------------------
 ruff format --check --diff app tests
 
-black --check --diff app tests
-isort --profile black --check-only app tests
 # ---------------------------------------------------------------
 # 2. Запускаем все lint-правила (B, E, F, S, B*, W*, N*, Q*, ...)
 #    Конфигурация берётся из pyproject.toml / ruff.toml
@@ -20,5 +17,4 @@ ruff check app tests
 # ---------------------------------------------------------------
 # 3. Type-checking
 # ---------------------------------------------------------------
-mypy app tests
-flake8 app tests
+mypy --config-file=setup.cfg app tests

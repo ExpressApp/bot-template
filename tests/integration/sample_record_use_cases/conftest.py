@@ -2,9 +2,7 @@ import pytest
 
 from app.application.use_cases.interfaces import ISampleRecordUseCases
 from app.application.use_cases.record_use_cases import SampleRecordUseCases
-from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
-from tests.application.unit.fake_repository import FakeSampleRecordRepository
 
 
 @pytest.fixture

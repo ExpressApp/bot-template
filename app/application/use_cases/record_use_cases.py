@@ -5,9 +5,9 @@ from app.application.use_cases.interfaces import ISampleRecordUseCases
 from app.domain.entities.sample_record import SampleRecord
 from app.presentation.bot.schemas.sample_record import (
     SampleRecordCreateRequestSchema,
+    SampleRecordResponseListSchema,
     SampleRecordResponseSchema,
     SampleRecordUpdateRequestSchema,
-    SampleRecordResponseListSchema,
 )
 
 
@@ -34,9 +34,9 @@ class SampleRecordUseCases(ISampleRecordUseCases):
         updated_record = await self._repo.update(domain_object)
         return SampleRecordResponseSchema.from_orm(updated_record)
 
-    async def delete_record(self, record_id: int) -> int:
+    async def delete_record(self, record_id: int) -> None:
         """Delete a record."""
-        return await self._repo.delete(record_id)
+        await self._repo.delete(record_id)
 
     async def get_record(self, record_id: int) -> SampleRecordResponseSchema:
         """Get a record by ID."""

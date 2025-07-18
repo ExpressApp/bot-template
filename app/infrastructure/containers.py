@@ -1,11 +1,11 @@
 from dependency_injector import containers
-from dependency_injector.providers import Factory, Callable, Singleton
+from dependency_injector.providers import Callable, Factory, Singleton
 from redis import asyncio as aioredis
 
 from app.application.use_cases.record_use_cases import SampleRecordUseCases
 from app.infrastructure.caching.redis_repo import RedisRepo
-from app.infrastructure.repositories.sample_record import SampleRecordRepository
 from app.infrastructure.db.sqlalchemy import build_db_session_factory
+from app.infrastructure.repositories.sample_record import SampleRecordRepository
 from app.presentation.bot.resources import strings
 from app.settings import settings
 

@@ -2,7 +2,7 @@
 
 from typing import Any, Protocol, cast
 
-from mako.lookup import TemplateLookup
+from mako.lookup import TemplateLookup  # type: ignore[import-untyped]
 
 
 class FormatTemplate(Protocol):
@@ -13,7 +13,7 @@ class FormatTemplate(Protocol):
     with regular string formatting.
     """
 
-    def format(self, **kwargs: Any) -> str:  # noqa: WPS125 A003
+    def format(self, **kwargs: Any) -> str:
         """Render template."""
 
 
@@ -23,11 +23,11 @@ class TemplateFormatterLookup(TemplateLookup):
     def get_template(self, uri: str) -> FormatTemplate:
         """Cast default mako template to FormatTemplate."""
 
-        def _format(**kwargs: Any) -> str:  # noqa: WPS430
+        def _format(**kwargs: Any) -> str:
             return template.render(**kwargs).rstrip()
 
         template = super().get_template(uri)
-        template.format = _format  # noqa: WPS125
+        template.format = _format
         return cast(FormatTemplate, template)
 
 
@@ -40,8 +40,8 @@ lookup = TemplateFormatterLookup(
     strict_undefined=True,
 )
 
-BOT_PROJECT_NAME = "bot_refactor"
-BOT_DISPLAY_NAME = "gubarik_bot_refactor"
+BOT_PROJECT_NAME = "template_bot"
+BOT_DISPLAY_NAME = "template_bot"
 
 CHAT_CREATED_TEMPLATE = lookup.get_template("chat_created.txt.mako")
 HELP_COMMAND_MESSAGE_TEMPLATE = lookup.get_template("help.txt.mako")

@@ -7,9 +7,8 @@ Create Date: 2025-06-11 16:30:02.133576
 Doc: https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision = "765dcfed2d16"
 down_revision = None

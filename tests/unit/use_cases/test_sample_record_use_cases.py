@@ -2,9 +2,9 @@ import pytest
 
 from app.application.repository.exceptions import RecordDoesNotExistError
 from app.application.use_cases.interfaces import ISampleRecordUseCases
-from app.presentation.bot.schemas import (
-    SampleRecordResponseSchema,
+from app.presentation.bot.schemas.sample_record import (
     SampleRecordResponseListSchema,
+    SampleRecordResponseSchema,
 )
 from tests.factories import (
     SampleRecordCreateSchemaFactory,
@@ -17,7 +17,7 @@ async def test_sample_record_use_case_add_record(
 ):
     sample_record_create_request = SampleRecordCreateSchemaFactory()
     response = await sample_record_use_cases_with_fake_repo.create_record(
-        sample_record_create_request
+        sample_record_create_request  # type: ignore
     )
 
     assert isinstance(response, SampleRecordResponseSchema)
@@ -28,13 +28,13 @@ async def test_sample_record_use_case_update_record(
     sample_record_use_cases_with_fake_repo: ISampleRecordUseCases,
 ):
     existing_record = await sample_record_use_cases_with_fake_repo.create_record(
-        SampleRecordCreateSchemaFactory()
+        SampleRecordCreateSchemaFactory()  # type: ignore
     )
 
     update_request = SampleRecordUpdateSchemaFactory(id=existing_record.id)
 
     response = await sample_record_use_cases_with_fake_repo.update_record(
-        update_request
+        update_request  # type: ignore
     )
 
     assert isinstance(response, SampleRecordResponseSchema)
@@ -45,20 +45,24 @@ async def test_sample_record_use_case_delete_record(
     sample_record_use_cases_with_fake_repo: ISampleRecordUseCases,
 ):
     existing_record = await sample_record_use_cases_with_fake_repo.create_record(
-        SampleRecordCreateSchemaFactory()
+        SampleRecordCreateSchemaFactory()  # type: ignore
     )
 
-    result = await sample_record_use_cases_with_fake_repo.delete_record(
-        existing_record.id
-    )
-    assert result == existing_record.id
+    record = await sample_record_use_cases_with_fake_repo.get_record(existing_record.id)
+
+    assert record == existing_record
+
+    await sample_record_use_cases_with_fake_repo.delete_record(existing_record.id)
+
+    with pytest.raises(RecordDoesNotExistError):
+        await sample_record_use_cases_with_fake_repo.get_record(existing_record.id)
 
 
 async def test_sample_record_use_case_get_record(
     sample_record_use_cases_with_fake_repo: ISampleRecordUseCases,
 ):
     existing_record = await sample_record_use_cases_with_fake_repo.create_record(
-        SampleRecordCreateSchemaFactory()
+        SampleRecordCreateSchemaFactory()  # type: ignore
     )
 
     response = await sample_record_use_cases_with_fake_repo.get_record(
@@ -82,7 +86,7 @@ async def test_sample_record_use_case_get_all_records(
     assert isinstance(response, SampleRecordResponseListSchema)
     assert len(response.data) == len(existing_records)
 
-    for record, response_record in zip(existing_records, response.data):
+    for record, response_record in zip(existing_records, response.data, strict=True):
         assert record.id == response_record.id
         assert record.record_data == response_record.record_data
 
@@ -103,7 +107,7 @@ async def test_update_non_existing_record_raises_error(
 
     with pytest.raises(RecordDoesNotExistError):
         await sample_record_use_cases_with_fake_repo.update_record(
-            SampleRecordUpdateSchemaFactory(id=42)
+            SampleRecordUpdateSchemaFactory(id=42)  # type: ignore
         )
 
 

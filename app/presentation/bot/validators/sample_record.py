@@ -1,11 +1,12 @@
-from orjson import orjson, JSONDecodeError
+import orjson
+from orjson import JSONDecodeError
 from pybotx import IncomingMessage
 from pydantic import ValidationError
 
+from app.decorators.exceptions_mapper import exception_mapper
 from app.presentation.bot.schemas.sample_record import SampleRecordCreateRequestSchema
-from app.presentation.validators.base import IBotRequestParser
-from app.presentation.validators.exceptions import MessageValidationError
-from app.utils.exceptions_mapper import exception_mapper
+from app.presentation.bot.validators.base import IBotRequestParser
+from app.presentation.bot.validators.exceptions import MessageValidationError
 
 
 class SampleRecordJsonCreateRequestValidator(

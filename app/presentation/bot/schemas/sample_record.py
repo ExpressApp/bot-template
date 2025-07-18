@@ -1,5 +1,7 @@
 """Domains."""
 
+from typing import Self
+
 from pydantic import BaseModel, Field
 
 
@@ -35,6 +37,6 @@ class SampleRecordUpdateRequestSchema(BaseModel):
     record_data: str = Field(..., min_length=1)
 
     @classmethod
-    def _from_plain_message_data(cls, message_data: str):
+    def _from_plain_message_data(cls, message_data: str) -> Self:
         record_id, record_data = message_data.split(" ")
-        return cls(id=record_id, record_data=record_data)
+        return cls(id=record_id, record_data=record_data)  # type: ignore[arg-type]

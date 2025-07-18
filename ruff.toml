@@ -23,6 +23,11 @@ ignore = [
 "app/bot/commands/*.py" = ["D104"]
 "app/resources/strings.py" = ["E501"]
 "tests/*" = ["D100"]
+# alembic migrations
+"*/migrations/*" = ["ALL"]
+"*/env.py" = ["ALL"]
+# ignore test functons missing return annotations
+"*/test_*.py" = ["ANN201", "ANN202"]
 
 [lint.flake8-quotes]
 inline-quotes = "double"

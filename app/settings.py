@@ -8,7 +8,7 @@ from pydantic import BaseSettings
 
 
 class AppSettings(BaseSettings):
-    class Config:  # noqa: WPS431
+    class Config:
         env_file = ".env"
 
         @classmethod
@@ -49,7 +49,9 @@ class AppSettings(BaseSettings):
                 cts_url = f"https://{cts_url}"
 
             return BotAccountWithSecret(
-                id=UUID(bot_id), cts_url=cts_url, secret_key=secret_key
+                id=UUID(bot_id),
+                cts_url=cts_url,  # type: ignore[arg-type]
+                secret_key=secret_key,
             )
 
     BOT_CREDENTIALS: List[BotAccountWithSecret]
@@ -72,4 +74,4 @@ class AppSettings(BaseSettings):
     WORKER_TIMEOUT_SEC: float = 4
 
 
-settings = AppSettings()
+settings = AppSettings()  # type: ignore[call-arg]

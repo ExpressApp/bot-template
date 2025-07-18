@@ -1,12 +1,6 @@
-
 #!/usr/bin/env bash
 set -euo pipefail
 
-set -ex
-
-autoflake --recursive --in-place \
-  --remove-all-unused-imports \
-  --ignore-init-module-imports \
 # ------------------------------------------------------------
 # 1. Удаляем неиспользуемые импорты (F401/F841) и
 #    сортируем оставшиеся (I###) — «исправляем» только эти коды.
@@ -15,8 +9,6 @@ ruff check \
   --select F401,F841,I \
   --fix \
   app tests
-isort --profile black app tests
-black app tests
 
 # ------------------------------------------------------------
 # 2. Применяем Black-совместимое форматирование

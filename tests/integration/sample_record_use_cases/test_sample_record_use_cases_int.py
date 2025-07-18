@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.interfaces import ISampleRecordUseCases
 from app.infrastructure.db.sample_record.models import SampleRecordModel
-from app.presentation.bot.schemas import SampleRecordResponseSchema
+from app.presentation.bot.schemas.sample_record import SampleRecordResponseSchema
 from tests.factories import SampleRecordCreateSchemaFactory, SampleRecordModelFactory
 
 
@@ -23,7 +23,7 @@ async def test_sample_record_use_case_add_record_in_database(
 
     sample_record_create_request = SampleRecordCreateSchemaFactory()
     response = await sample_record_use_cases_with_real_repo.create_record(
-        sample_record_create_request
+        sample_record_create_request  # type: ignore
     )
 
     query = select(SampleRecordModel).where(SampleRecordModel.id == response.id)
@@ -61,11 +61,7 @@ async def test_sample_record_use_case_remove_record_from_database(
     isolated_session.add(existing_record)
     await isolated_session.flush()
 
-    response = await sample_record_use_cases_with_real_repo.delete_record(
-        existing_record.id
-    )
-
-    assert response == existing_record.id
+    await sample_record_use_cases_with_real_repo.delete_record(existing_record.id)
 
     assert await isolated_session.get(SampleRecordModel, existing_record.id) is None
 

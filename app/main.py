@@ -7,13 +7,15 @@ from dependency_injector.wiring import Provide
 from fastapi import FastAPI
 from pybotx import Bot
 from redis import asyncio as aioredis
+from redis.asyncio import Redis
 
-from app.presentation.api.routers import router
-from app.presentation.bot.bot import get_bot
 from app.infrastructure.caching.callback_redis_repo import CallbackRedisRepo
 from app.infrastructure.caching.exception_handlers import PubsubExceptionHandler
+from app.infrastructure.caching.redis_repo import RedisRepo
 from app.infrastructure.containers import ApplicationStartupContainer
 from app.infrastructure.db.sqlalchemy import close_db_connections
+from app.presentation.api.routers import router
+from app.presentation.bot.bot import get_bot
 from app.presentation.bot.resources import strings
 from app.settings import settings
 
@@ -21,8 +23,8 @@ from app.settings import settings
 async def startup(
     application: FastAPI,
     raise_bot_exceptions: bool,
-    redis_client=Provide[ApplicationStartupContainer.redis_client],
-    redis_repo=Provide[ApplicationStartupContainer.redis_repo],
+    redis_client: Redis = Provide[ApplicationStartupContainer.redis_client],
+    redis_repo: RedisRepo = Provide[ApplicationStartupContainer.redis_repo],
 ) -> None:
     pool = aioredis.BlockingConnectionPool(
         max_connections=settings.REDIS_CONNECTION_POOL_SIZE,

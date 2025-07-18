@@ -19,10 +19,3 @@ class SampleRecordCommands:
         command_name="/create_record",
         description="Создать запись",
     )
-
-
-class SampleRecordFSMCommands:
-    CREATE_RECORD = BotCommand(
-        command_name="/create_record_fsm",
-        description="Создать запись, используя fsm",
-    )

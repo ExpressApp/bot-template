@@ -9,9 +9,9 @@ from app.logger import logger
 
 FunctionType = TypeVar("FunctionType", bound=Callable[..., Any])
 
-CatchExceptionClass = Union[Type[Exception], Tuple[Type[Exception], ...]]  # noqa: WPS221
-T = TypeVar("T")  # noqa:WPS111
-Decorator = Callable[[Callable[..., T]], Callable[..., T]]  # noqa: WPS221
+CatchExceptionClass = Union[Type[Exception], Tuple[Type[Exception], ...]]
+T = TypeVar("T")
+Decorator = Callable[[Callable[..., T]], Callable[..., T]]
 
 
 def _get_error_message(
@@ -39,7 +39,7 @@ def _get_error_message(
 
     error_context = [
         f"Error in function '{func.__module__}.{func.__qualname__}'",
-        f"Original exception: {ex.__class__.__name__}: {str(ex)}",  # noqa: WPS237
+        f"Original exception: {ex.__class__.__name__}: {str(ex)}",
     ]
 
     filtered_args = args[1:] if args and inspect.ismethod(func) else args
@@ -49,10 +49,7 @@ def _get_error_message(
         error_context.append(f"Args: [{args_str}]")
 
     if kwargs:
-        kwargs_str = ", ".join(
-            f"{k}={str(v)[:100]}"  # noqa: WPS237, WPS221
-            for k, v in kwargs.items()  # noqa: WPS111
-        )
+        kwargs_str = ", ".join(f"{k}={str(v)[:100]}" for k, v in kwargs.items())
         error_context.append(f"Kwargs: {kwargs_str}")
 
     return "\n".join(error_context)
@@ -68,7 +65,7 @@ def _create_sync_wrapper(
     """Create a synchronous wrapper function for exception mapping."""
 
     @wraps(func)
-    def sync_wrapper(*args: Any, **kwargs: Any) -> Any:  # noqa: WPS430
+    def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return func(*args, **kwargs)
         except catch_exceptions as ex:
@@ -92,7 +89,7 @@ def _create_async_wrapper(
     """Create an asynchronous wrapper function for exception mapping."""
 
     @wraps(func)
-    async def async_wrapper(*args: Any, **kwargs: Any) -> Any:  # noqa: WPS430
+    async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
             return await func(*args, **kwargs)
         except catch_exceptions as ex:

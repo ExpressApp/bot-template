@@ -59,7 +59,7 @@ class CallbackRedisRepo(CallbackRepoProto):
             callback: The callback data to publish.
 
         Raises:
-            BotXMethodCallbackNotFoundError: If no subscriber is listening on the channel.
+            BotXMethodCallbackNotFoundError: If no subscriber is listening.
         """
         dump = pickle.dumps(callback)
         status_code = await self._redis.publish(

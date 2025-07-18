@@ -2,8 +2,8 @@
 
 from asyncio import current_task
 from contextlib import asynccontextmanager
-from functools import wraps, lru_cache
-from typing import Callable, Any
+from functools import lru_cache, wraps
+from typing import Any, Callable
 
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import (
@@ -23,12 +23,12 @@ AsyncSessionFactory = Callable[..., AsyncSession]
 
 def make_url_async(url: str) -> str:
     """Add +asyncpg to url scheme."""
-    return "postgresql+asyncpg" + url[url.find(":") :]  # noqa: WPS336
+    return "postgresql+asyncpg" + url[url.find(":") :]
 
 
 def make_url_sync(url: str) -> str:
     """Remove +asyncpg from url scheme."""
-    return "postgresql" + url[url.find(":") :]  # noqa: WPS336
+    return "postgresql" + url[url.find(":") :]
 
 
 convention = {
@@ -61,7 +61,7 @@ async def build_db_session_factory() -> AsyncSessionFactory:
 
 
 @asynccontextmanager
-async def session_resource():
+async def session_resource() -> AsyncSession:
     factory = await build_db_session_factory()
     session: AsyncSession = factory()
     try:

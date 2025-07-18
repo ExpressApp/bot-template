@@ -13,7 +13,6 @@ python = ">=3.9,<3.12"
 pybotx = "~0.75.1"
 pybotx-smart-logger = "~0.10.1"
 
-pybotx-fsm = "~0.6.1"
 
 
 fastapi = "~0.110.1"
@@ -40,6 +39,7 @@ dependency-injector = "4.41.0"
 orjson = "^3.10.18"
 factory-boy = "^3.3.3"
 async-factory-boy = "^1.0.1"
+cachetools = "^6.1.0"
 
 
 [tool.poetry.dev-dependencies]
@@ -54,7 +54,7 @@ pytest-cov = "~3.0.0"
 
 asgi-lifespan = "~1.0.1"
 requests = "~2.31.0"
-respx = "~0.20.0"
+respx = "~0.22.0"
 httpx = ">=0.28.0,<0.29.0"
 
 markdown = "3.3.6"  # https://github.com/python-poetry/poetry/issues/4777

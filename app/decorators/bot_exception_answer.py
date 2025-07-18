@@ -19,8 +19,8 @@ def _get_user_message(
     return exception_message_to_user
 
 
-def explain_exception_to_user(  # noqa: WPS231
-    mapping: dict[type[Exception], str | Callable[[Exception], str]],  # noqa: WPS221
+def explain_exception_to_user(
+    mapping: dict[type[Exception], str | Callable[[Exception], str]],
 ) -> Callable:
     """
     Decorate a function to catch specified exceptions and send a response to the user.
@@ -43,10 +43,10 @@ def explain_exception_to_user(  # noqa: WPS231
                     *args,
                     **kwargs,
                 )
-            except tuple(mapping.keys()) as exc:  # noqa: WPS455
+            except tuple(mapping.keys()) as exc:
                 if (message := _get_user_message(mapping, exc)) is not None:
                     await bot.answer_message(message)
-                raise  # noqa: WPS220
+                raise
 
         return wrapper
 

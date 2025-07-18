@@ -57,4 +57,4 @@ class RedisRepo:
         else:
             prefix = ""
 
-        return prefix + hashlib.md5(pickle.dumps(arg)).hexdigest()  # noqa: S303
+        return prefix + hashlib.md5(pickle.dumps(arg)).hexdigest()  # noqa: S324

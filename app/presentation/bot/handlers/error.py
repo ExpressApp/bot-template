@@ -1,11 +1,11 @@
 from typing import Callable
 from uuid import uuid4
 
-from pybotx import Bot, IncomingMessage, BotShuttingDownError
+from pybotx import Bot, BotShuttingDownError, IncomingMessage
 
 from app.logger import logger
-from app.presentation.bot.validators.exceptions import MessageValidationError
 from app.presentation.bot.resources import strings
+from app.presentation.bot.validators.exceptions import MessageValidationError
 
 
 class BaseExceptionHandler:

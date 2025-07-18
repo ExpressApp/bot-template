@@ -1,22 +1,22 @@
 """Record repository implementation."""
 
-from typing import List, Optional
+from typing import List
 
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 
 from app.application.repository.exceptions import (
-    RecordDoesNotExistError,
-    RecordUpdateError,
     RecordCreateError,
     RecordDeleteError,
+    RecordDoesNotExistError,
     RecordRetreiveError,
+    RecordUpdateError,
 )
 from app.application.repository.interfaces import ISampleRecordRepository
+from app.decorators.exceptions_mapper import exception_mapper
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.infrastructure.db.sqlalchemy import AsyncSession
-from app.utils.exceptions_mapper import exception_mapper
 
 
 class SampleRecordRepository(ISampleRecordRepository):
@@ -66,7 +66,7 @@ class SampleRecordRepository(ISampleRecordRepository):
     @exception_mapper(
         catch_exceptions=SQLAlchemyError, raise_exception=RecordDeleteError
     )
-    async def delete(self, record_id: int) -> int:
+    async def delete(self, record_id: int) -> None:
         """Delete a record.
 
         Args:
@@ -87,8 +87,6 @@ class SampleRecordRepository(ISampleRecordRepository):
             )
 
         await self._session.flush()
-
-        return deletion_result
 
     @exception_mapper(
         catch_exceptions=NoResultFound, raise_exception=RecordDoesNotExistError

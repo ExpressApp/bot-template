@@ -1,6 +1,6 @@
 from dependency_injector.providers import Factory
-from dependency_injector.wiring import inject, Provider
-from pybotx import HandlerCollector, Bot, IncomingMessage
+from dependency_injector.wiring import Provider, inject
+from pybotx import Bot, HandlerCollector, IncomingMessage
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.interfaces import ISampleRecordUseCases
@@ -22,7 +22,7 @@ async def create_sample_record(
     record_use_cases_factory: Factory[ISampleRecordUseCases] = Provider[
         BotSampleRecordCommandContainer.record_use_cases_factory
     ],
-):
+) -> None:
     await CreateSampleRecordHandler(
         bot=bot, message=message, use_cases=record_use_cases_factory.provider(session)
     ).execute()

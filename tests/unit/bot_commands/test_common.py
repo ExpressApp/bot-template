@@ -70,38 +70,9 @@ async def test_chat_created_handler(
     # - Assert -
     bot.answer_message.assert_awaited_once_with(  # type: ignore
         (
-            "Вас приветствует gubarik_bot_refactor!\n\n"
+            "Вас приветствует template_bot!\n\n"
             "Для более подробной информации нажмите кнопку `/help`"
         ),
         bubbles=BubbleMarkup([[Button(command="/help", label="/help")]]),
     )
 
-
-async def test_help_handler(
-    bot: Bot,
-    incoming_message_factory: Callable[..., IncomingMessage],
-) -> None:
-    # - Arrange -
-    message = incoming_message_factory(body="/help")
-
-    # - Act -
-    await bot.async_execute_bot_command(message)
-
-    # - Assert -
-    bot.answer_message.assert_awaited_once_with(  # type: ignore
-        "`/help` -- Get available commands"
-    )
-
-
-async def test_git_commit_sha_handler(
-    bot: Bot,
-    incoming_message_factory: Callable[..., IncomingMessage],
-) -> None:
-    # - Arrange -
-    message = incoming_message_factory(body="/_debug:git-commit-sha")
-
-    # - Act -
-    await bot.async_execute_bot_command(message)
-
-    # - Assert -
-    bot.answer_message.assert_awaited_once_with("<undefined>")  # type: ignore

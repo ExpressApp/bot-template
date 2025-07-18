@@ -1,9 +1,8 @@
 """Record entity for the domain layer."""
 
 from dataclasses import dataclass
-from typing import Optional
 
-from app.domain.exceptions.domain_exceptions import WrongRecordData
+from app.domain.exceptions.domain_exceptions import WrongRecordDataError
 
 
 @dataclass
@@ -22,4 +21,4 @@ class SampleRecord:
         For example for some reason record data shouldn't start with A123
         """
         if self.record_data.startswith("A123"):
-            raise WrongRecordData("Record data shouldn't start with A")
+            raise WrongRecordDataError("Record data shouldn't start with A")

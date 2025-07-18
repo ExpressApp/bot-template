@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Any
+from typing import Any, Generic, TypeVar
 
-from orjson import orjson, JSONDecodeError
+import orjson
+from orjson import JSONDecodeError
 from pybotx import IncomingMessage
 from pydantic import BaseModel, ValidationError
 

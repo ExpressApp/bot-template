@@ -1,19 +1,18 @@
 import asyncio
-from asyncio import current_task
+import re
+from asyncio import AbstractEventLoop, current_task
 from datetime import datetime
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any, AsyncGenerator, Callable, Dict, Generator, List, Optional
+from typing import Any, AsyncGenerator, Callable, Dict, Generator, Optional
 from unittest.mock import AsyncMock, patch
 from uuid import UUID, uuid4
-import os
 
 import httpx
 import jwt
 import pytest
 import respx
-import sqlalchemy
-from alembic import config as alembic_config, command
+from alembic import command
 from alembic.config import Config
 from asgi_lifespan import LifespanManager
 from pybotx import (
@@ -26,34 +25,31 @@ from pybotx import (
     UserSender,
 )
 from pybotx.logger import logger
-from sqlalchemy import NullPool, event
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     AsyncEngine,
-    create_async_engine,
+    AsyncSession,
     async_scoped_session,
-    async_sessionmaker,
+    create_async_engine,
 )
-from sqlalchemy.orm import sessionmaker, Session, SessionTransaction
-from testcontainers.postgres import PostgresContainer
+from sqlalchemy.orm import sessionmaker
+from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app.infrastructure.caching.redis_repo import RedisRepo
 from app.infrastructure.db.sqlalchemy import (
-    build_db_session_factory,
     AsyncSessionFactory,
     make_url_async,
 )
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
 from app.main import get_application
-from app.settings import settings, AppSettings
+from app.settings import settings
 from tests.factories import SampleRecordModelFactory
 
 
 @pytest.fixture(scope="session")
 def postgres_container() -> Generator[PostgresContainer, None, None]:
     """Starts a temporary PostgreSQL container for the test session."""
-    container_name = f"bot_testing_container"
+    container_name = "bot_testing_container"
 
     with PostgresContainer("postgres:15").with_name(container_name) as postgres:
         container_url = postgres.get_connection_url()
@@ -62,7 +58,7 @@ def postgres_container() -> Generator[PostgresContainer, None, None]:
 
 
 @pytest.fixture(scope="session")
-def event_loop():
+def event_loop() -> Generator[AbstractEventLoop, None, None]:
     """Create a session-scoped event loop for async session-scoped fixtures."""
     loop = asyncio.new_event_loop()
     yield loop
@@ -121,8 +117,24 @@ async def redis_repo(bot: Bot) -> RedisRepo:
     return bot.state.redis_repo
 
 
+# def mock_authorization() -> None:
+#     respx.route(method="GET", path__regex="/api/v2/botx/bots/.*/token").mock(
+#         return_value=httpx.Response(
+#             HTTPStatus.OK,
+#             json={
+#                 "status": "ok",
+#                 "result": "token",
+#             },
+#         ),
+#     )
+
+
 def mock_authorization() -> None:
-    respx.route(method="GET", path__regex="/api/v2/botx/bots/.*/token").mock(
+    respx.get(
+        # url__regex=re.compile(r"^https://.*?/api/v2/botx/bots/[^/]+/token")
+        url__regex=re.compile(r"^https://[^/]+/api/v2/botx/bots/[^/]+/token(\?.*)?$")
+        # url__regex=re.compile(r"^https://.*?/api/v2/botx/bots/[^/]+/token(?:\?.*)?$")
+    ).mock(
         return_value=httpx.Response(
             HTTPStatus.OK,
             json={
@@ -143,9 +155,7 @@ async def bot(
 
     async with LifespanManager(fastapi_app):
         built_bot = fastapi_app.state.bot
-
         built_bot.answer_message = AsyncMock(return_value=uuid4())
-
         yield built_bot
 
 
