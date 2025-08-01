@@ -6,7 +6,9 @@ from pybotx import Bot
 from redis import asyncio as aioredis
 from saq import Queue
 
-from app.infrastructure.caching.callback_redis_repo import CallbackRedisRepo
+from app.infrastructure.repositories.caching.callback_redis_repo import (
+    CallbackRedisRepo,
+)
 from app.logger import logger
 
 # `saq` import its own settings and hides our module

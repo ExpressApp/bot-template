@@ -13,7 +13,7 @@ from app.application.repository.exceptions import (
     RecordUpdateError,
 )
 from app.application.repository.interfaces import ISampleRecordRepository
-from app.decorators.exceptions_mapper import exception_mapper
+from app.decorators.exception_mapper import ExceptionMapper, EnrichedExceptionFactory
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.infrastructure.db.sqlalchemy import AsyncSession
@@ -30,8 +30,9 @@ class SampleRecordRepository(ISampleRecordRepository):
         """
         self._session = session
 
-    @exception_mapper(
-        catch_exceptions=SQLAlchemyError, raise_exception=RecordCreateError
+    @ExceptionMapper(
+        {SQLAlchemyError: EnrichedExceptionFactory(RecordCreateError)},
+        is_bound_method=True,
     )
     async def create(self, record: SampleRecord) -> SampleRecord:
         query = (
@@ -44,8 +45,9 @@ class SampleRecordRepository(ISampleRecordRepository):
         record_model = result.scalar_one()
         return self._to_domain_object(record_model)
 
-    @exception_mapper(
-        catch_exceptions=SQLAlchemyError, raise_exception=RecordUpdateError
+    @ExceptionMapper(
+        {SQLAlchemyError: EnrichedExceptionFactory(RecordUpdateError)},
+        is_bound_method=True,
     )
     async def update(self, record: SampleRecord) -> SampleRecord:
         query = (
@@ -63,8 +65,9 @@ class SampleRecordRepository(ISampleRecordRepository):
 
         return self._to_domain_object(execute_result)
 
-    @exception_mapper(
-        catch_exceptions=SQLAlchemyError, raise_exception=RecordDeleteError
+    @ExceptionMapper(
+        {SQLAlchemyError: EnrichedExceptionFactory(RecordDeleteError)},
+        is_bound_method=True,
     )
     async def delete(self, record_id: int) -> None:
         """Delete a record.
@@ -88,8 +91,9 @@ class SampleRecordRepository(ISampleRecordRepository):
 
         await self._session.flush()
 
-    @exception_mapper(
-        catch_exceptions=NoResultFound, raise_exception=RecordDoesNotExistError
+    @ExceptionMapper(
+        {SQLAlchemyError: EnrichedExceptionFactory(RecordDoesNotExistError)},
+        is_bound_method=True,
     )
     async def get_by_id(self, record_id: int) -> SampleRecord:
         """Get a record by ID.
@@ -107,8 +111,9 @@ class SampleRecordRepository(ISampleRecordRepository):
         result = await self._session.execute(query)
         return self._to_domain_object(result.scalar_one())
 
-    @exception_mapper(
-        catch_exceptions=SQLAlchemyError, raise_exception=RecordRetreiveError
+    @ExceptionMapper(
+        {SQLAlchemyError: EnrichedExceptionFactory(RecordRetreiveError)},
+        is_bound_method=True,
     )
     async def get_all(self) -> List[SampleRecord]:
         """Get all records.

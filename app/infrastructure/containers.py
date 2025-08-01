@@ -1,38 +1,30 @@
-from dependency_injector import containers
+import asyncio
+
+from dependency_injector import containers, providers
 from dependency_injector.providers import Callable, Factory, Singleton
+from httpx import AsyncClient, Limits
+from pybotx import Bot
 from redis import asyncio as aioredis
 
 from app.application.use_cases.record_use_cases import SampleRecordUseCases
-from app.infrastructure.caching.redis_repo import RedisRepo
-from app.infrastructure.db.sqlalchemy import build_db_session_factory
+from app.infrastructure.repositories.caching.callback_redis_repo import (
+    CallbackRedisRepo,
+)
+from app.infrastructure.repositories.caching.exception_handlers import (
+    PubsubExceptionHandler,
+)
+from app.infrastructure.repositories.caching.redis_repo import RedisRepo
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
+from app.logger import logger
+
+from app.presentation.bot.handlers.internal_error import internal_error_handler
+from app.presentation.bot.middlewares.answer_error import answer_error_middleware
+from app.presentation.bot.middlewares.smart_logger import smart_logger_middleware
 from app.presentation.bot.resources import strings
 from app.settings import settings
 
 
 class BotSampleRecordCommandContainer(containers.DeclarativeContainer):
-    wiring_config = containers.WiringConfiguration(
-        modules=["app.presentation.bot.commands.sample_records"]
-    )
-
-    # Session factory provider - returns a factory that creates AsyncSession instances
-    session_factory = Factory(build_db_session_factory)
-
-    record_use_cases_factory = Callable(
-        lambda session: SampleRecordUseCases(
-            record_repo=SampleRecordRepository(session=session)
-        )
-    )
-
-
-class HealthCheckContainer(containers.DeclarativeContainer):
-    wiring_config = containers.WiringConfiguration(
-        modules=["app.presentation.api.healthcheck"]
-    )
-
-    # Session factory provider - returns a factory that creates AsyncSession instances
-    session_factory = Factory(build_db_session_factory)
-
     record_use_cases_factory = Callable(
         lambda session: SampleRecordUseCases(
             record_repo=SampleRecordRepository(session=session)
@@ -61,19 +53,46 @@ class HealthCheckContainer(containers.DeclarativeContainer):
 #     )
 
 
+class CallbackTaskManager:
+    """Менеджер для управления задачей обработки callbacks"""
+
+    def __init__(self, callback_repo: CallbackRedisRepo):
+        self.callback_repo = callback_repo
+        self._task: asyncio.Task | None = None
+
+    def _get_task(self) -> asyncio.Task:
+        """Получает или создает задачу в текущем цикле событий"""
+        if self._task is None or self._task.done():
+            self._task = asyncio.create_task(
+                self.callback_repo.pubsub.run(
+                    exception_handler=PubsubExceptionHandler()
+                )
+            )
+        return self._task
+
+    def _cancel_task(self) -> None:
+        """Отменяет задачу если она существует"""
+        if self._task and not self._task.done():
+            self._task.cancel()
+
+    async def shutdown(self) -> None:
+        """Корректное завершение работы менеджера"""
+        if self._task:
+            self._cancel_task()
+            try:
+                await asyncio.gather(self._task, return_exceptions=True)
+            except RuntimeError as e:
+                logger.warning(f"Error at gather CallbackTaskManager tasks: {e}")
+
+    def __call__(self) -> asyncio.Task:
+        """Позволяет использовать как callable для провайдера"""
+        return self._get_task()
+
+
 class ApplicationStartupContainer(containers.DeclarativeContainer):
     """Container for application startup dependencies."""
 
-    wiring_config = containers.WiringConfiguration(modules=["app.main"])
-
-    # Database
-    # db_session_factory = Factory(build_db_session_factory)
-
-    # Redis client
-    redis_client = Singleton(
-        aioredis.from_url,
-        settings.REDIS_DSN,
-    )
+    redis_client = Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
 
     redis_repo = Factory(
         RedisRepo,
@@ -81,30 +100,45 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
         prefix=strings.BOT_PROJECT_NAME,
     )
 
-    ## Configure connection pool for Redis
-    # redis_connection_pool = Callable(
-    #     lambda: aioredis.BlockingConnectionPool(
-    #         max_connections=settings.REDIS_CONNECTION_POOL_SIZE,
-    #         **(redis_client.provided.connection_pool.connection_kwargs),
-    #     )
-    # )
-    #
-    # # Set connection pool for Redis client
-    # redis_client_with_pool = Callable(
-    #     lambda: redis_client.provided.__setattr__(
-    #         "connection_pool", redis_connection_pool()
-    #     ) or redis_client.provided
-    # )
-    #
-    # # Redis repo
-    # redis_repo = Factory(
-    #     RedisRepo,
-    #     redis=redis_client_with_pool,
-    #     prefix=strings.BOT_PROJECT_NAME,
-    # )
-    #
-    # # Callback repo
-    # callback_repo = Factory(
-    #     CallbackRedisRepo,
-    #     redis=redis_client_with_pool,
-    # )
+    async_client = providers.Singleton(
+        AsyncClient,
+        timeout=60,
+        limits=Limits(max_keepalive_connections=None, max_connections=None),
+    )
+
+    callback_repo = providers.Singleton(
+        CallbackRedisRepo,
+        redis=redis_client,
+    )
+
+    exception_handlers = (
+        {} if not settings.RAISE_BOT_EXCEPTIONS else {Exception: internal_error_handler}
+    )
+
+    from app.presentation.bot.commands import common, sample_record
+
+    bot = providers.Singleton(
+        Bot,
+        collectors=[common.collector, sample_record.collector],
+        bot_accounts=settings.BOT_CREDENTIALS,
+        exception_handlers=exception_handlers,  # type: ignore
+        default_callback_timeout=settings.BOTX_CALLBACK_TIMEOUT_IN_SECONDS,
+        httpx_client=async_client,
+        middlewares=[
+            smart_logger_middleware,
+            answer_error_middleware,
+        ],
+        callback_repo=callback_repo,
+    )
+
+    # Используем менеджер задач для ленивой инициализации
+    callback_task_manager = providers.Singleton(
+        CallbackTaskManager,
+        callback_repo,
+    )
+
+    # Провайдер который возвращает задачу через менеджер
+    process_callbacks_task = providers.Callable(
+        lambda manager: manager(),
+        callback_task_manager,
+    )

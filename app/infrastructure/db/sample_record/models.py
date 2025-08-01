@@ -14,5 +14,5 @@ class SampleRecordModel(Base):
     record_data: Mapped[str]
 
     def __repr__(self) -> str:
-        """Show string representation of record."""
+        """Show string representation of a record."""
         return self.record_data

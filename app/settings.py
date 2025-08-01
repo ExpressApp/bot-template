@@ -4,7 +4,7 @@ from typing import Any, List
 from uuid import UUID
 
 from pybotx import BotAccountWithSecret
-from pydantic import BaseSettings
+from pydantic import BaseSettings, PositiveInt, Field
 
 
 class AppSettings(BaseSettings):
@@ -59,11 +59,18 @@ class AppSettings(BaseSettings):
     # base kwargs
     DEBUG: bool = False
 
+    # hide original exceptions from bot user
+    RAISE_BOT_EXCEPTIONS: bool = False
+
     # User huids for debug
     SMARTLOG_DEBUG_HUIDS: List[UUID]
 
     # database
     POSTGRES_DSN: str
+    DB_ENGINE_POOL_SIZE: PositiveInt = 4
+    DB_ENGINE_MAX_OVERFLOW: int = Field(ge=-1, default=10)
+    DB_ENGINE_POOL_RECYCLE: int = Field(ge=-1, default=60 * 60)  # 1 hour
+
     SQL_DEBUG: bool = False
 
     # redis
@@ -72,6 +79,8 @@ class AppSettings(BaseSettings):
 
     # healthcheck
     WORKER_TIMEOUT_SEC: float = 4
+
+    BOTX_CALLBACK_TIMEOUT_IN_SECONDS = 30
 
 
 settings = AppSettings()  # type: ignore[call-arg]

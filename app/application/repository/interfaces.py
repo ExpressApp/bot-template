@@ -53,7 +53,7 @@ class ISampleRecordRepository(ABC):
             record_id: The record id to be created.
 
         Returns:
-            SampleRecord: The record from database."""
+            SampleRecord: The record from a database."""
         pass
 
     @abstractmethod

@@ -5,6 +5,7 @@ from uuid import UUID
 
 import httpx
 import respx
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pybotx import Bot
 
@@ -15,7 +16,7 @@ from app.main import get_application
 async def test__web_app__bot_command_response_accepted(
     bot_id: UUID,
     host: str,
-    bot: Bot,
+    fastapi_app: FastAPI,
     authorization_header: Dict[str, str],
     command_payload_v4: Dict[str, Any],
 ) -> None:
@@ -69,7 +70,7 @@ async def test__web_app__bot_command_response_accepted(
 def test__web_app__bot_command_response_service_unavailable(
     bot_id: UUID,
     host: str,
-    bot: Bot,
+    fastapi_app: FastAPI,
 ) -> None:
     # - Arrange -
     callback_payload = {
@@ -96,7 +97,9 @@ def test__web_app__bot_command_response_service_unavailable(
 
 @respx.mock
 def test__web_app__unknown_bot_response_service_unavailable(
-    bot: Bot, authorization_header: Dict[str, str], unknown_bot_payload: Dict[str, Any]
+    fastapi_app: FastAPI,
+    authorization_header: Dict[str, str],
+    unknown_bot_payload: Dict[str, Any],
 ) -> None:
     # - Act -
     with TestClient(get_application()) as test_client:
@@ -117,7 +120,7 @@ def test__web_app__unknown_bot_response_service_unavailable(
 
 @respx.mock
 def test__web_app__unsupported_bot_api_version_service_unavailable(
-    bot: Bot,
+    fastapi_app: FastAPI,
     authorization_header: Dict[str, str],
     command_payload_v3: Dict[str, Any],
 ) -> None:

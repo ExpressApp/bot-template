@@ -7,7 +7,7 @@ from app.application.repository.exceptions import RecordDoesNotExistError
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
-from tests.factories import SampleRecordModelFactory
+from tests.integration.factories import SampleRecordModelFactory
 
 
 def assert_database_object_equal_domain(

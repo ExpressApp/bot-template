@@ -1,22 +1,11 @@
 import asyncio
-import re
-from asyncio import AbstractEventLoop, current_task
 from datetime import datetime
-from http import HTTPStatus
-from pathlib import Path
-from typing import Any, AsyncGenerator, Callable, Dict, Generator, Optional
-from unittest.mock import AsyncMock, patch
+from typing import Any, Callable, Dict, Optional
 from uuid import UUID, uuid4
 
-import httpx
 import jwt
 import pytest
-import respx
-from alembic import command
-from alembic.config import Config
-from asgi_lifespan import LifespanManager
 from pybotx import (
-    Bot,
     BotAccount,
     Chat,
     ChatTypes,
@@ -24,139 +13,19 @@ from pybotx import (
     UserDevice,
     UserSender,
 )
-from pybotx.logger import logger
-from sqlalchemy import NullPool
-from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
-    async_scoped_session,
-    create_async_engine,
-)
-from sqlalchemy.orm import sessionmaker
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
-from app.infrastructure.caching.redis_repo import RedisRepo
-from app.infrastructure.db.sqlalchemy import (
-    AsyncSessionFactory,
-    make_url_async,
-)
-from app.infrastructure.repositories.sample_record import SampleRecordRepository
-from app.main import get_application
 from app.settings import settings
-from tests.factories import SampleRecordModelFactory
 
 
 @pytest.fixture(scope="session")
-def postgres_container() -> Generator[PostgresContainer, None, None]:
-    """Starts a temporary PostgreSQL container for the test session."""
-    container_name = "bot_testing_container"
-
-    with PostgresContainer("postgres:15").with_name(container_name) as postgres:
-        container_url = postgres.get_connection_url()
-        with patch.object(settings, "POSTGRES_DSN", container_url):
-            yield postgres
-
-
-@pytest.fixture(scope="session")
-def event_loop() -> Generator[AbstractEventLoop, None, None]:
-    """Create a session-scoped event loop for async session-scoped fixtures."""
+def event_loop():
+    """Create a session-scoped event loop for async session-scoped fixtures.
+    Don't touch this fixture. Its internally used by pytest-asyncio."""
     loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     yield loop
     loop.close()
-
-
-@pytest.fixture(scope="session")
-async def db_session_factory(postgres_container) -> AsyncSessionFactory:
-    engine: AsyncEngine = create_async_engine(
-        make_url_async(settings.POSTGRES_DSN), poolclass=NullPool
-    )
-
-    factory = async_scoped_session(
-        sessionmaker(
-            bind=engine,
-            expire_on_commit=False,
-            class_=AsyncSession,  # type:ignore
-        ),
-        scopefunc=current_task,
-    )
-    return factory
-
-
-@pytest.fixture
-async def isolated_session(db_session_factory):
-    """Isolated session with proper rollback to prevent test data leaks."""
-    alembic_cfg = Config(str(Path(__file__).parent.parent / "alembic.ini"))
-    command.upgrade(alembic_cfg, "head")
-    async with db_session_factory() as session:
-        yield session
-    command.downgrade(alembic_cfg, "base")
-
-
-@pytest.fixture
-async def sample_record_repository(isolated_session) -> SampleRecordRepository:
-    return SampleRecordRepository(isolated_session)
-
-
-@pytest.fixture
-def sample_record_factory(
-    isolated_session,
-) -> Generator[type[SampleRecordModelFactory], None, None]:
-    SampleRecordModelFactory._meta.sqlalchemy_session = isolated_session
-    yield SampleRecordModelFactory
-    SampleRecordModelFactory._meta.sqlalchemy_session = None
-
-
-@pytest.fixture
-async def db_session(bot: Bot) -> AsyncGenerator[AsyncSession, None]:
-    async with bot.state.db_session_factory() as session:
-        yield session
-
-
-@pytest.fixture
-async def redis_repo(bot: Bot) -> RedisRepo:
-    return bot.state.redis_repo
-
-
-# def mock_authorization() -> None:
-#     respx.route(method="GET", path__regex="/api/v2/botx/bots/.*/token").mock(
-#         return_value=httpx.Response(
-#             HTTPStatus.OK,
-#             json={
-#                 "status": "ok",
-#                 "result": "token",
-#             },
-#         ),
-#     )
-
-
-def mock_authorization() -> None:
-    respx.get(
-        # url__regex=re.compile(r"^https://.*?/api/v2/botx/bots/[^/]+/token")
-        url__regex=re.compile(r"^https://[^/]+/api/v2/botx/bots/[^/]+/token(\?.*)?$")
-        # url__regex=re.compile(r"^https://.*?/api/v2/botx/bots/[^/]+/token(?:\?.*)?$")
-    ).mock(
-        return_value=httpx.Response(
-            HTTPStatus.OK,
-            json={
-                "status": "ok",
-                "result": "token",
-            },
-        ),
-    )
-
-
-@pytest.fixture
-async def bot(
-    respx_mock: Callable[..., Any],  # We can't apply pytest mark to fixture
-) -> AsyncGenerator[Bot, None]:
-    fastapi_app = get_application()
-
-    mock_authorization()
-
-    async with LifespanManager(fastapi_app):
-        built_bot = fastapi_app.state.bot
-        built_bot.answer_message = AsyncMock(return_value=uuid4())
-        yield built_bot
 
 
 @pytest.fixture
@@ -256,12 +125,12 @@ def incoming_message_factory(
     return factory
 
 
-@pytest.fixture
-def loguru_caplog(
-    caplog: pytest.LogCaptureFixture,
-) -> Generator[pytest.LogCaptureFixture, None, None]:
-    # https://github.com/Delgan/loguru/issues/59
-
-    handler_id = logger.add(caplog.handler, format="{message}")
-    yield caplog
-    logger.remove(handler_id)
+# @pytest.fixture
+# def loguru_caplog(
+#     caplog: pytest.LogCaptureFixture,
+# ) -> Generator[pytest.LogCaptureFixture, None, None]:
+#     # https://github.com/Delgan/loguru/issues/59
+#
+#     handler_id = logger.add(caplog.handler, format="{message}")
+#     yield caplog
+#     logger.remove(handler_id)

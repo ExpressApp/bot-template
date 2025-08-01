@@ -7,14 +7,15 @@ from fastapi import Depends, Request
 from pybotx import Bot
 from sqlalchemy.sql import text
 
+import tests.integration.conftest
 from app.infrastructure.worker.worker import queue
 from app.settings import settings
 
 
 async def check_db_connection(request: Request) -> Optional[str]:
-    assert isinstance(request.app.state.bot, Bot)
+    assert isinstance(tests.integration.conftest.bot, Bot)
 
-    bot = request.app.state.bot
+    bot = tests.integration.conftest.bot
     session_factory = bot.state.db_session_factory
 
     async with session_factory() as db_session:
@@ -30,9 +31,9 @@ check_db_connection_dependency = Depends(check_db_connection)
 
 
 async def check_redis_connection(request: Request) -> Optional[str]:
-    assert isinstance(request.app.state.bot, Bot)
+    assert isinstance(tests.integration.conftest.bot, Bot)
 
-    bot = request.app.state.bot
+    bot = tests.integration.conftest.bot
     return await bot.state.redis_repo.ping()
 
 

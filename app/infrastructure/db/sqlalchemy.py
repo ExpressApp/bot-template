@@ -48,26 +48,13 @@ def get_engine() -> AsyncEngine:
     return create_async_engine(
         make_url_async(settings.POSTGRES_DSN),
         poolclass=AsyncAdaptedQueuePool,
+        pool_size=settings.DB_ENGINE_POOL_SIZE,
+        max_overflow=settings.DB_ENGINE_MAX_OVERFLOW,
+        pool_recycle=settings.DB_ENGINE_POOL_RECYCLE,
     )
 
 
-async def build_db_session_factory() -> AsyncSessionFactory:
-    await verify_db_connection(get_engine())
-
-    return async_scoped_session(
-        async_sessionmaker(bind=get_engine(), expire_on_commit=False),
-        scopefunc=current_task,
-    )
-
-
-@asynccontextmanager
-async def session_resource() -> AsyncSession:
-    factory = await build_db_session_factory()
-    session: AsyncSession = factory()
-    try:
-        yield session
-    finally:
-        await session.close()
+session_factory = async_sessionmaker(bind=get_engine(), expire_on_commit=False)
 
 
 async def verify_db_connection(engine: AsyncEngine) -> None:
@@ -79,7 +66,7 @@ async def close_db_connections() -> None:
     await get_engine().dispose()
 
 
-def provide_session(func: Callable) -> Callable:
+def provide_transaction_session(func: Callable) -> Callable:
     """
     Provides a database session to an async function if one is not already passed.
 
@@ -91,8 +78,6 @@ def provide_session(func: Callable) -> Callable:
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
         if kwargs.get("session"):
             return await func(*args, **kwargs)
-
-        session_factory = await build_db_session_factory()
         async with session_factory() as session:
             return await func(*args, **kwargs, session=session)
 

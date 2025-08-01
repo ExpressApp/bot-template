@@ -3,17 +3,27 @@
 import asyncio
 from functools import partial
 
-from dependency_injector.wiring import Provide
+from dependency_injector.wiring import Provide, inject
 from fastapi import FastAPI
 from pybotx import Bot
 from redis import asyncio as aioredis
 from redis.asyncio import Redis
 
-from app.infrastructure.caching.callback_redis_repo import CallbackRedisRepo
-from app.infrastructure.caching.exception_handlers import PubsubExceptionHandler
-from app.infrastructure.caching.redis_repo import RedisRepo
-from app.infrastructure.containers import ApplicationStartupContainer
+import tests.integration.conftest
+from app.infrastructure.repositories.caching.callback_redis_repo import (
+    CallbackRedisRepo,
+)
+from app.infrastructure.repositories.caching.exception_handlers import (
+    PubsubExceptionHandler,
+)
+from app.infrastructure.repositories.caching.redis_repo import RedisRepo
+from app.infrastructure.containers import (
+    ApplicationStartupContainer,
+    BotSampleRecordCommandContainer,
+    CallbackTaskManager,
+)
 from app.infrastructure.db.sqlalchemy import close_db_connections
+from app.logger import logger
 from app.presentation.api.routers import router
 from app.presentation.bot.bot import get_bot
 from app.presentation.bot.resources import strings
@@ -21,63 +31,57 @@ from app.settings import settings
 
 
 async def startup(
-    application: FastAPI,
-    raise_bot_exceptions: bool,
-    redis_client: Redis = Provide[ApplicationStartupContainer.redis_client],
-    redis_repo: RedisRepo = Provide[ApplicationStartupContainer.redis_repo],
+    bot: Bot = Provide[ApplicationStartupContainer.bot],
 ) -> None:
-    pool = aioredis.BlockingConnectionPool(
-        max_connections=settings.REDIS_CONNECTION_POOL_SIZE,
-        **redis_client.connection_pool.connection_kwargs,
-    )
-    redis_client.connection_pool = pool
-
-    # -- Bot --
-    callback_repo = CallbackRedisRepo(redis_client)
-    process_callbacks_task = asyncio.create_task(
-        callback_repo.pubsub.run(exception_handler=PubsubExceptionHandler())
-    )
-    bot = get_bot(callback_repo, raise_exceptions=raise_bot_exceptions)
-
     await bot.startup()
 
-    # bot.state.db_session_factory = db_session_factory
-    bot.state.redis_repo = redis_repo
 
-    application.state.bot = bot
-    application.state.redis = redis_client
-    application.state.process_callbacks_task = process_callbacks_task
-
-
-async def shutdown(application: FastAPI) -> None:
-    # -- Bot --
-    bot: Bot = application.state.bot
+async def shutdown(
+    callback_task_manager: CallbackTaskManager = Provide[
+        ApplicationStartupContainer.callback_task_manager
+    ],
+    bot: Bot = Provide[ApplicationStartupContainer.bot],
+    redis_client: Redis = Provide[ApplicationStartupContainer.redis_client],
+) -> None:
     await bot.shutdown()
-    process_callbacks_task: asyncio.Task = application.state.process_callbacks_task
-    process_callbacks_task.cancel()
-    await asyncio.gather(process_callbacks_task, return_exceptions=True)
 
-    # -- Redis --
-    redis_client: aioredis.Redis = application.state.redis
-    await redis_client.close()
+    await callback_task_manager.shutdown()
 
-    # -- Database --
+    await redis_client.aclose()
     await close_db_connections()
 
 
-def get_application(raise_bot_exceptions: bool = False) -> FastAPI:
+def get_application() -> FastAPI:
     """Create configured server application instance."""
 
-    # Initialize the container
-    container = ApplicationStartupContainer()
-    container.wire(modules=["app.main"])
+    # Initialize the main application container
+    main_container = ApplicationStartupContainer()
+    main_container.wire(modules=["app.main"])
+
+    # Initialize the SampleRecord commands container
+    sample_record_commands_container = BotSampleRecordCommandContainer()
+    sample_record_commands_container.wire(
+        modules=["app.presentation.bot.commands.sample_record"]
+    )
 
     application = FastAPI(title=strings.BOT_PROJECT_NAME, openapi_url=None)
 
+    # put bot to state for tests
+    application.state.bot = main_container.bot()
+
     application.add_event_handler(
-        "startup", partial(startup, application, raise_bot_exceptions)
+        "startup",
+        partial(startup, bot=main_container.bot()),
     )
-    application.add_event_handler("shutdown", partial(shutdown, application))
+    application.add_event_handler(
+        "shutdown",
+        partial(
+            shutdown,
+            callback_task_manager=main_container.callback_task_manager(),
+            bot=main_container.bot(),
+            redis_client=main_container.redis_client(),
+        ),
+    )
 
     application.include_router(router)
 

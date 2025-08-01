@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.use_cases.interfaces import ISampleRecordUseCases
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.presentation.bot.schemas.sample_record import SampleRecordResponseSchema
-from tests.factories import SampleRecordCreateSchemaFactory, SampleRecordModelFactory
+from tests.factories import SampleRecordCreateSchemaFactory
+from tests.integration.factories import SampleRecordModelFactory
 
 
 def assert_database_object_equal_to_retrieved_object(
