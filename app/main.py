@@ -56,7 +56,7 @@ def get_application() -> FastAPI:
 
     # Initialize the main application container
     main_container = ApplicationStartupContainer()
-    main_container.wire(modules=["app.main"])
+    main_container.wire(modules=["app.main", "app.presentation.api.botx"])
 
     # Initialize the SampleRecord commands container
     sample_record_commands_container = BotSampleRecordCommandContainer()

@@ -1,8 +1,8 @@
 """Endpoints for communication with botx."""
 
 from http import HTTPStatus
-
-from fastapi import APIRouter, Request
+from dependency_injector.wiring import inject, Provide
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import JSONResponse
 from pybotx import (
     Bot,
@@ -16,15 +16,19 @@ from pybotx import (
 )
 from pybotx.constants import BOT_API_VERSION
 
+from app.infrastructure.containers import ApplicationStartupContainer
 from app.logger import logger
-from app.presentation.api.bot import bot_dependency
 from app.settings import settings
 
 router = APIRouter()
 
 
 @router.post("/command")
-async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
+@inject
+async def command_handler(
+    request: Request,
+    bot: Bot = Depends(Provide[ApplicationStartupContainer.bot]),
+) -> JSONResponse:
     """Receive commands from users. Max timeout - 5 seconds."""
 
     try:
@@ -78,7 +82,11 @@ async def command_handler(request: Request, bot: Bot = bot_dependency) -> JSONRe
 
 
 @router.get("/status")
-async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
+@inject
+async def status_handler(
+    request: Request,
+    bot: Bot = Depends(Provide[ApplicationStartupContainer.bot]),
+) -> JSONResponse:
     """Show bot status and commands list."""
 
     try:
@@ -112,7 +120,11 @@ async def status_handler(request: Request, bot: Bot = bot_dependency) -> JSONRes
 
 
 @router.post("/notification/callback")
-async def callback_handler(request: Request, bot: Bot = bot_dependency) -> JSONResponse:
+@inject
+async def callback_handler(
+    request: Request,
+    bot: Bot = Depends(Provide[ApplicationStartupContainer.bot]),
+) -> JSONResponse:
     """Process BotX methods callbacks."""
 
     try:
