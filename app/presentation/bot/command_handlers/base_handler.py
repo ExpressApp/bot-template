@@ -4,7 +4,9 @@ from abc import ABC
 from pybotx import Bot, IncomingMessage
 from pydantic import BaseModel
 
-from app.presentation.bot.handlers.error import BaseExceptionHandler
+from app.presentation.bot.error_handlers.exceptions_chain_executor import (
+    ExceptionHandlersChainExecutor,
+)
 from app.presentation.bot.validators.base import IBotRequestParser
 
 
@@ -13,11 +15,11 @@ class BaseCommandHandler(ABC):
         self,
         bot: Bot,
         message: IncomingMessage,
-        exception_handler: BaseExceptionHandler | None = None,
+        exception_handler_executor: ExceptionHandlersChainExecutor | None,
     ):
         self._bot = bot
         self._message = message
-        self._exception_handler = exception_handler or BaseExceptionHandler()
+        self._exception_handler_executor = exception_handler_executor
 
     @property
     @abc.abstractmethod
@@ -49,6 +51,6 @@ class BaseCommandHandler(ABC):
             parameter = self.get_request_parameter()
             await self.handle_logic(parameter)
         except Exception as exc:
-            await self._exception_handler.handle_exception(
+            await self._exception_handler_executor.execute_chain(
                 exc, self._bot, self._message
             )

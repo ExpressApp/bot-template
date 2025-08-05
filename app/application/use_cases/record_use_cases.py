@@ -20,7 +20,9 @@ class SampleRecordUseCases(ISampleRecordUseCases):
     async def create_record(
         self, request_object: SampleRecordCreateRequestSchema
     ) -> SampleRecordResponseSchema:
-        domain_object = SampleRecord(record_data=request_object.record_data)
+        domain_object = SampleRecord(
+            record_data=request_object.record_data, name=request_object.name
+        )
         created_record = await self._repo.create(domain_object)
         return SampleRecordResponseSchema.from_orm(created_record)
 
@@ -29,7 +31,9 @@ class SampleRecordUseCases(ISampleRecordUseCases):
     ) -> SampleRecordResponseSchema:
         """Update an existing record."""
         domain_object = SampleRecord(
-            record_data=update_request.record_data, id=update_request.id
+            record_data=update_request.record_data,
+            id=update_request.id,
+            name=update_request.name
         )
         updated_record = await self._repo.update(domain_object)
         return SampleRecordResponseSchema.from_orm(updated_record)

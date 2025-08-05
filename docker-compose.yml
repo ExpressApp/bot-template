@@ -31,7 +31,7 @@ services:
     build: .
     container_name: bot_refactor-worker
     # '$$' prevents docker-compose from interpolating a value
-    command: /bin/sh -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.worker.worker.settings'
+    command: /bin/sh -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.infrastructure.worker.settings'
     environment: *environment
     restart: always
     depends_on: *depends_on

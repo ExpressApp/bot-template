@@ -1,4 +1,7 @@
-class BaseRepositoryError(Exception):
+from app.decorators.mapper.factories import ContextAwareError
+
+
+class BaseRepositoryError(ContextAwareError):
     """Base exception for all repository-specific exceptions."""
 
 
@@ -18,5 +21,17 @@ class RecordCreateError(BaseRepositoryError):
     """Raised when a creation fails."""
 
 
-class RecordRetreiveError(BaseRepositoryError):
+class RecordRetrieveError(BaseRepositoryError):
     """Raised when a get fails."""
+
+
+class RecordAlreadyExistsError(BaseRepositoryError):
+    """Raised when a record already exists."""
+
+
+class ForeignKeyError(BaseRepositoryError):
+    """Raised when a foreign key constraint is violated."""
+
+
+class ValidationError(BaseRepositoryError):
+    """Raised when a validation error occurs."""

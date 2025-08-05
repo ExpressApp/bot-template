@@ -12,3 +12,18 @@ services:
     image: redis:7.0-alpine
     ports:
       - "6379:6379"
+
+  worker:
+    build: .
+    environment:
+      - BOT_CREDENTIALS=$BOT_CREDENTIALS  # cts_host@secret_key@bot_id
+      - POSTGRES_DSN=postgres://postgres:postgres@postgres/bot_refactor_db
+      - REDIS_DSN=redis://redis/0
+      - DEBUG=true
+    # '$$' prevents docker-compose from interpolating a value
+    command: /bin/sh -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.infrastructure.worker.worker.settings'
+    env_file:
+      - .env
+    restart: always
+    depends_on: [db]
+

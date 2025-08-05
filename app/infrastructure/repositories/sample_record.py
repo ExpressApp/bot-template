@@ -3,20 +3,48 @@
 from typing import List
 
 from sqlalchemy import delete, insert, select, update
-from sqlalchemy.exc import NoResultFound, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, NoResultFound
 
 from app.application.repository.exceptions import (
     RecordCreateError,
     RecordDeleteError,
     RecordDoesNotExistError,
-    RecordRetreiveError,
+    RecordRetrieveError,
     RecordUpdateError,
+    RecordAlreadyExistsError,
+    ForeignKeyError,
+    ValidationError,
 )
 from app.application.repository.interfaces import ISampleRecordRepository
-from app.decorators.exception_mapper import ExceptionMapper, EnrichedExceptionFactory
+from app.decorators.mapper.exception_mapper import (
+    ExceptionMapper,
+)
+from app.decorators.mapper.factories import EnrichedExceptionFactory
+from app.decorators.mapper.context import ExceptionContext
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.infrastructure.db.sqlalchemy import AsyncSession
+from psycopg2 import errorcodes
+
+
+class IntegrityErrorFactory(EnrichedExceptionFactory):
+    def make_exception(self, context: ExceptionContext) -> Exception:
+        if not (orig := getattr(context.original_exception, "orig", None)):
+            return self.generated_error(context.formatted_context)
+
+        if not (sqlstate := getattr(orig, "sqlstate", None)):
+            return self.generated_error(context.formatted_context)
+
+        if sqlstate == errorcodes.UNIQUE_VIOLATION:
+            return RecordAlreadyExistsError(context.formatted_context)
+
+        if sqlstate == errorcodes.FOREIGN_KEY_VIOLATION:
+            return ForeignKeyError(context.formatted_context)
+
+        if sqlstate == errorcodes.NOT_NULL_VIOLATION:
+            return ValidationError(context.formatted_context)
+
+        return self.generated_error(context.formatted_context)
 
 
 class SampleRecordRepository(ISampleRecordRepository):
@@ -31,13 +59,16 @@ class SampleRecordRepository(ISampleRecordRepository):
         self._session = session
 
     @ExceptionMapper(
-        {SQLAlchemyError: EnrichedExceptionFactory(RecordCreateError)},
+        {
+            IntegrityError: IntegrityErrorFactory(RecordCreateError),
+            Exception: EnrichedExceptionFactory(RecordCreateError),
+        },
         is_bound_method=True,
     )
     async def create(self, record: SampleRecord) -> SampleRecord:
         query = (
             insert(SampleRecordModel)
-            .values(record_data=record.record_data)
+            .values(record_data=record.record_data, name=record.name)
             .returning(SampleRecordModel)
         )
         result = await self._session.execute(query)
@@ -46,14 +77,17 @@ class SampleRecordRepository(ISampleRecordRepository):
         return self._to_domain_object(record_model)
 
     @ExceptionMapper(
-        {SQLAlchemyError: EnrichedExceptionFactory(RecordUpdateError)},
+        {
+            IntegrityError: IntegrityErrorFactory(RecordUpdateError),
+            Exception: EnrichedExceptionFactory(RecordUpdateError),
+        },
         is_bound_method=True,
     )
     async def update(self, record: SampleRecord) -> SampleRecord:
         query = (
             update(SampleRecordModel)
             .where(SampleRecordModel.id == record.id)
-            .values(record_data=record.record_data)
+            .values(record_data=record.record_data, name=record.name)
             .returning(SampleRecordModel)
         )
         execute_result = (await self._session.execute(query)).scalar_one_or_none()
@@ -66,7 +100,9 @@ class SampleRecordRepository(ISampleRecordRepository):
         return self._to_domain_object(execute_result)
 
     @ExceptionMapper(
-        {SQLAlchemyError: EnrichedExceptionFactory(RecordDeleteError)},
+        {
+            SQLAlchemyError: EnrichedExceptionFactory(RecordDeleteError),
+        },
         is_bound_method=True,
     )
     async def delete(self, record_id: int) -> None:
@@ -92,7 +128,10 @@ class SampleRecordRepository(ISampleRecordRepository):
         await self._session.flush()
 
     @ExceptionMapper(
-        {SQLAlchemyError: EnrichedExceptionFactory(RecordDoesNotExistError)},
+        {
+            NoResultFound: EnrichedExceptionFactory(RecordDoesNotExistError),
+            Exception: EnrichedExceptionFactory(RecordRetrieveError),
+        },
         is_bound_method=True,
     )
     async def get_by_id(self, record_id: int) -> SampleRecord:
@@ -112,7 +151,9 @@ class SampleRecordRepository(ISampleRecordRepository):
         return self._to_domain_object(result.scalar_one())
 
     @ExceptionMapper(
-        {SQLAlchemyError: EnrichedExceptionFactory(RecordRetreiveError)},
+        {
+            Exception: EnrichedExceptionFactory(RecordRetrieveError),
+        },
         is_bound_method=True,
     )
     async def get_all(self) -> List[SampleRecord]:
@@ -139,4 +180,5 @@ class SampleRecordRepository(ISampleRecordRepository):
         return SampleRecord(
             id=record_model.id,
             record_data=record_model.record_data,
+            name=record_model.name,
         )

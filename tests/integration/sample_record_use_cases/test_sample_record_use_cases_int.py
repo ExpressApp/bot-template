@@ -14,6 +14,7 @@ def assert_database_object_equal_to_retrieved_object(
     assert isinstance(retrieved_object, SampleRecordResponseSchema)
     assert database_object.id == retrieved_object.id
     assert database_object.record_data == retrieved_object.record_data
+    assert database_object.name == retrieved_object.name
 
 
 async def test_sample_record_use_case_add_record_in_database(
@@ -36,12 +37,13 @@ async def test_sample_record_use_case_add_record_in_database(
 async def test_sample_record_use_case_get_record_from_database(
     sample_record_use_cases_with_real_repo: ISampleRecordUseCases,
     isolated_session: AsyncSession,
+    sample_record_factory:type[SampleRecordModelFactory]
 ):
     """Test get a record."""
 
-    existing_record = SampleRecordModel(record_data="existing_record")
-    isolated_session.add(existing_record)
-    await isolated_session.flush()
+
+
+    existing_record = await sample_record_factory.create()
 
     response = await sample_record_use_cases_with_real_repo.get_record(
         existing_record.id
@@ -55,12 +57,11 @@ async def test_sample_record_use_case_get_record_from_database(
 async def test_sample_record_use_case_remove_record_from_database(
     sample_record_use_cases_with_real_repo: ISampleRecordUseCases,
     isolated_session: AsyncSession,
+    sample_record_factory:type[SampleRecordModelFactory]
 ):
     """Test adding a new record."""
 
-    existing_record = SampleRecordModel(record_data="existing_record")
-    isolated_session.add(existing_record)
-    await isolated_session.flush()
+    existing_record = await sample_record_factory.create()
 
     await sample_record_use_cases_with_real_repo.delete_record(existing_record.id)
 

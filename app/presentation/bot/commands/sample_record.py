@@ -7,7 +7,7 @@ from app.application.use_cases.interfaces import ISampleRecordUseCases
 from app.infrastructure.containers import BotSampleRecordCommandContainer
 from app.infrastructure.db.sqlalchemy import provide_transaction_session
 from app.presentation.bot.commands.command_listing import SampleRecordCommands
-from app.presentation.bot.handlers.sample_record import CreateSampleRecordHandler
+from app.presentation.bot.command_handlers.sample_record import CreateSampleRecordHandler
 
 collector = HandlerCollector()
 
@@ -25,5 +25,8 @@ async def create_sample_record(
 ) -> None:
     """Creates a sample record in the database."""
     await CreateSampleRecordHandler(
-        bot=bot, message=message, use_cases=record_use_cases_factory.provider(session)
+        bot=bot,
+        message=message,
+        use_cases=record_use_cases_factory.provider(session),
+
     ).execute()

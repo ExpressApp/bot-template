@@ -82,5 +82,7 @@ class AppSettings(BaseSettings):
 
     BOTX_CALLBACK_TIMEOUT_IN_SECONDS = 30
 
+    BOT_ASYNC_CLIENT_TIMEOUT_IN_SECONDS = 60
+
 
 settings = AppSettings()  # type: ignore[call-arg]

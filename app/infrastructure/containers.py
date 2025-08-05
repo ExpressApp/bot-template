@@ -17,7 +17,9 @@ from app.infrastructure.repositories.caching.redis_repo import RedisRepo
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
 from app.logger import logger
 
-from app.presentation.bot.handlers.internal_error import internal_error_handler
+from app.presentation.bot.error_handlers.internal_error_handler import (
+    internal_error_handler,
+)
 from app.presentation.bot.middlewares.answer_error import answer_error_middleware
 from app.presentation.bot.middlewares.smart_logger import smart_logger_middleware
 from app.presentation.bot.resources import strings
@@ -102,7 +104,7 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
 
     async_client = providers.Singleton(
         AsyncClient,
-        timeout=60,
+        timeout=settings.BOT_ASYNC_CLIENT_TIMEOUT_IN_SECONDS,
         limits=Limits(max_keepalive_connections=None, max_connections=None),
     )
 
@@ -141,4 +143,44 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
     process_callbacks_task = providers.Callable(
         lambda manager: manager(),
         callback_task_manager,
+    )
+
+
+class WorkerStartupContainer(containers.DeclarativeContainer):
+    redis_client = Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
+
+    redis_repo = Factory(
+        RedisRepo,
+        redis=redis_client,
+        prefix=strings.BOT_PROJECT_NAME,
+    )
+
+    async_client = providers.Singleton(
+        AsyncClient,
+        timeout=settings.BOT_ASYNC_CLIENT_TIMEOUT_IN_SECONDS,
+        limits=Limits(max_keepalive_connections=None, max_connections=None),
+    )
+
+    callback_repo = providers.Singleton(
+        CallbackRedisRepo,
+        redis=redis_client,
+    )
+    from app.presentation.bot.commands import common, sample_record
+
+    exception_handlers = (
+        {} if not settings.RAISE_BOT_EXCEPTIONS else {Exception: internal_error_handler}
+    )
+
+    bot = providers.Singleton(
+        Bot,
+        collectors=[common.collector, sample_record.collector],
+        bot_accounts=settings.BOT_CREDENTIALS,
+        exception_handlers=exception_handlers,  # type: ignore
+        default_callback_timeout=settings.BOTX_CALLBACK_TIMEOUT_IN_SECONDS,
+        httpx_client=async_client,
+        middlewares=[
+            smart_logger_middleware,
+            answer_error_middleware,
+        ],
+        callback_repo=callback_repo,
     )

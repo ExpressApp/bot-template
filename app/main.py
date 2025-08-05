@@ -1,33 +1,20 @@
 """Application with configuration for events, routers and middleware."""
 
-import asyncio
 from functools import partial
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import Provide
 from fastapi import FastAPI
 from pybotx import Bot
-from redis import asyncio as aioredis
 from redis.asyncio import Redis
 
-import tests.integration.conftest
-from app.infrastructure.repositories.caching.callback_redis_repo import (
-    CallbackRedisRepo,
-)
-from app.infrastructure.repositories.caching.exception_handlers import (
-    PubsubExceptionHandler,
-)
-from app.infrastructure.repositories.caching.redis_repo import RedisRepo
 from app.infrastructure.containers import (
     ApplicationStartupContainer,
     BotSampleRecordCommandContainer,
     CallbackTaskManager,
 )
 from app.infrastructure.db.sqlalchemy import close_db_connections
-from app.logger import logger
 from app.presentation.api.routers import router
-from app.presentation.bot.bot import get_bot
 from app.presentation.bot.resources import strings
-from app.settings import settings
 
 
 async def startup(

@@ -6,7 +6,7 @@ from pybotx import Bot, CallbackRepoProto
 from app.presentation.bot.middlewares.answer_error import answer_error_middleware
 from app.presentation.bot.middlewares.smart_logger import smart_logger_middleware
 from app.presentation.bot.commands import common, sample_record
-from app.presentation.bot.handlers.internal_error import internal_error_handler
+from app.presentation.bot.error_handlers.internal_error_handler import internal_error_handler
 from app.settings import settings
 
 

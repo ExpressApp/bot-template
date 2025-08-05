@@ -19,3 +19,4 @@ class SampleRecordCommands:
         command_name="/create_record",
         description="Создать запись",
     )
+

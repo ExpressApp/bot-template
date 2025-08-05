@@ -20,7 +20,6 @@ async def default_handler(
     bot: Bot,
 ) -> None:
     """Run if command handler not found."""
-
     await bot.answer_message("Hello!")
 
 

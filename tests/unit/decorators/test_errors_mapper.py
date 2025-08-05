@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app.decorators.exception_mapper import ExceptionMapper
+from app.decorators.mapper.exception_mapper import ExceptionMapper
 from app.logger import logger
 from tests.unit.decorators.test_classes import (
     ChildError,
@@ -210,34 +210,11 @@ def test_nested_exception_mappers() -> None:
     assert isinstance(exc_info.value.__cause__, ParentError)
 
 
-@pytest.mark.asyncio
-async def test_work_with_logging() -> None:
-    """Test that the decorator logs exceptions for functions when configured."""
-
-    mapper = ExceptionMapper(
-        exception_map={
-            ChildError: DummyFactory("child"),
-        }
-    )
-
-    @mapper
-    def test_func() -> None:
-        raise ChildError("[child]")
-
-    with patch.object(logger, "error") as mock_logger:
-        with pytest.raises(GeneratedError):
-            test_func()
-
-        mock_logger.assert_called_once()
-        assert "test_func" in mock_logger.call_args[0][0]
-        assert mock_logger.call_args[1]["exc_info"] is True
-
-
 def test_sync_function_detailed_error_message() -> None:
-    """Test that the decorator provides detailed error messages when configured."""
+    """Test that the decorator pass right context to the exception factory"""
 
     mapper = ExceptionMapper(
-        exception_map={ChildError: DummyFactory("child", detailed=True)}, log_error=True
+        exception_map={ChildError: DummyFactory("child", detailed=True)}
     )
 
     @mapper

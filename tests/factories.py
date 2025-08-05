@@ -15,31 +15,32 @@ class SampleRecordFactory(Factory):
     class Meta:
         model = SampleRecord
 
-    record_data = factory.Faker("text")
+    record_data = factory.Faker("text", max_nb_chars=128)
+    name = factory.Faker("text", max_nb_chars=32)
 
 
 class SampleRecordCreateSchemaFactory(Factory):
-    """Factory for sample record create schema objects.
-
-    Dict factory used to break dependency from inner schema object"""
+    """Factory for sample record create schema objects."""
 
     class Meta:
         model = SampleRecordCreateRequestSchema
 
-    record_data = factory.Faker("text")
+    record_data = factory.Faker("text", max_nb_chars=128)
+    name = factory.Faker("text", max_nb_chars=32)
 
 
-class SampleRecordUpdateSchemaFactory(DictFactory):
+class SampleRecordUpdateSchemaFactory(Factory):
     """Factory for sample record update schema objects."""
 
     class Meta:
         model = SampleRecordUpdateRequestSchema
 
     id = factory.Faker("integer")
-    record_data = factory.Faker("text")
+    record_data = factory.Faker("text", max_nb_chars=128)
+    name = factory.Faker("text", max_nb_chars=32)
 
 
-class SampleRecordDeleteSchemaFactory(DictFactory):
+class SampleRecordDeleteSchemaFactory(Factory):
     """Factory for sample record delete schema objects."""
 
     class Meta:

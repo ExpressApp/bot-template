@@ -1,9 +1,15 @@
 import pytest
 from deepdiff import DeepDiff
 from sqlalchemy import func, select
+from sqlalchemy.exc import DataError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.repository.exceptions import RecordDoesNotExistError
+from app.application.repository.exceptions import (
+    RecordDoesNotExistError,
+    RecordAlreadyExistsError,
+    ValidationError,
+    RecordCreateError,
+)
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
@@ -15,16 +21,16 @@ def assert_database_object_equal_domain(
 ) -> None:
     assert db_object.id == domain_object.id
     assert db_object.record_data == domain_object.record_data
+    assert db_object.name == domain_object.name
 
 
 async def test_add_record(
     sample_record_repository: SampleRecordRepository,
-    sample_record_factory: type[SampleRecordModelFactory],
     isolated_session: AsyncSession,
 ):
     """Test adding a new record."""
 
-    new_record = SampleRecord(record_data="test_add")
+    new_record = SampleRecord(record_data="test_add", name="test_name")
     created_record = await sample_record_repository.create(new_record)
 
     count = await isolated_session.scalar(
@@ -35,6 +41,55 @@ async def test_add_record(
     diff = DeepDiff(new_record, created_record, exclude_paths={"id"})
     assert not diff, diff
 
+    db_object = await isolated_session.scalar(
+        select(SampleRecordModel).where(SampleRecordModel.id == created_record.id)
+    )
+    assert_database_object_equal_domain(db_object, created_record)
+
+
+async def test_add_record_with_non_unique_name(
+    sample_record_factory: SampleRecordModelFactory,
+    sample_record_repository: SampleRecordRepository,
+    isolated_session: AsyncSession,
+):
+    existing_record = await sample_record_factory.create(
+        record_data="test_add", name="test_name"
+    )
+    new_record = SampleRecord(record_data="new_data", name="test_name")
+
+    with pytest.raises(RecordAlreadyExistsError):
+        await sample_record_repository.create(new_record)
+
+
+async def test_create_record_with_null_required_field(
+    sample_record_repository: SampleRecordRepository,
+):
+    """Test creating a record with null required field raises ValidationError."""
+    invalid_record = SampleRecord(record_data="test_add", name="test_name")  # type: ignore
+    invalid_record.record_data = None
+
+    with pytest.raises(ValidationError):
+        await sample_record_repository.create(invalid_record)
+
+
+async def test_repository_handles_unexpected_database_error(
+    sample_record_repository: SampleRecordRepository,
+    monkeypatch,
+):
+    """Test that unexpected database errors are re-raised as default exceptions."""
+
+    async def mock_add_and_commit(*args, **kwargs):
+        raise DataError("Unexpected database error", None, Exception())
+
+    monkeypatch.setattr(
+        sample_record_repository._session, "execute", mock_add_and_commit
+    )
+
+    record = SampleRecord(record_data="test_data", name="test_name")
+
+    with pytest.raises(RecordCreateError):
+        await sample_record_repository.create(record)
+
 
 async def test_update_record(
     sample_record_repository: SampleRecordRepository,
@@ -43,19 +98,43 @@ async def test_update_record(
 ):
     """Test updating an existing record."""
 
-    existing_record = await sample_record_factory.create(record_data="test_update")
+    existing_record = await sample_record_factory()
 
     updated_record = SampleRecord(
-        id=existing_record.id, record_data="test_update_new_value"
+        id=existing_record.id, record_data="updated_data", name="updated_name"
     )
-    updated_record_in_db = await sample_record_repository.update(updated_record)
+    updated_record_from_repo = await sample_record_repository.update(updated_record)
 
     count = await isolated_session.scalar(
         select(func.count()).select_from(SampleRecordModel)
     )
     assert count == 1
-    assert updated_record_in_db.id == existing_record.id
-    assert updated_record_in_db.record_data == "test_update_new_value"
+    assert updated_record_from_repo.id == existing_record.id
+    assert updated_record_from_repo.record_data == updated_record.record_data
+
+    record_from_db = await isolated_session.scalar(
+        select(SampleRecordModel).where(SampleRecordModel.id == existing_record.id)
+    )
+
+    assert_database_object_equal_domain(record_from_db, updated_record_from_repo)
+
+
+async def test_update_record_with_non_unique_name(
+    sample_record_factory: type[SampleRecordModelFactory],
+    sample_record_repository: SampleRecordRepository,
+    isolated_session: AsyncSession,
+):
+    existing_record_1 = await sample_record_factory.create()
+    existing_record_2 = await sample_record_factory.create()
+
+    updated_record_2 = SampleRecord(
+        id=existing_record_2.id,
+        record_data=existing_record_2.record_data,
+        name=existing_record_1.name,
+    )
+
+    with pytest.raises(RecordAlreadyExistsError):
+        await sample_record_repository.update(updated_record_2)
 
 
 async def test_delete_record(
@@ -64,7 +143,7 @@ async def test_delete_record(
     sample_record_factory: type[SampleRecordModelFactory],
 ):
     """Test deleting a record."""
-    existing_record = await sample_record_factory.create(record_data="test_delete")
+    existing_record = await sample_record_factory.create()
     await sample_record_repository.delete(existing_record.id)
 
     db_records_count = await isolated_session.scalar(
@@ -95,7 +174,7 @@ async def test_get_non_existing_record(
     sample_record_repository: SampleRecordRepository,
     isolated_session: AsyncSession,
 ):
-    """Test deleting a not existing record raises the error."""
+    """Test get a not existing record raises the error."""
 
     with pytest.raises(RecordDoesNotExistError):
         await sample_record_repository.get_by_id(42)

@@ -1,99 +1,14 @@
 """Decorators to rethrow and log exceptions."""
 
-from abc import ABC, abstractmethod
-from functools import cached_property, wraps
+from functools import wraps
 from inspect import iscoroutinefunction
 from typing import Any, Callable, Type
 
 from cachetools import LRUCache  # type:ignore
 
+from app.decorators.mapper.context import ExceptionContext
+from app.decorators.mapper.factories import ExceptionFactory
 from app.logger import logger
-
-
-class ExceptionContext:
-    SENSITIVE_KEYS: frozenset[str] = frozenset(
-        ("password", "token", "key", "secret", "auth", "credential", "passwd")
-    )
-
-    def __init__(
-        self,
-        original_exception: Exception,
-        func: Callable,
-        args: tuple[Any, ...],
-        kwargs: dict[str, Any],
-    ):
-        self.original_exception = original_exception
-        self.func = func
-        self.args = args
-        self.kwargs = kwargs
-
-    @cached_property
-    def formatted_context(self) -> str:
-        error_context = [
-            f"Error in function '{self.func.__module__}.{self.func.__qualname__}'"
-        ]
-
-        if self.args:
-            args_str = ", ".join(self._sanitised_value(arg) for arg in self.args)
-            error_context.append(f"Args: [{args_str}]")
-
-        if self.kwargs:
-            kwargs_str = ", ".join(
-                f"{k}={self._sanitised_value(v, k)}" for k, v in self.kwargs.items()
-            )
-            error_context.append(f"Kwargs: {kwargs_str}")
-
-        return "\n".join(error_context).replace("{", "{{").replace("}", "}}")
-
-    def _sanitised_value(
-        self,
-        value: Any,
-        key: str | None = None,
-    ) -> str:
-        if key is not None and key.lower() in self.SENSITIVE_KEYS:
-            return "****HIDDEN****"
-
-        try:
-            str_value = str(value)
-            return f"{str_value[:100]}..." if len(str_value) > 100 else str_value
-        except Exception:
-            return f"<{type(value).__name__} object - str() failed>"
-
-
-class ExceptionFactory(ABC):
-    """
-    Create and describe a factory for exceptions.
-
-    This class is an abstract base class meant to define the interface for an
-    exception factory.
-
-    """
-
-    @abstractmethod
-    def make_exception(self, context: ExceptionContext) -> Exception:
-        """Make an exception based on the given context."""
-
-
-class EnrichedExceptionFactory(ExceptionFactory):
-    """
-    Create and manage enriched exceptions based on a given exception type.
-
-    This class provides a mechanism to create exceptions dynamically,
-    enriching them with a formatted context. It extends the behavior of
-    the base ExceptionFactory class by incorporating the concept of a
-    generated error type and formatted context.
-
-    :ivar generated_error: The type of exception to generate when creating
-                           an enriched exception.
-    :type generated_error: type[Exception]
-    """
-
-    def __init__(self, generated_error: type[Exception]):
-        self.generated_error = generated_error
-
-    def make_exception(self, context: ExceptionContext) -> Exception:
-        return self.generated_error(context.formatted_context)
-
 
 ExceptionOrTupleOfExceptions = Type[Exception] | tuple[Type[Exception], ...]
 
@@ -105,13 +20,11 @@ class ExceptionMapper:
         self,
         exception_map: dict[ExceptionOrTupleOfExceptions, ExceptionFactory],
         max_cache_size: int = 512,
-        log_error: bool = True,
         is_bound_method: bool = False,
     ):
-        self.mapping = self._get_flat_map(exception_map)
+        self.mapping = self._get_exceptions_flat_map(exception_map)
         self.exception_catchall_factory = self.mapping.pop(Exception, None)
         self._lru_cache: LRUCache = LRUCache(maxsize=max_cache_size)
-        self.log_error = log_error
         self.is_bound_method = is_bound_method
 
     def __call__(self, func: Callable) -> Callable:
@@ -121,7 +34,7 @@ class ExceptionMapper:
             else self._sync_wrapper(func)
         )
 
-    def _get_flat_map(
+    def _get_exceptions_flat_map(
         self,
         exception_map: dict[ExceptionOrTupleOfExceptions, ExceptionFactory],
     ) -> dict[Type[Exception], ExceptionFactory]:
@@ -164,11 +77,8 @@ class ExceptionMapper:
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
     ) -> None:
-        context = ExceptionContext(exc, func, self._filtered_args(args), kwargs)
-        if self.log_error:
-            logger.error(context.formatted_context, exc_info=True)
-
         if exception_factory := self._get_exception_factory(type(exc)):
+            context = ExceptionContext(exc, func, self._filtered_args(args), kwargs)
             raise exception_factory.make_exception(context) from exc
 
         raise exc
