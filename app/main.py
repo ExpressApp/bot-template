@@ -53,7 +53,7 @@ def get_application() -> FastAPI:
 
     application = FastAPI(title=strings.BOT_PROJECT_NAME, openapi_url=None)
 
-    # put bot to state for tests
+    # put bot to state only for tests
     application.state.bot = main_container.bot()
 
     application.add_event_handler(

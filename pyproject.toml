@@ -30,7 +30,6 @@ asyncpg = "~0.29.0"  # DB backend for application
 psycopg2-binary = "~2.9.9"  # DB backend for alembic (migration tool)
 
 redis = "~5.0.3"
-saq = { version = "~0.12.4", extras = ["hiredis"] }
 
 importlib-resources = { version = "~5.4.0", python = "<3.9" }
 zipp = { version = "~3.7.0", python = "<3.9" }
@@ -40,6 +39,7 @@ orjson = "^3.10.18"
 factory-boy = "^3.3.3"
 async-factory-boy = "^1.0.1"
 cachetools = "^6.1.0"
+saq = {extras = ["hiredis", "web"], version = "^0.25.2"}
 
 
 [tool.poetry.dev-dependencies]

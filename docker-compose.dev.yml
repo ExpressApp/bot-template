@@ -21,7 +21,9 @@ services:
       - REDIS_DSN=redis://redis/0
       - DEBUG=true
     # '$$' prevents docker-compose from interpolating a value
-    command: /bin/sh -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.infrastructure.worker.worker.settings'
+    command: /bin/sh -c 'PYTHONPATH="$$PYTHONPATH:$$PWD" saq app.infrastructure.worker.worker.saq_settings --web --workers 2'
+    ports:
+      - "8081:8080"
     env_file:
       - .env
     restart: always

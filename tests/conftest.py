@@ -123,14 +123,3 @@ def incoming_message_factory(
         )
 
     return factory
-
-
-# @pytest.fixture
-# def loguru_caplog(
-#     caplog: pytest.LogCaptureFixture,
-# ) -> Generator[pytest.LogCaptureFixture, None, None]:
-#     # https://github.com/Delgan/loguru/issues/59
-#
-#     handler_id = logger.add(caplog.handler, format="{message}")
-#     yield caplog
-#     logger.remove(handler_id)

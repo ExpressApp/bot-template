@@ -57,16 +57,11 @@ def get_engine() -> AsyncEngine:
 session_factory = async_sessionmaker(bind=get_engine(), expire_on_commit=False)
 
 
-async def verify_db_connection(engine: AsyncEngine) -> None:
-    connection = await engine.connect()
-    await connection.close()
-
-
 async def close_db_connections() -> None:
     await get_engine().dispose()
 
 
-def provide_transaction_session(func: Callable) -> Callable:
+def provide_session(func: Callable) -> Callable:
     """
     Provides a database session to an async function if one is not already passed.
 
@@ -78,7 +73,14 @@ def provide_transaction_session(func: Callable) -> Callable:
     async def wrapper(*args: Any, **kwargs: Any) -> Any:
         if kwargs.get("session"):
             return await func(*args, **kwargs)
+
         async with session_factory() as session:
-            return await func(*args, **kwargs, session=session)
+            try:
+                return await func(*args, **kwargs, session=session)
+            except Exception:
+                await session.rollback()
+                raise
+            finally:
+                await session.close()
 
     return wrapper

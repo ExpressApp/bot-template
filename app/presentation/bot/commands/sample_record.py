@@ -5,15 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.interfaces import ISampleRecordUseCases
 from app.infrastructure.containers import BotSampleRecordCommandContainer
-from app.infrastructure.db.sqlalchemy import provide_transaction_session
+from app.infrastructure.db.sqlalchemy import provide_session
 from app.presentation.bot.commands.command_listing import SampleRecordCommands
 from app.presentation.bot.command_handlers.sample_record import CreateSampleRecordHandler
 
 collector = HandlerCollector()
 
-
 @collector.command(**SampleRecordCommands.CREATE_RECORD.command_data())
-@provide_transaction_session
+@provide_session
 @inject
 async def create_sample_record(
     message: IncomingMessage,

@@ -146,6 +146,7 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
     )
 
 
+
 class WorkerStartupContainer(containers.DeclarativeContainer):
     redis_client = Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
 

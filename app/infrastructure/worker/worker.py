@@ -15,14 +15,14 @@ from app.infrastructure.repositories.caching.callback_redis_repo import (
 from app.infrastructure.worker.tasks.simple_task import heartbeat_task
 from app.logger import logger
 
-# `saq` import its own settings and hides our module
-from app.settings import settings as app_settings
+from app.settings import settings
 
 SaqCtx = Dict[str, Any]
 
 
+# queue = Queue(aioredis.from_url(settings.REDIS_DSN), name="bot_template")
+queue = Queue.from_url(settings.REDIS_DSN, name="bot_template_worker")
 
-queue = Queue(aioredis.from_url(app_settings.REDIS_DSN), name="bot_refactor")
 
 @inject
 async def _startup_with_injection(
@@ -45,11 +45,7 @@ async def _shutdown_with_injection(
 async def startup(ctx: SaqCtx) -> None:
     worker_startup_container = WorkerStartupContainer()
 
-    queue.add_cron_job(
-        CronJob(function=heartbeat_task, cron="*/5 * * * * *", unique=True)
-    )
     worker_startup_container.wire(modules=[__name__, "app.infrastructure.worker.tasks"])
-
     await _startup_with_injection()
 
     logger.info("Worker started")
@@ -60,21 +56,18 @@ async def shutdown(ctx: SaqCtx) -> None:
     logger.info("Worker stopped")
 
 
-settings = {
+saq_settings = {
     "queue": queue,
     "functions": [],
-    # "cron_jobs": [
-    #     CronJob(
-    #         function=heartbeat_task,
-    #         cron="*/5 * * * * *",
-    #         unique=True,
-    #         # timeout=app_settings.PERIODIC_TASKS_DEFAULT_TIMEOUT,
-    #         # heartbeat=app_settings.PERIODIC_TASKS_DEFAULT_HEARTBEAT,
-    #         # retries=app_settings.PERIODIC_TASKS_DEFAULT_RETRIES,
-    #         # ttl=app_settings.PERIODIC_TASKS_DEFAULT_TTL,
-    #     ),
-    # ],
-    "concurrency": 8,
+    "cron_jobs": [
+        CronJob(
+            function=heartbeat_task,
+            cron="* * * * * */5",
+            unique=False,
+            timeout=15,
+        ),
+    ],
+    "concurrency": settings.WORKER_CONCURRENCY,
     "startup": startup,
     "shutdown": shutdown,
 }

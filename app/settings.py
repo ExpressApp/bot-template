@@ -77,11 +77,11 @@ class AppSettings(BaseSettings):
     REDIS_DSN: str
     REDIS_CONNECTION_POOL_SIZE: int = 10
 
-    # healthcheck
-    WORKER_TIMEOUT_SEC: float = 4
+    # worker
+    WORKER_CONCURRENCY: int = 2
+    WORKERS_COUNT: int = 1
 
     BOTX_CALLBACK_TIMEOUT_IN_SECONDS = 30
-
     BOT_ASYNC_CLIENT_TIMEOUT_IN_SECONDS = 60
 
 
