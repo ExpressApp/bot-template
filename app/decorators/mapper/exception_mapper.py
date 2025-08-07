@@ -8,7 +8,6 @@ from cachetools import LRUCache  # type:ignore
 
 from app.decorators.mapper.context import ExceptionContext
 from app.decorators.mapper.factories import ExceptionFactory
-from app.logger import logger
 
 ExceptionOrTupleOfExceptions = Type[Exception] | tuple[Type[Exception], ...]
 
@@ -16,7 +15,8 @@ ExceptionOrTupleOfExceptions = Type[Exception] | tuple[Type[Exception], ...]
 class ExceptionMapper:
     """Exception-mapping decorator with bounded LRU caching and dynamic MRO lookup.
 
-    The main decorator purpose is map exception between application layers and enrich exceptions by context.
+    The main decorator purpose is map exception between application layers and enrich
+        exceptions by context.
     """
 
     def __init__(
@@ -100,7 +100,7 @@ class ExceptionMapper:
                 self._lru_cache[exc_type] = target_exception_factory
                 return target_exception_factory
 
-        # exception is not presented in base mapping, but catchall presented in mapping dict
+        # exception is not presented in base mapping, but catchall is presented
         if self.exception_catchall_factory:
             self._lru_cache[exc_type] = self.exception_catchall_factory
             return self.exception_catchall_factory

@@ -4,9 +4,9 @@ from pybotx import Bot, IncomingMessage
 
 from app.presentation.bot.error_handlers.base_handlers import (
     AbstractExceptionHandler,
-    SendErrorExplainToUserHandler,
-    LoggingExceptionHandler,
     DropFSMOnErrorHandler,
+    LoggingExceptionHandler,
+    SendErrorExplainToUserHandler,
 )
 
 
@@ -95,10 +95,5 @@ DEFAULT_HANDLERS = [
     LoggingExceptionHandler,
     DropFSMOnErrorHandler,
 ]
-DEFAULT_EXCEPTION_HANDLER_EXECUTOR = ExceptionHandlersChainExecutor(DEFAULT_HANDLERS)
 
 DEFAULT_HANDLERS_WITH_EXPLAIN = DEFAULT_HANDLERS + [SendErrorExplainToUserHandler]
-
-DEFAULT_EXCEPTION_HANDLER_EXECUTOR_WITH_EXPLAIN = ExceptionHandlersChainExecutor(
-    handlers=DEFAULT_HANDLERS_WITH_EXPLAIN
-)

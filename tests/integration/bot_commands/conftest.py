@@ -1,8 +1,8 @@
-from typing import Callable, Optional
-from uuid import UUID, uuid4
+from typing import Callable
+from uuid import UUID
 
 import pytest
-from pybotx import IncomingMessage, BotAccount, UserSender, UserDevice, Chat, ChatTypes
+from pybotx import IncomingMessage
 
 from tests.integration.bot_commands.bot_factories import IncomingMessageFactory
 
@@ -28,7 +28,7 @@ def command_message_from_user(
 
 
 @pytest.fixture
-def create_sample_record_command_message_from_user_factory(
+def create_sample_record_command_message_factory(
     command_message_from_user,
 ) -> Callable[[str], IncomingMessage]:
     def factory(args: str) -> IncomingMessage:
@@ -38,10 +38,20 @@ def create_sample_record_command_message_from_user_factory(
 
 
 @pytest.fixture
-def delete_sample_record_command_message_from_user_factory(
+def delete_sample_record_command_message_factory(
     command_message_from_user,
 ) -> Callable[[int], IncomingMessage]:
     def factory(object_id: int) -> IncomingMessage:
         return command_message_from_user("/delete_record", str(object_id))
+
+    return factory
+
+
+@pytest.fixture
+def get_sample_record_command_message_factory(
+    command_message_from_user,
+) -> Callable[[int], IncomingMessage]:
+    def factory(object_id: int) -> IncomingMessage:
+        return command_message_from_user("/get_record", str(object_id))
 
     return factory

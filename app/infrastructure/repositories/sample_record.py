@@ -2,30 +2,29 @@
 
 from typing import List
 
+from psycopg2 import errorcodes
 from sqlalchemy import delete, insert, select, update
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError, NoResultFound
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app.application.repository.exceptions import (
+    ForeignKeyError,
+    RecordAlreadyExistsError,
     RecordCreateError,
     RecordDeleteError,
     RecordDoesNotExistError,
     RecordRetrieveError,
     RecordUpdateError,
-    RecordAlreadyExistsError,
-    ForeignKeyError,
     ValidationError,
-    BaseRepositoryError,
 )
 from app.application.repository.interfaces import ISampleRecordRepository
+from app.decorators.mapper.context import ExceptionContext
 from app.decorators.mapper.exception_mapper import (
     ExceptionMapper,
 )
 from app.decorators.mapper.factories import EnrichedExceptionFactory
-from app.decorators.mapper.context import ExceptionContext
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.infrastructure.db.sqlalchemy import AsyncSession
-from psycopg2 import errorcodes
 
 
 class IntegrityErrorFactory(EnrichedExceptionFactory):

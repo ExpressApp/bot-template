@@ -12,5 +12,3 @@ class SampleRecordModelFactory(AsyncSQLAlchemyFactory):
 
     record_data = factory.Faker("text", max_nb_chars=100)
     name = factory.Faker("text", max_nb_chars=32)
-
-

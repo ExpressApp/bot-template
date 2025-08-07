@@ -51,9 +51,9 @@ class BotXPlainRequestParser(IBotRequestParser[T]):
     )
     def parse(self, raw_input: IncomingMessage) -> T:
         if not (message_args := raw_input.argument.strip().split(" ")):
-            raise ValidationError("Message is empty")
+            raise ValidationError("Message is empty", self.model)
 
         fields = self.model.__fields__.keys()
-        message_kwargs = dict(zip(fields, message_args))
+        message_kwargs = dict(zip(fields, message_args, strict=True))
 
         return self.model.parse_obj(message_kwargs)

@@ -1,8 +1,9 @@
 """Endpoints for communication with botx."""
 
 from http import HTTPStatus
-from dependency_injector.wiring import inject, Provide
-from fastapi import APIRouter, Request, Depends
+
+from dependency_injector.wiring import Provide, inject
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pybotx import (
     Bot,

@@ -1,13 +1,13 @@
 """Middleware to handle AnswerError and AnswerMessageError exceptions."""
 
-from typing import Dict, Any, Union, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pybotx import (
     Bot,
+    BubbleMarkup,
     IncomingMessage,
     IncomingMessageHandlerFunc,
-    BubbleMarkup,
     KeyboardMarkup,
     OutgoingAttachment,
     OutgoingMessage,
@@ -19,7 +19,7 @@ from pybotx.models.attachments import IncomingFileAttachment
 async def answer_error_middleware(
     message: IncomingMessage, bot: Bot, call_next: IncomingMessageHandlerFunc
 ) -> None:
-    """Middleware, used for catching and logging unhandled AnswerError and AnswerMessageError."""
+    """Middleware, used for answering error messages to user.."""
     try:
         await call_next(message, bot)
     except AnswerError as exc:

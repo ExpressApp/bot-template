@@ -5,15 +5,14 @@ from functools import partial
 from dependency_injector.wiring import Provide
 from fastapi import FastAPI
 from pybotx import Bot
-from redis.asyncio import Redis
 
 from app.infrastructure.containers import (
     ApplicationStartupContainer,
     BotSampleRecordCommandContainer,
-    CallbackTaskManager,
 )
 from app.infrastructure.db.sqlalchemy import (
-    get_session_factory, get_engine,
+    get_engine,
+    get_session_factory,
 )
 from app.presentation.api.routers import router
 from app.presentation.bot.resources import strings

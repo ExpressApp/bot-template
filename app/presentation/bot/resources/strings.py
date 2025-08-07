@@ -69,6 +69,8 @@ SAMPLE_RECORD_CREATED_ANSWER = lookup.get_template(
     "sample_record_created_answer.txt.mako"
 )
 
+SHOW_SAMPLE_RECORD_ANSWER = lookup.get_template("show_sample_record_answer.txt.mako")
+
 SAMPLE_RECORD_DELETED_ANSWER = lookup.get_template(
     "sample_record_deleted_answer.txt.mako"
 )

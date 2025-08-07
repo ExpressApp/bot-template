@@ -11,7 +11,7 @@ from app.presentation.bot.schemas.sample_record import (
 
 
 class ISampleRecordUseCases(ABC):
-    """Interface for record use cases."""
+    """Interface for the sample record use cases."""
 
     @abstractmethod
     async def create_record(

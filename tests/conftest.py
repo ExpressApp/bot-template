@@ -5,7 +5,6 @@ from uuid import UUID
 
 import jwt
 import pytest
-from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app.settings import settings
 
@@ -13,7 +12,7 @@ from app.settings import settings
 @pytest.fixture(scope="session")
 def event_loop():
     """Create a session-scoped event loop for async session-scoped fixtures.
-    Don't touch this fixture. Its internally used by pytest-asyncio."""
+    Don't touch this fixture. It's internally used by pytest-asyncio."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     yield loop
@@ -33,11 +32,6 @@ def host() -> str:
 @pytest.fixture
 def secret_key() -> str:
     return settings.BOT_CREDENTIALS[0].secret_key
-
-
-@pytest.fixture
-def user_huid() -> UUID:
-    return UUID("cd069aaa-46e6-4223-950b-ccea42b89c06")
 
 
 @pytest.fixture
@@ -62,5 +56,3 @@ def authorization_header(
         key=secret_key,
     )
     return {"authorization": f"Bearer {token}"}
-
-

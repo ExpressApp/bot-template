@@ -3,8 +3,8 @@ import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.application.repository.interfaces import (
-    ISampleRecordUnitOfWork,
     ISampleRecordRepository,
+    ISampleRecordUnitOfWork,
 )
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
 
@@ -27,7 +27,7 @@ class ReadOnlySampleRecordUnitOfWork(ISampleRecordUnitOfWork):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         try:
-            # Recommended for implicit resources cleanup
+            # Recommended for explicit resources cleanup
             await self._session.rollback()
         finally:
             await self._session.close()

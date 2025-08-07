@@ -12,7 +12,7 @@ from app.presentation.bot.schemas.sample_record import (
 
 
 class SampleRecordUseCases(ISampleRecordUseCases):
-    """Implementation of samplr record use cases."""
+    """Implementation of sample record use cases."""
 
     def __init__(self, record_repo: ISampleRecordRepository):
         self._repo = record_repo

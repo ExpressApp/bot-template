@@ -1,6 +1,6 @@
 """Database models declarations."""
 
-from sqlalchemy import String, CheckConstraint
+from sqlalchemy import CheckConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.db.sqlalchemy import Base

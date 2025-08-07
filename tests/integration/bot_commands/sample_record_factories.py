@@ -22,11 +22,11 @@ class JsonableFactory(DictFactory):
 
 
 class CreateSampleRecordRequestFactory(JsonableFactory):
-    record_data: str = factory.Faker("text", max_nb_chars=8)
-    name = factory.Faker("text", max_nb_chars=8)
+    record_data: str = factory.Faker("text", max_nb_chars=8)  # type: ignore
+    name = factory.Faker("text", max_nb_chars=8)  # type:ignore
 
 
 class UpdateSampleRecordRequestFactory(JsonableFactory):
-    id: int = factory.Faker("integer")
-    record_data: str | None = factory.Faker("text", max_nb_chars=8)
-    name: str | None = factory.Faker("text", max_nb_chars=8)
+    id: int = factory.Faker("integer")  # type:ignore
+    record_data: str | None = factory.Faker("text", max_nb_chars=8)  # type: ignore
+    name: str | None = factory.Faker("text", max_nb_chars=8)  # type: ignore

@@ -1,10 +1,9 @@
 import asyncio
-from importlib import import_module
 
 from dependency_injector import containers, providers
 from dependency_injector.providers import Callable, Factory, Singleton
 from httpx import AsyncClient, Limits
-from pybotx import Bot
+from pybotx import Bot, HandlerCollector
 from redis import asyncio as aioredis
 
 from app.application.use_cases.record_use_cases import SampleRecordUseCases
@@ -20,7 +19,6 @@ from app.infrastructure.repositories.unit_of_work import (
     WriteSampleRecordUnitOfWork,
 )
 from app.logger import logger
-
 from app.presentation.bot.error_handlers.internal_error_handler import (
     internal_error_handler,
 )
@@ -81,12 +79,12 @@ class CallbackTaskManager:
         return self._get_task()
 
 
-class ApplicationStartupContainer(containers.DeclarativeContainer):
-    """Container for application startup dependencies."""
+class BaseStartupContainer(containers.DeclarativeContainer):
+    """Общий контейнер для старта бота."""
 
-    redis_client = Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
+    redis_client = providers.Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
 
-    redis_repo = Factory(
+    redis_repo = providers.Factory(
         RedisRepo,
         redis=redis_client,
         prefix=strings.BOT_PROJECT_NAME,
@@ -107,16 +105,8 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
         {} if not settings.RAISE_BOT_EXCEPTIONS else {Exception: internal_error_handler}
     )
 
-    # Ленивая загрузка коллекторов
-    @staticmethod
-    def get_collectors():
-        common = import_module("app.presentation.bot.commands.common")
-        sample_record = import_module("app.presentation.bot.commands.sample_record")
-        return [common.collector, sample_record.collector]
-
     bot = providers.Singleton(
         Bot,
-        collectors=Callable(get_collectors),
         bot_accounts=settings.BOT_CREDENTIALS,
         exception_handlers=exception_handlers,  # type: ignore
         default_callback_timeout=settings.BOTX_CALLBACK_TIMEOUT_IN_SECONDS,
@@ -128,54 +118,40 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
         callback_repo=callback_repo,
     )
 
-    # Используем менеджер задач для ленивой инициализации
-    callback_task_manager = providers.Singleton(
-        CallbackTaskManager,
-        callback_repo,
+
+class ApplicationStartupContainer(BaseStartupContainer):
+    """Контейнер приложения с ленивой загрузкой collectors."""
+
+    @staticmethod
+    def get_collectors() -> list[HandlerCollector]:
+        from app.presentation.bot.commands.common import collector as common_collector
+        from app.presentation.bot.commands.sample_record import collector as sample_record_collector
+        return [common_collector, sample_record_collector]
+
+    bot = providers.Singleton(
+        Bot,
+        collectors=providers.Callable(get_collectors),
+        **BaseStartupContainer.bot.kwargs,
     )
 
-    # Провайдер который возвращает задачу через менеджер
+    callback_task_manager = providers.Singleton(
+        CallbackTaskManager,
+        BaseStartupContainer.callback_repo,
+    )
+
     process_callbacks_task = providers.Callable(
         lambda manager: manager(),
         callback_task_manager,
     )
 
 
-class WorkerStartupContainer(containers.DeclarativeContainer):
-    redis_client = Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
+class WorkerStartupContainer(BaseStartupContainer):
+    """Контейнер воркера с прямым импортом collectors."""
 
-    redis_repo = Factory(
-        RedisRepo,
-        redis=redis_client,
-        prefix=strings.BOT_PROJECT_NAME,
-    )
-
-    async_client = providers.Singleton(
-        AsyncClient,
-        timeout=settings.BOT_ASYNC_CLIENT_TIMEOUT_IN_SECONDS,
-        limits=Limits(max_keepalive_connections=None, max_connections=None),
-    )
-
-    callback_repo = providers.Singleton(
-        CallbackRedisRepo,
-        redis=redis_client,
-    )
     from app.presentation.bot.commands import common, sample_record
-
-    exception_handlers = (
-        {} if not settings.RAISE_BOT_EXCEPTIONS else {Exception: internal_error_handler}
-    )
 
     bot = providers.Singleton(
         Bot,
-        collectors=[common.collector, sample_record.collector],
-        bot_accounts=settings.BOT_CREDENTIALS,
-        exception_handlers=exception_handlers,  # type: ignore
-        default_callback_timeout=settings.BOTX_CALLBACK_TIMEOUT_IN_SECONDS,
-        httpx_client=async_client,
-        middlewares=[
-            smart_logger_middleware,
-            answer_error_middleware,
-        ],
-        callback_repo=callback_repo,
+        collectors=[common.collector, sample_record.collector],  # type:ignore
+        **BaseStartupContainer.bot.kwargs,
     )

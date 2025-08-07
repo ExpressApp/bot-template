@@ -1,15 +1,12 @@
 """SQLAlchemy helpers."""
 
-from asyncio import current_task
-from contextlib import asynccontextmanager
-from functools import lru_cache, wraps
-from typing import Any, Callable
+from functools import lru_cache
+from typing import Callable
 
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
-    async_scoped_session,
     async_sessionmaker,
     create_async_engine,
 )
@@ -41,6 +38,7 @@ convention = {
 
 Base = declarative_base(metadata=MetaData(naming_convention=convention))
 
+
 @lru_cache(maxsize=1)
 def get_engine() -> AsyncEngine:
     """Lazily initialize and cache a single SQLAlchemy async engine."""
@@ -56,6 +54,7 @@ def get_engine() -> AsyncEngine:
 def get_session_factory() -> async_sessionmaker:
     engine = get_engine()
     return async_sessionmaker(bind=engine, expire_on_commit=False)
+
 
 #
 # def provide_session(func: Callable) -> Callable:

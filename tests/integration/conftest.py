@@ -2,8 +2,8 @@ import re
 from asyncio import current_task
 from http import HTTPStatus
 from pathlib import Path
-from typing import Generator, Callable, Any, AsyncGenerator
-from unittest.mock import patch, AsyncMock
+from typing import Any, AsyncGenerator, Callable, Generator
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import httpx
@@ -16,15 +16,14 @@ from pybotx import Bot
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
-    create_async_engine,
-    async_scoped_session,
     AsyncSession,
+    async_scoped_session,
+    create_async_engine,
 )
 from sqlalchemy.orm import sessionmaker
-from testcontainers.postgres import PostgresContainer
-from testcontainers.redis import RedisContainer
+from testcontainers.postgres import PostgresContainer  # type:ignore
+from testcontainers.redis import RedisContainer  # type:ignore
 
-import app.infrastructure.db.sqlalchemy
 from app.infrastructure.db.sqlalchemy import AsyncSessionFactory, make_url_async
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
 from app.main import get_application

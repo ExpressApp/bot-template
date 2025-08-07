@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-from app.presentation.bot.error_handlers.base_handlers import AbstractExceptionHandler
 from app.presentation.bot.error_handlers.exceptions_chain_executor import (
     ExceptionHandlersChainExecutor,
 )

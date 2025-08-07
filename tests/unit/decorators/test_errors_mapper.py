@@ -1,9 +1,6 @@
-from unittest.mock import patch
-
 import pytest
 
 from app.decorators.mapper.exception_mapper import ExceptionMapper
-from app.logger import logger
 from tests.unit.decorators.test_classes import (
     ChildError,
     DummyFactory,

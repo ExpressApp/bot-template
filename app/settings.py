@@ -4,7 +4,7 @@ from typing import Any, List
 from uuid import UUID
 
 from pybotx import BotAccountWithSecret
-from pydantic import BaseSettings, PositiveInt, Field
+from pydantic import BaseSettings, Field, PositiveInt
 
 
 class AppSettings(BaseSettings):

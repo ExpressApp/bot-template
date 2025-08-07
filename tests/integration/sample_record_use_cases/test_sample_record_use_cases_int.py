@@ -37,11 +37,9 @@ async def test_sample_record_use_case_add_record_in_database(
 async def test_sample_record_use_case_get_record_from_database(
     sample_record_use_cases_with_real_repo: ISampleRecordUseCases,
     isolated_session: AsyncSession,
-    sample_record_factory:type[SampleRecordModelFactory]
+    sample_record_factory: type[SampleRecordModelFactory],
 ):
     """Test get a record."""
-
-
 
     existing_record = await sample_record_factory.create()
 
@@ -57,7 +55,7 @@ async def test_sample_record_use_case_get_record_from_database(
 async def test_sample_record_use_case_remove_record_from_database(
     sample_record_use_cases_with_real_repo: ISampleRecordUseCases,
     isolated_session: AsyncSession,
-    sample_record_factory:type[SampleRecordModelFactory]
+    sample_record_factory: type[SampleRecordModelFactory],
 ):
     """Test adding a new record."""
 

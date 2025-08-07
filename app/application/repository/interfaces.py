@@ -1,6 +1,7 @@
 """Record repository interface."""
 
 from abc import ABC, abstractmethod
+from types import TracebackType
 from typing import List, Self
 
 from app.domain.entities.sample_record import SampleRecord
@@ -10,11 +11,17 @@ class IUnitOfWork(ABC):
     """Interface for unit of work operations."""
 
     @abstractmethod
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         return self
 
     @abstractmethod
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    @abstractmethod
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         pass
 
 
@@ -81,4 +88,3 @@ class ISampleRecordRepository(ABC):
     async def get_all(self) -> List[SampleRecord]:
         """Get all records from the database"""
         pass
-

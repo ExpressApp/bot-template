@@ -16,7 +16,7 @@ class TestExceptionHandler(AbstractExceptionHandler):
         self.should_process_exception_flag = should_process_exception
         self.run_history = run_history
 
-        super().__init__(None,stop_on_failure,break_the_chain)
+        super().__init__(None, stop_on_failure, break_the_chain)
 
     def should_process_exception(
         self, exc: Exception, bot: Bot, message: IncomingMessage

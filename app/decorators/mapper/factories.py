@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 from app.decorators.mapper.context import ExceptionContext
 
 
 class ContextAwareError(Exception):
-    def __init__(self, message: str, context: ExceptionContext = None, *args):
+    def __init__(
+        self, message: str, context: ExceptionContext | None = None, *args: Any
+    ):
         super().__init__(message, *args)
         self.context = context
 
@@ -44,13 +47,11 @@ class EnrichedExceptionFactory(ExceptionFactory):
     Create and manage enriched exceptions based on a given exception type.
 
     This class provides a mechanism to create exceptions dynamically,
-    enriching them with a formatted context. It extends the behavior of
-    the base ExceptionFactory class by incorporating the concept of a
-    generated error type and formatted context.
+    enriching them with a formatted context.
 
     :ivar generated_error: The type of exception to generate when creating
                            an enriched exception.
-    :type generated_error: type[Exception]
+    :type generated_error: type[ContextAwareError]
     """
 
     def __init__(self, generated_error: type[ContextAwareError]):

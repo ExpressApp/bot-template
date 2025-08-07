@@ -23,4 +23,7 @@ class SampleRecordCommands:
         command_name="/delete_record",
         description="Удалить запись",
     )
-
+    GET_RECORD = BotCommand(
+        command_name="/get_record",
+        description="Получить запись",
+    )

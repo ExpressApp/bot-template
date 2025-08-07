@@ -1,4 +1,3 @@
-from typing import Callable
 from uuid import UUID
 
 from pybotx import (
@@ -19,7 +18,6 @@ async def test_default_message_handler(
     bot: Bot,
     message_from_user: IncomingMessage,
 ) -> None:
-
     await bot.async_execute_bot_command(message_from_user)
 
     # - Assert -

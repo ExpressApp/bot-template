@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 
 
-
 @dataclass
 class SampleRecord:
     """Record entity representing a simple record in the system."""

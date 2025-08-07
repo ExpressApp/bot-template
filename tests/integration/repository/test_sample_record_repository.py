@@ -5,10 +5,10 @@ from sqlalchemy.exc import DataError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.repository.exceptions import (
-    RecordDoesNotExistError,
     RecordAlreadyExistsError,
-    ValidationError,
     RecordCreateError,
+    RecordDoesNotExistError,
+    ValidationError,
 )
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
@@ -19,6 +19,7 @@ from tests.integration.factories import SampleRecordModelFactory
 def assert_database_object_equal_domain(
     db_object: SampleRecordModel, domain_object: SampleRecord
 ) -> None:
+    """Assert that database object and domain object are equal."""
     assert db_object.id == domain_object.id
     assert db_object.record_data == domain_object.record_data
     assert db_object.name == domain_object.name
@@ -29,7 +30,6 @@ async def test_add_record(
     isolated_session: AsyncSession,
 ):
     """Test adding a new record."""
-
     new_record = SampleRecord(record_data="test_add", name="test_name")
     created_record = await sample_record_repository.create(new_record)
 
@@ -52,9 +52,8 @@ async def test_add_record_with_non_unique_name(
     sample_record_repository: SampleRecordRepository,
     isolated_session: AsyncSession,
 ):
-    existing_record = await sample_record_factory.create(
-        record_data="test_add", name="test_name"
-    )
+    """Test adding a new record with non unique name raises RecordAlreadyExistsError."""
+    await sample_record_factory.create(record_data="test_add", name="test_name")
     new_record = SampleRecord(record_data="new_data", name="test_name")
 
     with pytest.raises(RecordAlreadyExistsError):

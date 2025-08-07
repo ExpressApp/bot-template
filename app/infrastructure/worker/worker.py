@@ -1,20 +1,15 @@
 """Tasks worker configuration."""
 
-from typing import Any, Dict, Literal
+from typing import Any, Dict
 
-from dependency_injector.wiring import inject, Provide
+from dependency_injector.wiring import Provide, inject
 from pybotx import Bot
-from redis import asyncio as aioredis
 from redis.asyncio import Redis
-from saq import Queue, CronJob
+from saq import CronJob, Queue
 
 from app.infrastructure.containers import WorkerStartupContainer
-from app.infrastructure.repositories.caching.callback_redis_repo import (
-    CallbackRedisRepo,
-)
 from app.infrastructure.worker.tasks.simple_task import heartbeat_task
 from app.logger import logger
-
 from app.settings import settings
 
 SaqCtx = Dict[str, Any]

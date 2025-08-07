@@ -1,7 +1,7 @@
 """Middlewares to log all requests using smart logger wrapper."""
 
 from pprint import pformat
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 from pybotx import Bot, IncomingMessage, IncomingMessageHandlerFunc
 from pybotx.logger import trim_file_data_in_incoming_json

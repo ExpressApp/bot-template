@@ -1,7 +1,5 @@
 """Domains."""
 
-from typing import Self
-
 from pydantic import BaseModel, Field
 
 
@@ -33,19 +31,18 @@ class SampleRecordCreateRequestSchema(
         orm_mode = True
 
 
-class SampleRecordDeleteRequestSchema(BaseModel):
+class SampleRecordUpdateRequestSchema(
+    BaseModel,
+):
     id: int
-
-
-class SampleRecordUpdateRequestSchema(BaseModel):
-    id: int
-    record_data: str | None = Field(..., min_length=1, max_length=128)
-    name: str | None = Field(..., min_length=1, max_length=32)
-
-    @classmethod
-    def _from_plain_message_data(cls, message_data: str) -> Self:
-        record_id, record_name, record_data = message_data.split(" ")
-        return cls(id=record_id, record_name=record_name, record_data=record_data)  # type: ignore[arg-type]
+    record_data: str = Field(..., min_length=1, max_length=128)
+    name: str = Field(..., min_length=1, max_length=32)
 
     class Config:
         orm_mode = True
+
+
+class SampleRecordGetOrDeleteRequestSchema(BaseModel):
+    """Schema for sample record get or delete request."""
+
+    id: int

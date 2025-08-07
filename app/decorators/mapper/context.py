@@ -1,9 +1,10 @@
 from functools import cached_property
-from typing import Callable, Any
+from typing import Any, Callable
 
 
 class ExceptionContext:
-    """Class to store exception rising context."""
+    """Class to get exception rising context."""
+
     SENSITIVE_KEYS: frozenset[str] = frozenset(
         ("password", "token", "key", "secret", "auth", "credential", "passwd")
     )
@@ -22,8 +23,7 @@ class ExceptionContext:
 
     @cached_property
     def formatted_context(self) -> str:
-        """Format exception context for logging.
-        """
+        """Format exception context for logging."""
         error_context = [
             f"Error in function '{self.func.__module__}.{self.func.__qualname__}'"
         ]
