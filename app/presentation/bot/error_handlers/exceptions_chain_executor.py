@@ -62,14 +62,14 @@ class ExceptionHandlersChainExecutor:
         if not handlers:
             return None, None
 
-        first_handler = self._get_handler(handlers[0])
+        head_handler = self._get_handler(handlers[0])
 
-        last_handler = first_handler
+        tail_handler = head_handler
         for handler in handlers[1:]:
-            next_handler = self._get_handler(handler)
-            last_handler.next_handler = next_handler
-            last_handler = next_handler
-        return first_handler, last_handler
+            new_tail_handler = self._get_handler(handler)
+            tail_handler.next_handler = new_tail_handler
+            tail_handler = new_tail_handler
+        return head_handler, tail_handler
 
     def extend(
         self, handlers: list[AbstractExceptionHandler | type[AbstractExceptionHandler]]

@@ -68,3 +68,11 @@ SOMETHING_GOES_WRONG = lookup.get_template("something_goes_wrong.txt.mako")
 SAMPLE_RECORD_CREATED_ANSWER = lookup.get_template(
     "sample_record_created_answer.txt.mako"
 )
+
+SAMPLE_RECORD_DELETED_ANSWER = lookup.get_template(
+    "sample_record_deleted_answer.txt.mako"
+)
+
+SAMPLE_RECORD_BAD_DATA_FORMAT = lookup.get_template(
+    "sample_record_bad_data_format.txt.mako"
+)

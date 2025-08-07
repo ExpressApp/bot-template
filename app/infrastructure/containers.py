@@ -1,4 +1,5 @@
 import asyncio
+from importlib import import_module
 
 from dependency_injector import containers, providers
 from dependency_injector.providers import Callable, Factory, Singleton
@@ -14,7 +15,10 @@ from app.infrastructure.repositories.caching.exception_handlers import (
     PubsubExceptionHandler,
 )
 from app.infrastructure.repositories.caching.redis_repo import RedisRepo
-from app.infrastructure.repositories.sample_record import SampleRecordRepository
+from app.infrastructure.repositories.unit_of_work import (
+    ReadOnlySampleRecordUnitOfWork,
+    WriteSampleRecordUnitOfWork,
+)
 from app.logger import logger
 
 from app.presentation.bot.error_handlers.internal_error_handler import (
@@ -27,32 +31,18 @@ from app.settings import settings
 
 
 class BotSampleRecordCommandContainer(containers.DeclarativeContainer):
-    record_use_cases_factory = Callable(
-        lambda session: SampleRecordUseCases(
-            record_repo=SampleRecordRepository(session=session)
-        )
+    session_factory = providers.Dependency()
+
+    ro_unit_of_work: Factory[ReadOnlySampleRecordUnitOfWork] = Factory(
+        ReadOnlySampleRecordUnitOfWork, session_factory
+    )
+    rw_unit_of_work: Factory[WriteSampleRecordUnitOfWork] = Factory(
+        WriteSampleRecordUnitOfWork, session_factory
     )
 
-
-# class StorageContainer(containers.DeclarativeContainer):
-#     wiring_config = containers.WiringConfiguration(
-#         modules=["app.presentation.bot.commands.sample_records"]
-#     )
-#
-#     # Provider that returns a factory to create sessions
-#     session_factory = Factory(build_db_session_factory)
-#
-#     # Provider that creates a session (e.g., AsyncSession instance)
-#     session = Resource(session_factory)
-#
-#     # Provider that creates the SampleRecordUseCases, injecting the session
-#     record_use_cases = Factory(
-#         SampleRecordUseCases,
-#         record_repo=Factory(
-#             SampleRecordRepository,
-#             session=session
-#         )
-#     )
+    record_use_cases_factory = Callable(
+        lambda repository: SampleRecordUseCases(record_repo=repository)
+    )
 
 
 class CallbackTaskManager:
@@ -117,11 +107,16 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
         {} if not settings.RAISE_BOT_EXCEPTIONS else {Exception: internal_error_handler}
     )
 
-    from app.presentation.bot.commands import common, sample_record
+    # Ленивая загрузка коллекторов
+    @staticmethod
+    def get_collectors():
+        common = import_module("app.presentation.bot.commands.common")
+        sample_record = import_module("app.presentation.bot.commands.sample_record")
+        return [common.collector, sample_record.collector]
 
     bot = providers.Singleton(
         Bot,
-        collectors=[common.collector, sample_record.collector],
+        collectors=Callable(get_collectors),
         bot_accounts=settings.BOT_CREDENTIALS,
         exception_handlers=exception_handlers,  # type: ignore
         default_callback_timeout=settings.BOTX_CALLBACK_TIMEOUT_IN_SECONDS,
@@ -144,7 +139,6 @@ class ApplicationStartupContainer(containers.DeclarativeContainer):
         lambda manager: manager(),
         callback_task_manager,
     )
-
 
 
 class WorkerStartupContainer(containers.DeclarativeContainer):

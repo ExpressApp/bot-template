@@ -23,8 +23,11 @@ class SampleRecordUseCases(ISampleRecordUseCases):
         domain_object = SampleRecord(
             record_data=request_object.record_data, name=request_object.name
         )
-        created_record = await self._repo.create(domain_object)
-        return SampleRecordResponseSchema.from_orm(created_record)
+        created_record = SampleRecordResponseSchema.from_orm(
+            await self._repo.create(domain_object)
+        )
+
+        return created_record
 
     async def update_record(
         self, update_request: SampleRecordUpdateRequestSchema
@@ -33,10 +36,12 @@ class SampleRecordUseCases(ISampleRecordUseCases):
         domain_object = SampleRecord(
             record_data=update_request.record_data,
             id=update_request.id,
-            name=update_request.name
+            name=update_request.name,
         )
-        updated_record = await self._repo.update(domain_object)
-        return SampleRecordResponseSchema.from_orm(updated_record)
+        updated_record = SampleRecordResponseSchema.from_orm(
+            await self._repo.update(domain_object)
+        )
+        return updated_record
 
     async def delete_record(self, record_id: int) -> None:
         """Delete a record."""

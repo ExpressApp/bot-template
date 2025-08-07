@@ -12,30 +12,29 @@ from app.infrastructure.containers import (
     BotSampleRecordCommandContainer,
     CallbackTaskManager,
 )
-from app.infrastructure.db.sqlalchemy import close_db_connections
+from app.infrastructure.db.sqlalchemy import (
+    get_session_factory, get_engine,
+)
 from app.presentation.api.routers import router
 from app.presentation.bot.resources import strings
 
 
 async def startup(
-    bot: Bot = Provide[ApplicationStartupContainer.bot],
+    bot: Bot,
 ) -> None:
     await bot.startup()
 
 
 async def shutdown(
-    callback_task_manager: CallbackTaskManager = Provide[
-        ApplicationStartupContainer.callback_task_manager
-    ],
-    bot: Bot = Provide[ApplicationStartupContainer.bot],
-    redis_client: Redis = Provide[ApplicationStartupContainer.redis_client],
+    container: ApplicationStartupContainer = Provide[ApplicationStartupContainer],
 ) -> None:
-    await bot.shutdown()
+    await container.bot().shutdown()
 
-    await callback_task_manager.shutdown()
+    await container.callback_task_manager().shutdown()
 
-    await redis_client.aclose()
-    await close_db_connections()
+    await container.redis_client().aclose()
+    await container.shutdown_resources()
+    await get_engine().dispose()
 
 
 def get_application() -> FastAPI:
@@ -43,10 +42,18 @@ def get_application() -> FastAPI:
 
     # Initialize the main application container
     main_container = ApplicationStartupContainer()
-    main_container.wire(modules=["app.main", "app.presentation.api.botx"])
+    main_container.wire(
+        modules=[
+            "app.main",
+            "app.presentation.api.botx",
+            "app.presentation.bot.commands.sample_record",
+        ]
+    )
 
     # Initialize the SampleRecord commands container
-    sample_record_commands_container = BotSampleRecordCommandContainer()
+    sample_record_commands_container = BotSampleRecordCommandContainer(
+        session_factory=get_session_factory()
+    )
     sample_record_commands_container.wire(
         modules=["app.presentation.bot.commands.sample_record"]
     )
@@ -64,9 +71,10 @@ def get_application() -> FastAPI:
         "shutdown",
         partial(
             shutdown,
-            callback_task_manager=main_container.callback_task_manager(),
-            bot=main_container.bot(),
-            redis_client=main_container.redis_client(),
+            # callback_task_manager=main_container.callback_task_manager(),
+            # bot=main_container.bot(),
+            # redis_client=main_container.redis_client(),
+            container=main_container,
         ),
     )
 

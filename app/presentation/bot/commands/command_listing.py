@@ -19,4 +19,8 @@ class SampleRecordCommands:
         command_name="/create_record",
         description="Создать запись",
     )
+    DELETE_RECORD = BotCommand(
+        command_name="/delete_record",
+        description="Удалить запись",
+    )
 

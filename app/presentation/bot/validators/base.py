@@ -6,6 +6,8 @@ from orjson import JSONDecodeError
 from pybotx import IncomingMessage
 from pydantic import BaseModel, ValidationError
 
+from app.decorators.mapper.exception_mapper import ExceptionMapper
+from app.decorators.mapper.factories import EnrichedExceptionFactory
 from app.presentation.bot.validators.exceptions import MessageValidationError
 
 T = TypeVar("T", bound=BaseModel)
@@ -21,13 +23,37 @@ class BotXJsonRequestParser(IBotRequestParser[T]):
     def __init__(self, model: type[T]):
         self.model = model
 
+    @ExceptionMapper(
+        {
+            (JSONDecodeError, ValidationError): EnrichedExceptionFactory(
+                MessageValidationError
+            )
+        },
+        is_bound_method=True,
+    )
     def parse(self, raw_input: IncomingMessage) -> T:
-        try:
-            message_json = orjson.loads(raw_input.argument)
-            return self.model.parse_obj(message_json)
-        except JSONDecodeError as ex:
-            raise MessageValidationError(str(ex)) from ex
-        except ValidationError as ex:
-            raise MessageValidationError(
-                ",".join(error["msg"] for error in ex.errors())
-            ) from ex
+        message_json = orjson.loads(raw_input.argument)
+        return self.model.parse_obj(message_json)
+
+
+class BotXPlainRequestParser(IBotRequestParser[T]):
+    """Base parser which try to create schema from positional arguments.
+
+    Recommended to use strict model object creation with manual kwargs
+    """
+
+    def __init__(self, model: type[T]):
+        self.model = model
+
+    @ExceptionMapper(
+        {ValidationError: EnrichedExceptionFactory(MessageValidationError)},
+        is_bound_method=True,
+    )
+    def parse(self, raw_input: IncomingMessage) -> T:
+        if not (message_args := raw_input.argument.strip().split(" ")):
+            raise ValidationError("Message is empty")
+
+        fields = self.model.__fields__.keys()
+        message_kwargs = dict(zip(fields, message_args))
+
+        return self.model.parse_obj(message_kwargs)

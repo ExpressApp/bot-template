@@ -29,6 +29,9 @@ class SampleRecordCreateRequestSchema(
     record_data: str = Field(..., min_length=1, max_length=128)
     name: str = Field(..., min_length=1, max_length=32)
 
+    class Config:
+        orm_mode = True
+
 
 class SampleRecordDeleteRequestSchema(BaseModel):
     id: int
@@ -43,3 +46,6 @@ class SampleRecordUpdateRequestSchema(BaseModel):
     def _from_plain_message_data(cls, message_data: str) -> Self:
         record_id, record_name, record_data = message_data.split(" ")
         return cls(id=record_id, record_name=record_name, record_data=record_data)  # type: ignore[arg-type]
+
+    class Config:
+        orm_mode = True

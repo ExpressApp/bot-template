@@ -15,7 +15,7 @@ class AbstractExceptionHandler(ABC):
         stop_on_failure: bool = False,
         break_the_chain: bool = False,
     ):
-        self._next_handler = next_handler
+        self.next_handler = next_handler
         self._stop_on_failure = stop_on_failure
         self._break_the_chain = break_the_chain
 
@@ -45,18 +45,25 @@ class AbstractExceptionHandler(ABC):
         if self.should_process_exception(exc, bot, message):
             try:
                 await self.process_exception(exc, bot, message, exception_id)
-                if self._next_handler and not self._break_the_chain:
-                    await self._next_handler.handle_exception(
+                if self.next_handler and not self._break_the_chain:
+                    await self.next_handler.handle_exception(
                         exc, bot, message, exception_id
                     )
             except Exception as exc:
-                logger.error(
-                    f"Error handling exception {exception_id}: {exc}", exc_info=True
+                logger.opt(exception=exc).error(
+                    f"Error handling exception {exception_id}"
                 )
                 if self._stop_on_failure:
                     return
-                if self._next_handler:
-                    await self._next_handler.process_exception(exc, bot, message)
+                if self.next_handler:
+                    await self.next_handler.process_exception(
+                        exc, bot, message, exception_id
+                    )
+        else:
+            if self.next_handler:
+                await self.next_handler.handle_exception(
+                    exc, bot, message, exception_id
+                )
 
 
 class LoggingExceptionHandler(AbstractExceptionHandler):
@@ -65,7 +72,7 @@ class LoggingExceptionHandler(AbstractExceptionHandler):
     ) -> bool:
         return True
 
-    def process_exception(
+    async def process_exception(
         self,
         exc: Exception,
         bot: Bot,
@@ -109,13 +116,15 @@ class SendErrorExplainToUserHandler(AbstractExceptionHandler):
         message: IncomingMessage,
         exception_id: UUID | None = None,
     ) -> str:
-        if explanation := self.exception_explain_mapping.get(type(exc)) is not None:
+        if (explanation := self.exception_explain_mapping.get(type(exc))) is not None:
             if isinstance(explanation, str):
                 raw_explanation = explanation
             else:
                 raw_explanation = explanation(exc, bot, message, exception_id)
 
-            return f"{raw_explanation}. Идентификатор ошибки:{exception_id}"
+            return strings.SAMPLE_RECORD_BAD_DATA_FORMAT.format(
+                explanation=raw_explanation, exception_id=exception_id
+            )
 
         return strings.SOMETHING_GOES_WRONG.format(error_uuid=exception_id)
 
@@ -126,7 +135,9 @@ class SendErrorExplainToUserHandler(AbstractExceptionHandler):
         message: IncomingMessage,
         exception_id: UUID | None,
     ) -> None:
-        message_text = await self._get_exception_message_for_user(exc, bot, message)
+        message_text = await self._get_exception_message_for_user(
+            exc, bot, message, exception_id
+        )
         await bot.answer_message(
             message_text,
             wait_callback=not isinstance(exc, BotShuttingDownError),

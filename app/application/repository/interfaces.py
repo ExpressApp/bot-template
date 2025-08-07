@@ -6,6 +6,26 @@ from typing import List
 from app.domain.entities.sample_record import SampleRecord
 
 
+class IUnitOfWork(ABC):
+    """Interface for unit of work operations."""
+
+    @abstractmethod
+    async def __aenter__(self):
+        return self
+
+    @abstractmethod
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
+class ISampleRecordUnitOfWork(IUnitOfWork, ABC):
+    """Interface for record unit of work operations."""
+
+    @abstractmethod
+    def get_sample_record_repository(self) -> "ISampleRecordRepository":
+        pass
+
+
 class ISampleRecordRepository(ABC):
     """Interface for record repository operations."""
 
@@ -59,4 +79,9 @@ class ISampleRecordRepository(ABC):
     @abstractmethod
     async def get_all(self) -> List[SampleRecord]:
         """Get all records from the database"""
+        pass
+
+    @abstractmethod
+    async def commit(self) -> None:
+        """Commit changes to the database"""
         pass
