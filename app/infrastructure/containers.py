@@ -82,6 +82,15 @@ class CallbackTaskManager:
 class BaseStartupContainer(containers.DeclarativeContainer):
     """Общий контейнер для старта бота."""
 
+    @staticmethod
+    def get_collectors() -> list[HandlerCollector]:
+        from app.presentation.bot.commands.common import collector as common_collector
+        from app.presentation.bot.commands.sample_record import (
+            collector as sample_record_collector,
+        )
+
+        return [common_collector, sample_record_collector]
+
     redis_client = providers.Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
 
     redis_repo = providers.Factory(
@@ -116,23 +125,12 @@ class BaseStartupContainer(containers.DeclarativeContainer):
             answer_error_middleware,
         ],
         callback_repo=callback_repo,
+        collectors=get_collectors(),
     )
 
 
 class ApplicationStartupContainer(BaseStartupContainer):
-    """Контейнер приложения с ленивой загрузкой collectors."""
-
-    @staticmethod
-    def get_collectors() -> list[HandlerCollector]:
-        from app.presentation.bot.commands.common import collector as common_collector
-        from app.presentation.bot.commands.sample_record import collector as sample_record_collector
-        return [common_collector, sample_record_collector]
-
-    bot = providers.Singleton(
-        Bot,
-        collectors=providers.Callable(get_collectors),
-        **BaseStartupContainer.bot.kwargs,
-    )
+    """Main Fastapi application container."""
 
     callback_task_manager = providers.Singleton(
         CallbackTaskManager,
@@ -146,12 +144,6 @@ class ApplicationStartupContainer(BaseStartupContainer):
 
 
 class WorkerStartupContainer(BaseStartupContainer):
-    """Контейнер воркера с прямым импортом collectors."""
+    """SAQ Worker container"""
 
-    from app.presentation.bot.commands import common, sample_record
-
-    bot = providers.Singleton(
-        Bot,
-        collectors=[common.collector, sample_record.collector],  # type:ignore
-        **BaseStartupContainer.bot.kwargs,
-    )
+    pass
