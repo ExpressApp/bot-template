@@ -13,7 +13,8 @@ from app.application.repository.exceptions import (
     RecordUpdateError,
     RecordAlreadyExistsError,
     ForeignKeyError,
-    ValidationError, BaseRepositoryError,
+    ValidationError,
+    BaseRepositoryError,
 )
 from app.application.repository.interfaces import ISampleRecordRepository
 from app.decorators.mapper.exception_mapper import (
@@ -57,15 +58,6 @@ class SampleRecordRepository(ISampleRecordRepository):
             session: The database session.
         """
         self._session = session
-
-    @ExceptionMapper(
-        {
-            Exception: EnrichedExceptionFactory(BaseRepositoryError),
-        },
-        is_bound_method=True,
-    )
-    async def commit(self) -> None:
-        await self._session.commit()
 
     @ExceptionMapper(
         {

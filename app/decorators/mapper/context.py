@@ -3,6 +3,7 @@ from typing import Callable, Any
 
 
 class ExceptionContext:
+    """Class to store exception rising context."""
     SENSITIVE_KEYS: frozenset[str] = frozenset(
         ("password", "token", "key", "secret", "auth", "credential", "passwd")
     )
@@ -21,6 +22,8 @@ class ExceptionContext:
 
     @cached_property
     def formatted_context(self) -> str:
+        """Format exception context for logging.
+        """
         error_context = [
             f"Error in function '{self.func.__module__}.{self.func.__qualname__}'"
         ]
@@ -42,6 +45,10 @@ class ExceptionContext:
         value: Any,
         key: str | None = None,
     ) -> str:
+        """Exclude sensitive data from logging
+
+        TODO: add deeper sanitation for nested structures
+        """
         if key is not None and key.lower() in self.SENSITIVE_KEYS:
             return "****HIDDEN****"
 

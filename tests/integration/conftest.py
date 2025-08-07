@@ -24,6 +24,7 @@ from sqlalchemy.orm import sessionmaker
 from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
+import app.infrastructure.db.sqlalchemy
 from app.infrastructure.db.sqlalchemy import AsyncSessionFactory, make_url_async
 from app.infrastructure.repositories.sample_record import SampleRecordRepository
 from app.main import get_application
@@ -90,12 +91,19 @@ def alembic_configuration() -> Config:
 async def isolated_session(
     db_session_factory: AsyncSessionFactory, alembic_configuration: Config
 ):
-    """Isolated session with proper rollback to prevent test data leaks."""
-
     command.upgrade(alembic_configuration, "head")
     async with db_session_factory() as session:
         yield session
     command.downgrade(alembic_configuration, "base")
+
+
+@pytest.fixture
+def override_session_factory(isolated_session):
+    with patch(
+        "app.infrastructure.db.sqlalchemy.get_session_factory",
+        return_value=AsyncMock(return_value=isolated_session),
+    ):
+        yield
 
 
 @pytest.fixture
@@ -122,6 +130,7 @@ async def fastapi_app(
     respx_mock: Callable[..., Any],  # We can't apply pytest mark to fixture
     redis_container,
     postgres_container,
+    override_session_factory,
 ):
     fastapi_app = get_application()
     mock_authorization()

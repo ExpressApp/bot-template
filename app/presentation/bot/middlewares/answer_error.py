@@ -19,6 +19,7 @@ from pybotx.models.attachments import IncomingFileAttachment
 async def answer_error_middleware(
     message: IncomingMessage, bot: Bot, call_next: IncomingMessageHandlerFunc
 ) -> None:
+    """Middleware, used for catching and logging unhandled AnswerError and AnswerMessageError."""
     try:
         await call_next(message, bot)
     except AnswerError as exc:

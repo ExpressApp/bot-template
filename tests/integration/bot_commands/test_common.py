@@ -17,13 +17,10 @@ from pybotx import (
 
 async def test_default_message_handler(
     bot: Bot,
-    incoming_message_factory: Callable[..., IncomingMessage],
+    message_from_user: IncomingMessage,
 ) -> None:
-    # - Arrange -
-    message = incoming_message_factory()
 
-    # - Act -
-    await bot.async_execute_bot_command(message)
+    await bot.async_execute_bot_command(message_from_user)
 
     # - Assert -
     bot.answer_message.assert_awaited_once_with("Hello!")  # type: ignore
@@ -75,4 +72,3 @@ async def test_chat_created_handler(
         ),
         bubbles=BubbleMarkup([[Button(command="/help", label="/help")]]),
     )
-

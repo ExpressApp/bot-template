@@ -33,7 +33,6 @@ async def shutdown(
     await container.callback_task_manager().shutdown()
 
     await container.redis_client().aclose()
-    await container.shutdown_resources()
     await get_engine().dispose()
 
 

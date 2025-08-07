@@ -1,18 +1,10 @@
 import asyncio
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional
-from uuid import UUID, uuid4
+from typing import Any, Dict
+from uuid import UUID
 
 import jwt
 import pytest
-from pybotx import (
-    BotAccount,
-    Chat,
-    ChatTypes,
-    IncomingMessage,
-    UserDevice,
-    UserSender,
-)
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app.settings import settings
@@ -72,54 +64,3 @@ def authorization_header(
     return {"authorization": f"Bearer {token}"}
 
 
-@pytest.fixture
-def incoming_message_factory(
-    bot_id: UUID,
-    user_huid: UUID,
-    host: str,
-) -> Callable[..., IncomingMessage]:
-    def factory(
-        *,
-        body: str = "",
-        ad_login: Optional[str] = None,
-        ad_domain: Optional[str] = None,
-    ) -> IncomingMessage:
-        return IncomingMessage(
-            bot=BotAccount(
-                id=bot_id,
-                host=host,
-            ),
-            sync_id=uuid4(),
-            source_sync_id=None,
-            body=body,
-            data={},
-            metadata={},
-            sender=UserSender(
-                huid=user_huid,
-                udid=None,
-                ad_login=ad_login,
-                ad_domain=ad_domain,
-                username=None,
-                is_chat_admin=True,
-                is_chat_creator=True,
-                device=UserDevice(
-                    manufacturer=None,
-                    device_name=None,
-                    os=None,
-                    pushes=None,
-                    timezone=None,
-                    permissions=None,
-                    platform=None,
-                    platform_package_id=None,
-                    app_version=None,
-                    locale=None,
-                ),
-            ),
-            chat=Chat(
-                id=uuid4(),
-                type=ChatTypes.PERSONAL_CHAT,
-            ),
-            raw_command=None,
-        )
-
-    return factory

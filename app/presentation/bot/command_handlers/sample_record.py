@@ -7,8 +7,10 @@ from app.application.repository.exceptions import (
     RecordAlreadyExistsError,
     RecordDoesNotExistError,
 )
-from app.application.repository.interfaces import ISampleRecordUnitOfWork, \
-    ISampleRecordRepository
+from app.application.repository.interfaces import (
+    ISampleRecordUnitOfWork,
+    ISampleRecordRepository,
+)
 from app.application.use_cases.interfaces import ISampleRecordUseCases
 from app.presentation.bot.command_handlers.base_handler import BaseCommandHandler
 from app.presentation.bot.error_handlers.exceptions_chain_executor import (
@@ -54,7 +56,7 @@ class CreateSampleRecordHandler(BaseCommandHandler):
         bot: Bot,
         message: IncomingMessage,
         unit_of_work: ISampleRecordUnitOfWork,
-        use_case_factory: Callable[[ISampleRecordRepository], ISampleRecordUseCases]
+        use_case_factory: Callable[[ISampleRecordRepository], ISampleRecordUseCases],
     ):
         self._use_cases = use_case_factory
         self.unit_of_work = unit_of_work
@@ -97,9 +99,11 @@ class DeleteSampleRecordHandler(BaseCommandHandler):
         self,
         bot: Bot,
         message: IncomingMessage,
-        use_cases: ISampleRecordUseCases,
+        unit_of_work: ISampleRecordUnitOfWork,
+        use_case_factory: Callable[[ISampleRecordRepository], ISampleRecordUseCases],
     ):
-        self._use_cases = use_cases
+        self._use_cases = use_case_factory
+        self.unit_of_work = unit_of_work
 
         super().__init__(bot, message, self.exception_handler_chain_executor)
 
@@ -107,7 +111,11 @@ class DeleteSampleRecordHandler(BaseCommandHandler):
         self,
         request_parameter: SampleRecordDeleteRequestSchema,  # type: ignore
     ) -> None:
-        await self._use_cases.delete_record(request_parameter.id)
+        async with self.unit_of_work as uof:
+            await self._use_cases(uof.get_sample_record_repository()).delete_record(
+                request_parameter.id
+            )
+
         await self._bot.answer_message(
             SAMPLE_RECORD_DELETED_ANSWER.format(
                 id=request_parameter.id,

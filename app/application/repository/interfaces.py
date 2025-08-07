@@ -1,7 +1,7 @@
 """Record repository interface."""
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Self
 
 from app.domain.entities.sample_record import SampleRecord
 
@@ -23,6 +23,7 @@ class ISampleRecordUnitOfWork(IUnitOfWork, ABC):
 
     @abstractmethod
     def get_sample_record_repository(self) -> "ISampleRecordRepository":
+        """Return an initialized ISampleRecordRepository object implementation."""
         pass
 
 
@@ -81,7 +82,3 @@ class ISampleRecordRepository(ABC):
         """Get all records from the database"""
         pass
 
-    @abstractmethod
-    async def commit(self) -> None:
-        """Commit changes to the database"""
-        pass
