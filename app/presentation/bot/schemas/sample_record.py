@@ -1,6 +1,6 @@
 """Domains."""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class SampleRecordResponseSchema(BaseModel):
@@ -10,15 +10,13 @@ class SampleRecordResponseSchema(BaseModel):
     record_data: str
     name: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SampleRecordResponseListSchema(BaseModel):
     data: list[SampleRecordResponseSchema]
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SampleRecordCreateRequestSchema(
@@ -27,8 +25,7 @@ class SampleRecordCreateRequestSchema(
     record_data: str = Field(..., min_length=1, max_length=128)
     name: str = Field(..., min_length=1, max_length=32)
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SampleRecordUpdateRequestSchema(
@@ -38,8 +35,7 @@ class SampleRecordUpdateRequestSchema(
     record_data: str = Field(..., min_length=1, max_length=128)
     name: str = Field(..., min_length=1, max_length=32)
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SampleRecordGetOrDeleteRequestSchema(BaseModel):

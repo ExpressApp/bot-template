@@ -25,7 +25,7 @@ class BotXJsonRequestParser(IBotRequestParser[T]):
 
     @ExceptionMapper(
         {
-            (JSONDecodeError, ValidationError): EnrichedExceptionFactory(
+            Exception: EnrichedExceptionFactory(
                 MessageValidationError
             )
         },
@@ -33,7 +33,7 @@ class BotXJsonRequestParser(IBotRequestParser[T]):
     )
     def parse(self, raw_input: IncomingMessage) -> T:
         message_json = orjson.loads(raw_input.argument)
-        return self.model.parse_obj(message_json)
+        return self.model.model_validate(message_json)
 
 
 class BotXPlainRequestParser(IBotRequestParser[T]):
@@ -46,14 +46,14 @@ class BotXPlainRequestParser(IBotRequestParser[T]):
         self.model = model
 
     @ExceptionMapper(
-        {ValidationError: EnrichedExceptionFactory(MessageValidationError)},
+        {Exception: EnrichedExceptionFactory(MessageValidationError)},
         is_bound_method=True,
     )
     def parse(self, raw_input: IncomingMessage) -> T:
         if not (message_args := raw_input.argument.strip().split(" ")):
             raise ValidationError("Message is empty", self.model)
 
-        fields = self.model.__fields__.keys()
+        fields = (self.model.model_fields.keys())
         message_kwargs = dict(zip(fields, message_args, strict=True))
 
-        return self.model.parse_obj(message_kwargs)
+        return self.model.model_validate(message_kwargs)

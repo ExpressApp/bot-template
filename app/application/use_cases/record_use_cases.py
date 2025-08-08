@@ -23,7 +23,7 @@ class SampleRecordUseCases(ISampleRecordUseCases):
         domain_object = SampleRecord(
             record_data=request_object.record_data, name=request_object.name
         )
-        created_record = SampleRecordResponseSchema.from_orm(
+        created_record = SampleRecordResponseSchema.model_validate(
             await self._repo.create(domain_object)
         )
 
@@ -38,7 +38,7 @@ class SampleRecordUseCases(ISampleRecordUseCases):
             id=update_request.id,
             name=update_request.name,
         )
-        updated_record = SampleRecordResponseSchema.from_orm(
+        updated_record = SampleRecordResponseSchema.model_validate(
             await self._repo.update(domain_object)
         )
         return updated_record
@@ -50,12 +50,12 @@ class SampleRecordUseCases(ISampleRecordUseCases):
     async def get_record(self, record_id: int) -> SampleRecordResponseSchema:
         """Get a record by ID."""
         fetched_record = await self._repo.get_by_id(record_id)
-        return SampleRecordResponseSchema.from_orm(fetched_record)
+        return SampleRecordResponseSchema.model_validate(fetched_record)
 
     async def get_all_records(self) -> SampleRecordResponseListSchema:
         """Get all records."""
         fetched_records = await self._repo.get_all()
         response_records = [
-            SampleRecordResponseSchema.from_orm(record) for record in fetched_records
+            SampleRecordResponseSchema.model_validate(record) for record in fetched_records
         ]
         return SampleRecordResponseListSchema(data=response_records)
