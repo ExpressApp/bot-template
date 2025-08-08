@@ -54,29 +54,3 @@ def get_engine() -> AsyncEngine:
 def get_session_factory() -> async_sessionmaker:
     engine = get_engine()
     return async_sessionmaker(bind=engine, expire_on_commit=False)
-
-
-#
-# def provide_session(func: Callable) -> Callable:
-#     """
-#     Provides a database session to an async function if one is not already passed.
-#
-#     :param func: The asynchronous function to wrap. It must accept a `session`
-#         keyword argument.
-#     :return: The wrapped function with automatic session provisioning."""
-#
-#     @wraps(func)
-#     async def wrapper(*args: Any, **kwargs: Any) -> Any:
-#         if kwargs.get("session"):
-#             return await func(*args, **kwargs)
-#
-#         async with session_factory() as session:
-#             try:
-#                 return await func(*args, **kwargs, session=session)
-#             except Exception:
-#                 await session.rollback()
-#                 raise
-#             finally:
-#                 await session.close()
-#
-#     return wrapper
