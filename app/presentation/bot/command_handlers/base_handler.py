@@ -15,7 +15,7 @@ class BaseCommandHandler(ABC):
         self,
         bot: Bot,
         message: IncomingMessage,
-        exception_handler_executor: ExceptionHandlersChainExecutor | None,
+        exception_handler_executor: ExceptionHandlersChainExecutor,
     ):
         self._bot = bot
         self._message = message

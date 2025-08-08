@@ -64,6 +64,9 @@ deepdiff = "^8.5.0"
 
 
 
+[tool.poetry.group.dev.dependencies]
+types-psycopg2 = "^2.9.21.20250718"
+
 [build-system]
 requires = ["poetry>=1.1.12"]
 build-backend = "poetry.masonry.api"

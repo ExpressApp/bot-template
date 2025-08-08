@@ -67,10 +67,11 @@ class AbstractExceptionHandler(ABC):
                     await self.next_handler.handle_exception(
                         exc, bot, message, exception_id
                     )
-            except Exception as exc:
+            except Exception as inner_exc:
                 logger.error(
                     f"Error handling exception {exception_id}",
                     exc_info=True,
+                    exc=inner_exc,
                 )
                 if self._stop_on_failure:
                     return

@@ -71,14 +71,14 @@ class UserSenderFactory(Factory):
 class IncomingMessageFactory(Factory):
     """Factory for incoming messages."""
 
-    bot: BotAccount = factory.SubFactory(BotAccountFactory)
-    sync_id: UUID = factory.Faker("uuid4")
+    bot: BotAccount = factory.SubFactory(BotAccountFactory)  # type: ignore
+    sync_id: UUID = factory.Faker("uuid4")  # type: ignore
     source_sync_id: Optional[UUID] = None
-    body: str = factory.Faker("text", max_nb_chars=100)
+    body: str = factory.Faker("text", max_nb_chars=100)  # type: ignore
     data: dict[str, Any] = {}
     metadata: dict = {}
-    sender: UserSender = factory.SubFactory(UserSenderFactory)
-    chat: Chat = factory.SubFactory(ChatFactory)
+    sender: UserSender = factory.SubFactory(UserSenderFactory)  # type: ignore
+    chat: Chat = factory.SubFactory(ChatFactory)  # type: ignore
     raw_command: Optional[str] = None
 
     class Meta:

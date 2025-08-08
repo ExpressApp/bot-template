@@ -1,4 +1,5 @@
-import asyncio
+from types import TracebackType
+from typing import Self
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -10,38 +11,56 @@ from app.infrastructure.repositories.sample_record import SampleRecordRepository
 
 
 class ReadOnlySampleRecordUnitOfWork(ISampleRecordUnitOfWork):
+    def __init__(self, session_factory: async_sessionmaker):
+        super().__init__()
+        self.session_factory = session_factory
+        self._session: AsyncSession | None = None
+
     def get_sample_record_repository(self) -> ISampleRecordRepository:
         if not self._session:
             raise RuntimeError("Session is not initialized")
 
         return SampleRecordRepository(self._session)
 
-    def __init__(self, session_factory: async_sessionmaker):
-        super().__init__()
-        self.session_factory = session_factory
-        self._session: AsyncSession | None = None
-
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         self._session = self.session_factory()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        if not self._session:
+            return
+
         try:
-            # Recommended for explicit resources cleanup
-            await self._session.rollback()
+            if exc_type is not None or self._session.in_transaction():
+                await self._session.rollback()
         finally:
             await self._session.close()
+            self._session = None
 
 
 class WriteSampleRecordUnitOfWork(ReadOnlySampleRecordUnitOfWork):
     """Unit of Work for write operations with full transaction management."""
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         self._session = self.session_factory()
-        await asyncio.wait_for(self._session.begin(), timeout=5)
+
+        await self._session.begin()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        if not self._session:
+            return
+
         try:
             if exc_type:
                 await self._session.rollback()

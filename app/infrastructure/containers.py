@@ -1,10 +1,12 @@
 import asyncio
+from typing import Callable as TypeCallable
 
 from dependency_injector import containers, providers
 from dependency_injector.providers import Callable, Factory
 from httpx import AsyncClient, Limits
 from pybotx import Bot, HandlerCollector
 from redis import asyncio as aioredis
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.record_use_cases import SampleRecordUseCases
 from app.infrastructure.repositories.caching.callback_redis_repo import (
@@ -29,7 +31,9 @@ from app.settings import settings
 
 
 class BotSampleRecordCommandContainer(containers.DeclarativeContainer):
-    session_factory = providers.Dependency()
+    session_factory: providers.Dependency[TypeCallable[[], AsyncSession]] = (
+        providers.Dependency()
+    )
 
     ro_unit_of_work: Factory[ReadOnlySampleRecordUnitOfWork] = Factory(
         ReadOnlySampleRecordUnitOfWork, session_factory

@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from uuid import uuid4
 
 from pybotx import Bot, IncomingMessage
@@ -7,6 +8,10 @@ from app.presentation.bot.error_handlers.base_handlers import (
     DropFSMOnErrorHandler,
     LoggingExceptionHandler,
     SendErrorExplainToUserHandler,
+)
+
+HandlerOrHandlerClass = (
+    AbstractExceptionHandler | type[AbstractExceptionHandler] | ABCMeta
 )
 
 
@@ -24,7 +29,8 @@ class ExceptionHandlersChainExecutor:
     """
 
     def __init__(
-        self, handlers: list[type[AbstractExceptionHandler] | AbstractExceptionHandler]
+        self,
+        handlers: list[HandlerOrHandlerClass] | None = None,
     ):
         self._chain_head, self._chain_tail = self._create_chain(handlers)
 
@@ -52,13 +58,26 @@ class ExceptionHandlersChainExecutor:
         await self._chain_head.handle_exception(exc, bot, message, exception_id)
 
     def _get_handler(
-        self, handler: AbstractExceptionHandler | type[AbstractExceptionHandler]
+        self,
+        handler: HandlerOrHandlerClass,
     ) -> AbstractExceptionHandler:
         return handler if isinstance(handler, AbstractExceptionHandler) else handler()
 
     def _create_chain(
-        self, handlers: list[type[AbstractExceptionHandler] | AbstractExceptionHandler]
+        self,
+        handlers: list[HandlerOrHandlerClass] | None = None,
     ) -> tuple[AbstractExceptionHandler | None, AbstractExceptionHandler | None]:
+        """
+        Create a linked list of exception handlers from the given list.
+
+        This method takes a sequence of exception handler classes or instances
+        and chains them together into a linked list. The returned tuple contains
+        the head and tail of the constructed chain.
+
+        warning:
+           This method modifies the passed objects of
+           class:`AbstractExceptionHandler` type in place.
+        """
         if not handlers:
             return None, None
 
@@ -71,29 +90,39 @@ class ExceptionHandlersChainExecutor:
             tail_handler = new_tail_handler
         return head_handler, tail_handler
 
-    def extend(
-        self, handlers: list[AbstractExceptionHandler | type[AbstractExceptionHandler]]
-    ):
+    def extend(self, handlers: list[HandlerOrHandlerClass] | None) -> None:
         """Append handlers to the chain"""
+        if not handlers:
+            return
+
         new_head, new_tail = self._create_chain(handlers)
-        if self._chain_head is None:
+        if self._is_empty():
             self._chain_head = new_head
         else:
-            self._chain_tail.next_handler = new_head
+            # The tail and head cannot be None at the same time.
+            self._chain_tail.next_handler = new_head  # type: ignore
 
         self._chain_tail = new_tail
 
-    def append(
-        self, handler: AbstractExceptionHandler | type[AbstractExceptionHandler]
-    ):
-        """Append handler to the end of chain"""
+    def append(self, handler: HandlerOrHandlerClass) -> None:
+        """Append handler to the end of a chain"""
         new_tail = self._get_handler(handler)
-        self._chain_tail.next_handler = new_tail
+
+        if self._is_empty():
+            self._chain_head = new_tail
+            self._chain_tail = new_tail
+        else:
+            self._chain_tail.next_handler = new_tail  # type:ignore
+
+    def _is_empty(self) -> bool:
+        return self._chain_head is None and self._chain_tail is None
 
 
-DEFAULT_HANDLERS = [
+DEFAULT_HANDLERS: list[HandlerOrHandlerClass] = [
     LoggingExceptionHandler,
     DropFSMOnErrorHandler,
 ]
 
-DEFAULT_HANDLERS_WITH_EXPLAIN = DEFAULT_HANDLERS + [SendErrorExplainToUserHandler]
+DEFAULT_HANDLERS_WITH_EXPLAIN: list[HandlerOrHandlerClass] = DEFAULT_HANDLERS + [
+    SendErrorExplainToUserHandler
+]

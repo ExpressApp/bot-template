@@ -19,7 +19,7 @@ async def test_sample_record_created(
     await bot.async_execute_bot_command(message)
 
     # Check db object existing
-    db_object: SampleRecordModel = await isolated_session.scalar(
+    db_object: SampleRecordModel = await isolated_session.scalar(  # type: ignore
         select(SampleRecordModel).where(SampleRecordModel.name == request_data["name"])
     )
 
@@ -27,7 +27,7 @@ async def test_sample_record_created(
     assert db_object.name == request_data["name"]
 
     # Check bot answer
-    assert bot.answer_message.call_args[0][0] == (
+    assert bot.answer_message.call_args[0][0] == (  # type: ignore
         f"Запись успешно создана:\n**id**: {db_object.id} "
         f"**name**: {db_object.name} "
         f"**record_data**: {db_object.record_data}."
@@ -47,7 +47,7 @@ async def test_sample_record_delete(
     await bot.async_execute_bot_command(message)
 
     # Check db object non existing
-    db_object: SampleRecordModel = await isolated_session.scalar(
+    db_object: SampleRecordModel = await isolated_session.scalar(  # type: ignore
         select(SampleRecordModel).where(SampleRecordModel.id == existing_record.id)
     )
 
@@ -70,7 +70,7 @@ async def test_get_sample_record(
     await bot.async_execute_bot_command(message)
 
     # Check bot answer
-    assert bot.answer_message.call_args[0][0] == (
+    assert bot.answer_message.call_args[0][0] == (  # type:ignore
         "Запись найдена:\n"
         f"**id**: {existing_record.id} "
         f"**name**: {existing_record.name} "

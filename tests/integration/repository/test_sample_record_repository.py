@@ -17,9 +17,11 @@ from tests.integration.factories import SampleRecordModelFactory
 
 
 def assert_database_object_equal_domain(
-    db_object: SampleRecordModel, domain_object: SampleRecord
+    db_object: SampleRecordModel | None, domain_object: SampleRecord
 ) -> None:
     """Assert that database object and domain object are equal."""
+
+    assert db_object is not None
     assert db_object.id == domain_object.id
     assert db_object.record_data == domain_object.record_data
     assert db_object.name == domain_object.name
@@ -44,7 +46,7 @@ async def test_add_record(
     db_object = await isolated_session.scalar(
         select(SampleRecordModel).where(SampleRecordModel.id == created_record.id)
     )
-    assert_database_object_equal_domain(db_object, created_record)
+    assert_database_object_equal_domain(db_object, created_record)  # type:ignore
 
 
 async def test_add_record_with_non_unique_name(
@@ -65,7 +67,7 @@ async def test_create_record_with_null_required_field(
 ):
     """Test creating a record with null required field raises ValidationError."""
     invalid_record = SampleRecord(record_data="test_add", name="test_name")  # type: ignore
-    invalid_record.record_data = None
+    invalid_record.record_data = None  # type:ignore
 
     with pytest.raises(ValidationError):
         await sample_record_repository.create(invalid_record)
@@ -115,7 +117,10 @@ async def test_update_record(
         select(SampleRecordModel).where(SampleRecordModel.id == existing_record.id)
     )
 
-    assert_database_object_equal_domain(record_from_db, updated_record_from_repo)
+    assert_database_object_equal_domain(
+        record_from_db,
+        updated_record_from_repo,
+    )
 
 
 async def test_update_record_with_non_unique_name(

@@ -19,6 +19,7 @@ from app.presentation.bot.error_handlers.base_handlers import (
 from app.presentation.bot.error_handlers.exceptions_chain_executor import (
     DEFAULT_HANDLERS_WITH_EXPLAIN,
     ExceptionHandlersChainExecutor,
+    HandlerOrHandlerClass,
 )
 from app.presentation.bot.resources.strings import (
     SAMPLE_RECORD_CREATED_ANSWER,
@@ -39,15 +40,18 @@ from app.presentation.bot.validators.exceptions import MessageValidationError
 class CreateSampleRecordHandler(BaseCommandHandler):
     incoming_argument_parser = BotXJsonRequestParser(SampleRecordCreateRequestSchema)
 
-    _EXCEPTIONS_HANDLERS = DEFAULT_HANDLERS_WITH_EXPLAIN + [
-        SendErrorExplainToUserHandler(
-            exception_explain_mapping={
-                RecordAlreadyExistsError: "Запись с такими параметрами уже существует",
-                RecordCreateError: "Внутренняя ошибка создания записи",
-                MessageValidationError: "Неправильный формат данных",
-            }
-        )
-    ]
+    _EXCEPTIONS_HANDLERS: list[HandlerOrHandlerClass] = (
+        DEFAULT_HANDLERS_WITH_EXPLAIN
+        + [
+            SendErrorExplainToUserHandler(
+                exception_explain_mapping={
+                    RecordAlreadyExistsError: "Запись с такими параметрами существует",
+                    RecordCreateError: "Внутренняя ошибка создания записи",
+                    MessageValidationError: "Неправильный формат данных",
+                }
+            )
+        ]
+    )
 
     def __init__(
         self,
@@ -87,14 +91,17 @@ class DeleteSampleRecordHandler(BaseCommandHandler):
         SampleRecordGetOrDeleteRequestSchema
     )
 
-    _EXCEPTIONS_HANDLERS = DEFAULT_HANDLERS_WITH_EXPLAIN + [
-        SendErrorExplainToUserHandler(
-            exception_explain_mapping={
-                RecordDoesNotExistError: "Запиcь с указанным id не найдена",
-                MessageValidationError: "Неправильный формат данных",
-            }
-        )
-    ]
+    _EXCEPTIONS_HANDLERS: list[HandlerOrHandlerClass] = (
+        DEFAULT_HANDLERS_WITH_EXPLAIN
+        + [
+            SendErrorExplainToUserHandler(
+                exception_explain_mapping={
+                    RecordDoesNotExistError: "Запиcь с указанным id не найдена",
+                    MessageValidationError: "Неправильный формат данных",
+                }
+            )
+        ]
+    )
 
     def __init__(
         self,
@@ -132,14 +139,17 @@ class GetSampleRecordHandler(BaseCommandHandler):
         SampleRecordGetOrDeleteRequestSchema
     )
 
-    _EXCEPTIONS_HANDLERS = DEFAULT_HANDLERS_WITH_EXPLAIN + [
-        SendErrorExplainToUserHandler(
-            exception_explain_mapping={
-                RecordDoesNotExistError: "Запиcь с указанным id не найдена",
-                MessageValidationError: "Неправильный формат данных",
-            }
-        )
-    ]
+    _EXCEPTIONS_HANDLERS: list[HandlerOrHandlerClass] = (
+        DEFAULT_HANDLERS_WITH_EXPLAIN
+        + [
+            SendErrorExplainToUserHandler(
+                exception_explain_mapping={
+                    RecordDoesNotExistError: "Запиcь с указанным id не найдена",
+                    MessageValidationError: "Неправильный формат данных",
+                }
+            )
+        ]
+    )
     exception_handler_chain_executor = ExceptionHandlersChainExecutor(
         _EXCEPTIONS_HANDLERS
     )
@@ -162,7 +172,7 @@ class GetSampleRecordHandler(BaseCommandHandler):
 
     async def handle_logic(
         self,
-        request_parameter: SampleRecordGetOrDeleteRequestSchema,
+        request_parameter: SampleRecordGetOrDeleteRequestSchema,  # type: ignore
     ) -> None:
         async with self.unit_of_work as uof:
             record = await self._use_cases(

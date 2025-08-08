@@ -21,14 +21,14 @@ from app.decorators.mapper.context import ExceptionContext
 from app.decorators.mapper.exception_mapper import (
     ExceptionMapper,
 )
-from app.decorators.mapper.factories import EnrichedExceptionFactory
+from app.decorators.mapper.factories import ContextAwareError, EnrichedExceptionFactory
 from app.domain.entities.sample_record import SampleRecord
 from app.infrastructure.db.sample_record.models import SampleRecordModel
 from app.infrastructure.db.sqlalchemy import AsyncSession
 
 
 class IntegrityErrorFactory(EnrichedExceptionFactory):
-    def make_exception(self, context: ExceptionContext) -> Exception:
+    def make_exception(self, context: ExceptionContext) -> ContextAwareError:
         if not (orig := getattr(context.original_exception, "orig", None)):
             return self.generated_error(context.formatted_context)
 
