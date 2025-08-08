@@ -1,77 +1,80 @@
 """Application with configuration for events, routers and middleware."""
 
-import asyncio
 from functools import partial
 
+from dependency_injector.wiring import Provide
 from fastapi import FastAPI
 from pybotx import Bot
-from redis import asyncio as aioredis
 
-from app.api.routers import router
-from app.bot.bot import get_bot
-from app.caching.callback_redis_repo import CallbackRedisRepo
-from app.caching.exception_handlers import PubsubExceptionHandler
-from app.caching.redis_repo import RedisRepo
-from app.db.sqlalchemy import build_db_session_factory, close_db_connections
-from app.resources import strings
-from app.settings import settings
+from app.infrastructure.containers import (
+    ApplicationStartupContainer,
+    BotSampleRecordCommandContainer,
+)
+from app.infrastructure.db.sqlalchemy import (
+    get_engine,
+    get_session_factory,
+)
+from app.presentation.api.routers import router
+from app.presentation.bot.resources import strings
 
 
-async def startup(application: FastAPI, raise_bot_exceptions: bool) -> None:
-    # -- Database --
-    db_session_factory = await build_db_session_factory()
-
-    # -- Redis --
-    redis_client = aioredis.from_url(settings.REDIS_DSN)
-    pool = aioredis.BlockingConnectionPool(
-        max_connections=settings.CONNECTION_POOL_SIZE,
-        **redis_client.connection_pool.connection_kwargs,
-    )
-    redis_client.connection_pool = pool
-    redis_repo = RedisRepo(redis=redis_client, prefix=strings.BOT_PROJECT_NAME)
-
-    # -- Bot --
-    callback_repo = CallbackRedisRepo(redis_client)
-    process_callbacks_task = asyncio.create_task(
-        callback_repo.pubsub.run(exception_handler=PubsubExceptionHandler())
-    )
-    bot = get_bot(callback_repo, raise_exceptions=raise_bot_exceptions)
-
+async def startup(
+    bot: Bot,
+) -> None:
     await bot.startup()
 
-    bot.state.db_session_factory = db_session_factory
-    bot.state.redis_repo = redis_repo
 
-    application.state.bot = bot
-    application.state.redis = redis_client
-    application.state.process_callbacks_task = process_callbacks_task
+async def shutdown(
+    container: ApplicationStartupContainer = Provide[ApplicationStartupContainer],
+) -> None:
+    await container.bot().shutdown()
 
+    await container.callback_task_manager().shutdown()
 
-async def shutdown(application: FastAPI) -> None:
-    # -- Bot --
-    bot: Bot = application.state.bot
-    await bot.shutdown()
-    process_callbacks_task: asyncio.Task = application.state.process_callbacks_task
-    process_callbacks_task.cancel()
-    await asyncio.gather(process_callbacks_task, return_exceptions=True)
-
-    # -- Redis --
-    redis_client: aioredis.Redis = application.state.redis
-    await redis_client.close()
-
-    # -- Database --
-    await close_db_connections()
+    await container.redis_client().aclose()
+    await get_engine().dispose()
 
 
-def get_application(raise_bot_exceptions: bool = False) -> FastAPI:
+def get_application() -> FastAPI:
     """Create configured server application instance."""
+
+    # Initialize the main application container
+    main_container = ApplicationStartupContainer()
+    main_container.wire(
+        modules=[
+            "app.main",
+            "app.presentation.api.botx",
+            "app.presentation.bot.commands.sample_record",
+        ]
+    )
+
+    # Initialize the SampleRecord commands container
+    sample_record_commands_container = BotSampleRecordCommandContainer(
+        session_factory=get_session_factory()
+    )
+    sample_record_commands_container.wire(
+        modules=["app.presentation.bot.commands.sample_record"]
+    )
 
     application = FastAPI(title=strings.BOT_PROJECT_NAME, openapi_url=None)
 
+    # put bot to state only for tests
+    application.state.bot = main_container.bot()
+
     application.add_event_handler(
-        "startup", partial(startup, application, raise_bot_exceptions)
+        "startup",
+        partial(startup, bot=main_container.bot()),
     )
-    application.add_event_handler("shutdown", partial(shutdown, application))
+    application.add_event_handler(
+        "shutdown",
+        partial(
+            shutdown,
+            # callback_task_manager=main_container.callback_task_manager(),
+            # bot=main_container.bot(),
+            # redis_client=main_container.redis_client(),
+            container=main_container,
+        ),
+    )
 
     application.include_router(router)
 

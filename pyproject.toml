@@ -1,0 +1,84 @@
+# https://python-poetry.org/docs/
+
+[tool.poetry]
+name = "bot_refactor"
+version = "0.1.0"
+description = "TODO"
+authors = []
+
+
+[tool.poetry.dependencies]
+python = ">3.9,<3.14"
+
+pybotx = "~0.76.0a1"
+#pybotx-smart-logger = "0.12.0a1"
+pybotx-smart-logger = { git = "https://github.com/ExpressApp/pybotx-smart-logger.git", branch = "chore/pydantic-pybotx-v-update" }
+
+
+
+
+fastapi = "~0.110.1"
+gunicorn = "~21.2.0"
+uvicorn = { version = "~0.29.0", extras = ["standart"] }
+
+loguru = ">=0.6.0,<0.7.0"
+mako = "~1.2.2"
+
+pydantic = { version = ">=2.8.2,<3.0", extras = ["dotenv"] }
+
+alembic = "~1.13.1"
+SQLAlchemy = "~2.0.0"
+asyncpg = "~0.29.0"  # DB backend for application
+psycopg2-binary = "~2.9.9"  # DB backend for alembic (migration tool)
+
+redis = "~5.0.3"
+
+importlib-resources = { version = "~5.4.0", python = "<3.9" }
+zipp = { version = "~3.7.0", python = "<3.9" }
+importlib-metadata = { version = "~4.11.0", python = "<3.9" }
+dependency-injector = "4.41.0"
+orjson = "^3.10.18"
+factory-boy = "^3.3.3"
+async-factory-boy = "^1.0.1"
+cachetools = "^6.1.0"
+saq = {extras = ["hiredis", "web"], version = "^0.25.2"}
+pydantic-settings = "^2.10.1"
+
+
+[tool.poetry.dev-dependencies]
+mypy = "1.16.1"
+ruff = "0.12.0"
+
+bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
+
+pytest = "~8.4.1"
+pytest-asyncio = "~0.18.2"
+pytest-cov = "~3.0.0"
+
+asgi-lifespan = "~1.0.1"
+requests = "~2.31.0"
+respx = "~0.22.0"
+httpx = ">=0.28.0,<0.29.0"
+
+markdown = "3.3.6"  # https://github.com/python-poetry/poetry/issues/4777
+testcontainers = { extras = ["postgresql"], version = "^4.10.0" }
+
+deepdiff = "^8.5.0"
+
+
+
+[tool.poetry.group.dev.dependencies]
+types-psycopg2 = "^2.9.21.20250718"
+
+[build-system]
+requires = ["poetry>=1.1.12"]
+build-backend = "poetry.masonry.api"
+
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+asyncio_mode = "auto"
+markers = [
+    "unit: fast, offline tests",
+    "integ: slow integration tests; run only with --run-integ",
+]

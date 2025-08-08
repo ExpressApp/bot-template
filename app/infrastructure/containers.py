@@ -1,0 +1,153 @@
+import asyncio
+from typing import Callable as TypeCallable
+
+from dependency_injector import containers, providers
+from dependency_injector.providers import Callable, Factory
+from httpx import AsyncClient, Limits
+from pybotx import Bot, HandlerCollector
+from redis import asyncio as aioredis
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.application.use_cases.record_use_cases import SampleRecordUseCases
+from app.infrastructure.repositories.caching.callback_redis_repo import (
+    CallbackRedisRepo,
+)
+from app.infrastructure.repositories.caching.exception_handlers import (
+    PubsubExceptionHandler,
+)
+from app.infrastructure.repositories.caching.redis_repo import RedisRepo
+from app.infrastructure.repositories.unit_of_work import (
+    ReadOnlySampleRecordUnitOfWork,
+    WriteSampleRecordUnitOfWork,
+)
+from app.logger import logger
+from app.presentation.bot.error_handlers.internal_error_handler import (
+    internal_error_handler,
+)
+from app.presentation.bot.middlewares.answer_error import answer_error_middleware
+from app.presentation.bot.middlewares.smart_logger import smart_logger_middleware
+from app.presentation.bot.resources import strings
+from app.settings import settings
+
+
+class BotSampleRecordCommandContainer(containers.DeclarativeContainer):
+    session_factory: providers.Dependency[TypeCallable[[], AsyncSession]] = (
+        providers.Dependency()
+    )
+
+    ro_unit_of_work: Factory[ReadOnlySampleRecordUnitOfWork] = Factory(
+        ReadOnlySampleRecordUnitOfWork, session_factory
+    )
+    rw_unit_of_work: Factory[WriteSampleRecordUnitOfWork] = Factory(
+        WriteSampleRecordUnitOfWork, session_factory
+    )
+
+    record_use_cases_factory = Callable(
+        lambda repository: SampleRecordUseCases(record_repo=repository)
+    )
+
+
+class CallbackTaskManager:
+    """Менеджер для управления задачей обработки callbacks"""
+
+    def __init__(self, callback_repo: CallbackRedisRepo):
+        self.callback_repo = callback_repo
+        self._task: asyncio.Task | None = None
+
+    def _get_task(self) -> asyncio.Task:
+        """Получает или создает задачу в текущем цикле событий"""
+        if self._task is None or self._task.done():
+            self._task = asyncio.create_task(
+                self.callback_repo.pubsub.run(
+                    exception_handler=PubsubExceptionHandler()
+                )
+            )
+        return self._task
+
+    def _cancel_task(self) -> None:
+        """Отменяет задачу если она существует"""
+        if self._task and not self._task.done():
+            self._task.cancel()
+
+    async def shutdown(self) -> None:
+        """Корректное завершение работы менеджера"""
+        if self._task:
+            self._cancel_task()
+            try:
+                await asyncio.gather(self._task, return_exceptions=True)
+            except RuntimeError as e:
+                logger.warning(f"Error at gather CallbackTaskManager tasks: {e}")
+
+    def __call__(self) -> asyncio.Task:
+        """Позволяет использовать как callable для провайдера"""
+        return self._get_task()
+
+
+class BaseStartupContainer(containers.DeclarativeContainer):
+    """Общий контейнер для старта бота."""
+
+    @staticmethod
+    def get_collectors() -> list[HandlerCollector]:
+        from app.presentation.bot.commands.common import collector as common_collector
+        from app.presentation.bot.commands.sample_record import (
+            collector as sample_record_collector,
+        )
+
+        return [common_collector, sample_record_collector]
+
+    redis_client = providers.Singleton(lambda: aioredis.from_url(settings.REDIS_DSN))
+
+    redis_repo = providers.Factory(
+        RedisRepo,
+        redis=redis_client,
+        prefix=strings.BOT_PROJECT_NAME,
+    )
+
+    async_client = providers.Singleton(
+        AsyncClient,
+        timeout=settings.BOT_ASYNC_CLIENT_TIMEOUT_IN_SECONDS,
+        limits=Limits(max_keepalive_connections=None, max_connections=None),
+    )
+
+    callback_repo = providers.Singleton(
+        CallbackRedisRepo,
+        redis=redis_client,
+    )
+
+    exception_handlers = (
+        {} if not settings.RAISE_BOT_EXCEPTIONS else {Exception: internal_error_handler}
+    )
+
+    bot = providers.Singleton(
+        Bot,
+        bot_accounts=settings.BOT_CREDENTIALS,
+        exception_handlers=exception_handlers,  # type: ignore
+        default_callback_timeout=settings.BOTX_CALLBACK_TIMEOUT_IN_SECONDS,
+        httpx_client=async_client,
+        middlewares=[
+            smart_logger_middleware,
+            answer_error_middleware,
+        ],
+        callback_repo=callback_repo,
+        collectors=get_collectors(),
+    )
+
+
+class ApplicationStartupContainer(BaseStartupContainer):
+    """Main Fastapi application container."""
+
+    callback_task_manager = providers.Singleton(
+        CallbackTaskManager,
+        BaseStartupContainer.callback_repo,
+    )
+
+    process_callbacks_task = providers.Callable(
+        lambda manager: manager(),
+        callback_task_manager,
+    )
+
+
+class WorkerStartupContainer(BaseStartupContainer):
+    """SAQ Worker container"""
+
+    pass

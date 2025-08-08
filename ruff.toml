@@ -1,0 +1,38 @@
+target-version = "py310"
+line-length = 88
+exclude = ["app/db/migrations"]          # папки/файлы, которые Ruff вообще не читает
+
+[lint]
+# группы правил
+select = ["E", "F", "B", "S", "W", "I", "N", "Q"]
+extend-select = ["B006", "B007"]
+
+ignore = [
+    # Bugbear
+    "B008",
+    # pydocstyle
+    "D101", "D102", "D103", "D106", "D107", "D202",
+    # whitespace-совместимость c Black
+    "E203",
+    # Bandit
+    "S101", "S702",
+]
+
+[lint.per-file-ignores]
+"*/__init__.py" = ["D104"]
+"app/bot/commands/*.py" = ["D104"]
+"app/resources/strings.py" = ["E501"]
+"tests/*" = ["D100"]
+# alembic migrations
+"*/migrations/*" = ["ALL"]
+"*/env.py" = ["ALL"]
+# ignore test functons missing return annotations
+"*/test_*.py" = ["ANN201", "ANN202"]
+
+[lint.flake8-quotes]
+inline-quotes = "double"
+avoid-escape = true
+
+[lint.isort]
+known-first-party = ["app"]
+combine-as-imports = true        # from x import y as z, w as q

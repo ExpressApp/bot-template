@@ -1,5 +1,88 @@
 #!/usr/bin/env bash
+#
+# scripts/test – удобный раннер для pytest.
+#
+#  ┌───────────────────────────────┐
+#  │  ПРИМЕРЫ                      │
+#  ├───────────────────────────────┤
+#  │ ./scripts/test                │ → все тесты                │
+#  │ ./scripts/test --unit -q      │ → только unit, тихо        │
+#  │ ./scripts/test --integ -k api │ → только integ, по кею      │
+#  │ ./scripts/test --unit --integ │ → unit + integ             │
+#  └───────────────────────────────┘
+#
+# Если скрипт запустили не через bash (например, `sh scripts/test`),
+# он перезапустит себя под bash, чтобы работали массивы.
+# ---------------------------------------------------------------------
 
-set -ex
+# --- re-exec в bash, если нужно --------------------------------------
+if [ -z "${BASH_VERSION:-}" ]; then
+  exec bash "$0" "$@"
+fi
 
-pytest ${@}
+set -euo pipefail
+
+show_help() {
+  cat <<EOF
+Usage: $(basename "$0") [--unit] [--integ] [PYTEST_ARGS...]
+
+  --unit         run *only* unit tests   (mark: unit)
+  --integ        run *only* integration tests (mark: integ)
+                 If both flags are given, runs both layers.
+  -h, --help     show this message
+
+Without --unit/--integ flags the script launches *all* tests.
+
+Examples
+  $(basename "$0")                    # all tests
+  $(basename "$0") --unit -q          # unit only, quiet
+  $(basename "$0") --integ -k 'api'   # integ only, filter by keyword
+  $(basename "$0") --unit --integ -v  # unit + integ with verbose
+EOF
+}
+
+RUN_UNIT=false
+RUN_INTEG=false
+POSITIONAL=()
+
+while (( "$#" )); do
+  case "$1" in
+    --unit)
+      RUN_UNIT=true
+      shift
+      ;;
+    --integ)
+      RUN_INTEG=true
+      shift
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    *)
+      POSITIONAL+=("$1")
+      shift
+      ;;
+  esac
+done
+
+MARK_EXPR=""
+
+if $RUN_UNIT && $RUN_INTEG; then
+  MARK_EXPR="unit or integ"
+elif $RUN_UNIT; then
+  MARK_EXPR="unit"
+elif $RUN_INTEG; then
+  MARK_EXPR="integ"
+else
+  MARK_EXPR=""          # без фильтра – все тесты
+fi
+
+echo -n "▶ running tests"
+[[ -n $MARK_EXPR ]] && echo " with -m '$MARK_EXPR'" || echo " (all)"
+
+if [[ -n $MARK_EXPR ]]; then
+  pytest -m "$MARK_EXPR" "${POSITIONAL[@]:-}"
+else
+  pytest "${POSITIONAL[@]:-}"
+fi
