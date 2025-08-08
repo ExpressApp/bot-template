@@ -1,5 +1,6 @@
 """Decorators to rethrow and log exceptions."""
 
+import asyncio
 from functools import wraps
 from inspect import iscoroutinefunction
 from typing import Any, Callable, Type
@@ -81,6 +82,9 @@ class ExceptionMapper:
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
     ) -> None:
+        if isinstance(exc, asyncio.CancelledError):
+            raise
+
         if exception_factory := self._get_exception_factory(type(exc)):
             context = ExceptionContext(exc, func, self._filtered_args(args), kwargs)
             raise exception_factory.make_exception(context) from exc

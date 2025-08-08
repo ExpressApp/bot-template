@@ -7,7 +7,7 @@ from pybotx import Bot
 from redis.asyncio import Redis
 from saq import CronJob, Queue
 
-from app.infrastructure.containers import WorkerStartupContainer, BaseStartupContainer
+from app.infrastructure.containers import BaseStartupContainer, WorkerStartupContainer
 from app.infrastructure.worker.tasks.simple_task import heartbeat_task
 from app.logger import logger
 from app.settings import settings

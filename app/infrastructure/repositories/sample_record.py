@@ -72,7 +72,6 @@ class SampleRecordRepository(ISampleRecordRepository):
             .returning(SampleRecordModel)
         )
         result = await self._session.execute(query)
-        await self._session.flush()
         record_model = result.scalar_one()
         return self._to_domain_object(record_model)
 
@@ -91,7 +90,6 @@ class SampleRecordRepository(ISampleRecordRepository):
             .returning(SampleRecordModel)
         )
         execute_result = (await self._session.execute(query)).scalar_one_or_none()
-        await self._session.flush()
         if execute_result is None:
             raise RecordDoesNotExistError(
                 f"Sample record with id={record.id} does not exist."
@@ -124,8 +122,6 @@ class SampleRecordRepository(ISampleRecordRepository):
             raise RecordDoesNotExistError(
                 f"Sample record with id={record_id} does not exist."
             )
-
-        await self._session.flush()
 
     @ExceptionMapper(
         {

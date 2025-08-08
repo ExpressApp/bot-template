@@ -17,8 +17,8 @@ from app.presentation.bot.error_handlers.base_handlers import (
     SendErrorExplainToUserHandler,
 )
 from app.presentation.bot.error_handlers.exceptions_chain_executor import (
-    DEFAULT_HANDLERS,
-    ExceptionHandlersChainExecutor, DEFAULT_HANDLERS_WITH_EXPLAIN,
+    DEFAULT_HANDLERS_WITH_EXPLAIN,
+    ExceptionHandlersChainExecutor,
 )
 from app.presentation.bot.resources.strings import (
     SAMPLE_RECORD_CREATED_ANSWER,
@@ -48,9 +48,6 @@ class CreateSampleRecordHandler(BaseCommandHandler):
             }
         )
     ]
-    exception_handler_chain_executor = ExceptionHandlersChainExecutor(
-        _EXCEPTIONS_HANDLERS
-    )
 
     def __init__(
         self,
@@ -62,7 +59,11 @@ class CreateSampleRecordHandler(BaseCommandHandler):
         self._use_cases = use_case_factory
         self.unit_of_work = unit_of_work
 
-        super().__init__(bot, message, self.exception_handler_chain_executor)
+        exception_handler_chain_executor = ExceptionHandlersChainExecutor(
+            self._EXCEPTIONS_HANDLERS
+        )
+
+        super().__init__(bot, message, exception_handler_chain_executor)
 
     async def handle_logic(
         self,
@@ -94,9 +95,6 @@ class DeleteSampleRecordHandler(BaseCommandHandler):
             }
         )
     ]
-    exception_handler_chain_executor = ExceptionHandlersChainExecutor(
-        _EXCEPTIONS_HANDLERS
-    )
 
     def __init__(
         self,
@@ -107,8 +105,11 @@ class DeleteSampleRecordHandler(BaseCommandHandler):
     ):
         self._use_cases = use_case_factory
         self.unit_of_work = unit_of_work
+        exception_handler_chain_executor = ExceptionHandlersChainExecutor(
+            self._EXCEPTIONS_HANDLERS
+        )
 
-        super().__init__(bot, message, self.exception_handler_chain_executor)
+        super().__init__(bot, message, exception_handler_chain_executor)
 
     async def handle_logic(
         self,
@@ -153,7 +154,11 @@ class GetSampleRecordHandler(BaseCommandHandler):
         self._use_cases = use_case_factory
         self.unit_of_work = unit_of_work
 
-        super().__init__(bot, message, self.exception_handler_chain_executor)
+        exception_handler_chain_executor = ExceptionHandlersChainExecutor(
+            self._EXCEPTIONS_HANDLERS
+        )
+
+        super().__init__(bot, message, exception_handler_chain_executor)
 
     async def handle_logic(
         self,

@@ -1,7 +1,7 @@
 import asyncio
 
 from dependency_injector import containers, providers
-from dependency_injector.providers import Callable, Factory, Singleton
+from dependency_injector.providers import Callable, Factory
 from httpx import AsyncClient, Limits
 from pybotx import Bot, HandlerCollector
 from redis import asyncio as aioredis
