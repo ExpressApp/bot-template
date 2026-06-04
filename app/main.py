@@ -1,7 +1,8 @@
 """Application with configuration for events, routers and middleware."""
 
 import asyncio
-from functools import partial
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
 
 from fastapi import FastAPI
 from pybotx import Bot
@@ -57,7 +58,7 @@ async def shutdown(application: FastAPI) -> None:
 
     # -- Redis --
     redis_client: aioredis.Redis = application.state.redis
-    await redis_client.close()
+    await redis_client.aclose()
 
     # -- Database --
     await close_db_connections()
@@ -66,13 +67,19 @@ async def shutdown(application: FastAPI) -> None:
 def get_application(raise_bot_exceptions: bool = False) -> FastAPI:
     """Create configured server application instance."""
 
-    application = FastAPI(title=strings.BOT_PROJECT_NAME, openapi_url=None)
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:  # noqa: WPS430
+        await startup(application, raise_bot_exceptions)
+        try:
+            yield
+        finally:
+            await shutdown(application)
 
-    application.add_event_handler(
-        "startup", partial(startup, application, raise_bot_exceptions)
+    application = FastAPI(
+        title=strings.BOT_PROJECT_NAME,
+        openapi_url=None,
+        lifespan=lifespan,
     )
-    application.add_event_handler("shutdown", partial(shutdown, application))
-
     application.include_router(router)
 
     return application

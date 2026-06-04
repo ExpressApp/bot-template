@@ -2,7 +2,7 @@
 
 import hashlib
 import pickle  # noqa: S403
-from typing import Any, Hashable, Optional
+from typing import Any, Hashable, Optional, cast
 
 from redis import asyncio as aioredis
 
@@ -32,7 +32,7 @@ class RedisRepo:
         if cached_data is None:
             return default
 
-        return pickle.loads(cached_data)  # noqa: S301
+        return pickle.loads(cast(bytes, cached_data))  # noqa: S301
 
     async def set(
         self, key: Hashable, storage_value: Any, expire: Optional[int] = None
@@ -52,9 +52,13 @@ class RedisRepo:
         return storage_value
 
     def _key(self, arg: Hashable) -> str:
-        if self._prefix is not None:
-            prefix = self._prefix + self._delimiter
-        else:
+        if self._prefix is None:
             prefix = ""
+        else:
+            prefix = self._prefix + self._delimiter
 
-        return prefix + hashlib.md5(pickle.dumps(arg)).hexdigest()  # noqa: S303
+        hashed_key = hashlib.md5(  # noqa: S324
+            pickle.dumps(arg),
+            usedforsecurity=False,
+        ).hexdigest()
+        return prefix + hashed_key

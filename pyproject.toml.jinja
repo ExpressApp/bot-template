@@ -5,61 +5,60 @@ name = "{{bot_project_name}}"
 version = "0.1.0"
 description = "{{bot_short_description}}"
 authors = []
+package-mode = false
 
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.10,<3.14"
 
-pybotx = "~0.73.4"
-pybotx-smart-logger = "~0.10.1"
+pybotx = "~0.76.3"
+pybotx-smart-logger = "~0.12.1"
 {% if add_fsm %}
-pybotx-fsm = "~0.4.12"
+pybotx-fsm = "~0.7.1"
 {% endif %}
 
-fastapi = "~0.110.1"
-gunicorn = "~21.2.0"
-uvicorn = { version = "~0.29.0", extras = ["standart"] }
+fastapi = "~0.136.3"
+gunicorn = "~26.0.0"
+uvicorn = { version = "~0.49.0", extras = ["standard"] }
 
-loguru = ">=0.6.0,<0.7.0"
-mako = "~1.2.2"
-pydantic = { version = "~1.10.4", extras = ["dotenv"] }
+loguru = "~0.7.3"
+mako = "~1.3.12"
+pydantic = "~2.13.4"
+pydantic-settings = "~2.14.1"
 
-alembic = "~1.13.1"
-SQLAlchemy = "~2.0.0"
-asyncpg = "~0.29.0"  # DB backend for application
-psycopg2-binary = "~2.9.9"  # DB backend for alembic (migration tool)
+alembic = "~1.18.4"
+SQLAlchemy = "~2.0.50"
+greenlet = "~3.5.1"
+asyncpg = "~0.31.0"  # DB backend for application
+psycopg2-binary = "~2.9.12"  # DB backend for alembic (migration tool)
 
-redis = "~5.0.3"
-saq = { version = "~0.12.4", extras = ["hiredis"] }
-
-importlib-resources = { version = "~5.4.0", python = "<3.9" }
-zipp = { version = "~3.7.0", python = "<3.9" }
-importlib-metadata = { version = "~4.11.0", python = "<3.9" }
+redis = "~8.0.0"
+saq = { version = "~0.26.4", extras = ["hiredis"] }
 
 
-[tool.poetry.dev-dependencies]
-add-trailing-comma = "2.2.1"
-autoflake = "1.4.0"
-black = "22.3.0"
-isort = "5.10.1"
-mypy = "1.0.1"
-wemake-python-styleguide = "0.16.0"
+[tool.poetry.group.dev.dependencies]
+add-trailing-comma = "4.0.0"
+autoflake = "2.3.3"
+black = "26.5.1"
+isort = "8.0.1"
+mypy = "2.1.0"
+wemake-python-styleguide = "1.6.2"
 
-flake8-bandit = "2.1.2"  # https://github.com/PyCQA/bandit/issues/837
-bandit = "1.7.2"  # https://github.com/PyCQA/bandit/issues/837
+flake8-bandit = "4.1.1"
+bandit = "1.9.4"
 
-pytest = "~7.2.0"
-pytest-asyncio = "~0.18.2"
-pytest-cov = "~3.0.0"
+pytest = "~9.0.3"
+pytest-asyncio = "~1.4.0"
+pytest-cov = "~7.1.0"
 
-asgi-lifespan = "~1.0.1"
-requests = "~2.31.0"
-respx = "~0.20.0"
-httpx = "~0.25.0"
+asgi-lifespan = "~2.1.0"
+requests = "~2.34.2"
+respx = "~0.23.1"
+httpx = "~0.28.1"
 
-markdown = "3.3.6"  # https://github.com/python-poetry/poetry/issues/4777
+markdown = "3.10.2"
 
 
 [build-system]
-requires = ["poetry>=1.1.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
