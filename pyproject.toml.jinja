@@ -37,15 +37,8 @@ saq = { version = "~0.26.4", extras = ["hiredis"] }
 
 
 [tool.poetry.group.dev.dependencies]
-add-trailing-comma = "4.0.0"
-autoflake = "2.3.3"
-black = "26.5.1"
-isort = "8.0.1"
 mypy = "2.1.0"
-wemake-python-styleguide = "1.6.2"
-
-flake8-bandit = "4.1.1"
-bandit = "1.9.4"
+ruff = "0.15.15"
 
 pytest = "~9.0.3"
 pytest-asyncio = "~1.4.0"
@@ -57,6 +50,49 @@ respx = "~0.23.1"
 httpx = "~0.28.1"
 
 markdown = "3.10.2"
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = ["app/db/migrations"]
+
+[tool.ruff.lint]
+select = [
+    "B",
+    "D",
+    "E",
+    "F",
+    "I",
+    "S",
+    "W",
+]
+ignore = [
+    # Function calls in arguments definitions are part of FastAPI and BotX DI.
+    "B008",
+    # Missing docstrings are accepted for this application template.
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D106",
+    "D107",
+    # Existing code keeps a blank line after docstrings.
+    "D202",
+    # Keep pydocstyle defaults conflict-free.
+    "D203",
+    "D212",
+    "D213",
+    # Ruff formatter handles this.
+    "E203",
+    # Asserts are useful in tests and runtime sanity checks.
+    "S101",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app/bot/commands/common.py" = ["S404", "S603"]
+"app/resources/strings.py" = ["E501"]
 
 
 [build-system]

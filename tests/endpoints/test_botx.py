@@ -221,6 +221,5 @@ def test__web_app__unsupported_bot_api_version_service_unavailable(
 
     status_message = response.json()["error_data"]["status_message"]
     assert status_message == (
-        "Unsupported Bot API version: `3`. "
-        "Set protocol version to `4` in Admin panel."
+        "Unsupported Bot API version: `3`. Set protocol version to `4` in Admin panel."
     )

@@ -2,9 +2,5 @@
 
 set -ex
 
-autoflake --recursive --in-place \
-  --remove-all-unused-imports \
-  --ignore-init-module-imports \
-  app tests
-isort --profile black app tests
-black app tests
+ruff check --fix app tests
+ruff format app tests
