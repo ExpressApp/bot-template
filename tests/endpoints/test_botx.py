@@ -157,7 +157,7 @@ async def test__web_app__bot_command_response_accepted(
 
 
 @respx.mock
-def test__web_app__bot_command_response_service_unavailable(
+def test__web_app__orphan_callback_response_accepted(
     bot_id: UUID,
     host: str,
     bot: Bot,
@@ -177,12 +177,8 @@ def test__web_app__bot_command_response_service_unavailable(
         )
 
     # - Assert -
-    assert callback_response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
-
-    status_message = callback_response.json()["error_data"]["status_message"]
-    assert status_message == (
-        "Unexpected callback with sync_id: 21a9ec9e-f21f-4406-ac44-1a78d2ccf9e3"
-    )
+    assert callback_response.status_code == HTTPStatus.ACCEPTED
+    assert callback_response.json() == {"result": "accepted"}
 
 
 @respx.mock
@@ -225,6 +221,5 @@ def test__web_app__unsupported_bot_api_version_service_unavailable(
 
     status_message = response.json()["error_data"]["status_message"]
     assert status_message == (
-        "Unsupported Bot API version: `3`. "
-        "Set protocol version to `4` in Admin panel."
+        "Unsupported Bot API version: `3`. Set protocol version to `4` in Admin panel."
     )

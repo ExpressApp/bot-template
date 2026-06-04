@@ -31,7 +31,7 @@ ENV GUNICORN_CMD_ARGS ""
 ARG CI_COMMIT_SHA=""
 ENV GIT_COMMIT_SHA=${CI_COMMIT_SHA}
 
-RUN pip install --user --no-cache-dir poetry==1.4.2 && \
+RUN pip install --user --no-cache-dir poetry==2.4.1 && \
     poetry config virtualenvs.in-project true
 
 COPY poetry.lock pyproject.toml ./

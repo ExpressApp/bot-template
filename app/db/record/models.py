@@ -10,9 +10,7 @@ class RecordModel(Base):
 
     __tablename__ = "records"
 
-    id: Mapped[int] = mapped_column(
-        primary_key=True, autoincrement=True
-    )  # noqa: WPS125
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     record_data: Mapped[str]
 
     def __repr__(self) -> str:

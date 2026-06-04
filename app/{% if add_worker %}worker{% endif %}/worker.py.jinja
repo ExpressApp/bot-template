@@ -20,11 +20,8 @@ async def startup(ctx: SaqCtx) -> None:
 
     callback_repo = CallbackRedisRepo(aioredis.from_url(app_settings.REDIS_DSN))
     bot = get_bot(callback_repo, raise_exceptions=False)
-
     await bot.startup(fetch_tokens=False)
-
     ctx["bot"] = bot
-
     logger.info("Worker started")
 
 
@@ -39,7 +36,7 @@ async def healthcheck(_: SaqCtx) -> Literal[True]:
     return True
 
 
-queue = Queue(aioredis.from_url(app_settings.REDIS_DSN), name="{{bot_project_name}}")
+queue = Queue.from_url(app_settings.REDIS_DSN, name="{{bot_project_name}}")
 
 settings = {
     "queue": queue,

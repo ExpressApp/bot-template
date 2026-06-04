@@ -1,64 +1,67 @@
 """Application settings."""
 
-from typing import Any, List
+from typing import Annotated, Any, List
 from uuid import UUID
 
 from pybotx import BotAccountWithSecret
-from pydantic import BaseSettings
+from pydantic import AnyHttpUrl, field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class AppSettings(BaseSettings):
-    class Config:  # noqa: WPS431
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-        @classmethod
-        def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-            if field_name == "BOT_CREDENTIALS":
-                if not raw_val:
-                    return []
+    @field_validator("BOT_CREDENTIALS", mode="before")
+    @classmethod
+    def parse_bot_credentials(cls, raw_val: Any) -> List[BotAccountWithSecret]:
+        if not raw_val:
+            return []
 
-                return [
-                    cls._build_credentials_from_string(credentials_str)
-                    for credentials_str in raw_val.replace(",", " ").split()
-                ]
-            elif field_name == "SMARTLOG_DEBUG_HUIDS":
-                return cls.parse_smartlog_debug_huids(raw_val)
-
-            return cls.json_loads(raw_val)  # type: ignore
-
-        @classmethod
-        def parse_smartlog_debug_huids(cls, raw_huids: Any) -> List[UUID]:
-            """Parse debug huids separated by comma."""
-            if not raw_huids:
-                return []
-
-            return [UUID(huid) for huid in raw_huids.split(",")]
-
-        @classmethod
-        def _build_credentials_from_string(
-            cls, credentials_str: str
-        ) -> BotAccountWithSecret:
-            credentials_str = credentials_str.replace("|", "@")
-            assert credentials_str.count("@") == 2, "Have you forgot to add `bot_id`?"
-
-            cts_url, secret_key, bot_id = [
-                str_value.strip() for str_value in credentials_str.split("@")
+        if isinstance(raw_val, str):
+            return [
+                cls._build_credentials_from_string(credentials_str)
+                for credentials_str in raw_val.replace(",", " ").split()
             ]
 
-            if "://" not in cts_url:
-                cts_url = f"https://{cts_url}"
+        return raw_val
 
-            return BotAccountWithSecret(
-                id=UUID(bot_id), cts_url=cts_url, secret_key=secret_key
-            )
+    @field_validator("SMARTLOG_DEBUG_HUIDS", mode="before")
+    @classmethod
+    def parse_smartlog_debug_huids(cls, raw_huids: Any) -> List[UUID]:
+        """Parse debug huids separated by comma."""
+        if not raw_huids:
+            return []
 
-    BOT_CREDENTIALS: List[BotAccountWithSecret]
+        if isinstance(raw_huids, str):
+            return [UUID(huid.strip()) for huid in raw_huids.split(",")]
+
+        return raw_huids
+
+    @classmethod
+    def _build_credentials_from_string(
+        cls, credentials_str: str
+    ) -> BotAccountWithSecret:
+        credentials_str = credentials_str.replace("|", "@")
+        assert credentials_str.count("@") == 2, "Have you forgot to add `bot_id`?"
+
+        cts_url, secret_key, bot_id = [
+            str_value.strip() for str_value in credentials_str.split("@")
+        ]
+
+        if "://" not in cts_url:
+            cts_url = f"https://{cts_url}"
+
+        return BotAccountWithSecret(
+            id=UUID(bot_id), cts_url=AnyHttpUrl(cts_url), secret_key=secret_key
+        )
+
+    BOT_CREDENTIALS: Annotated[List[BotAccountWithSecret], NoDecode]
 
     # base kwargs
     DEBUG: bool = False
 
     # User huids for debug
-    SMARTLOG_DEBUG_HUIDS: List[UUID]
+    SMARTLOG_DEBUG_HUIDS: Annotated[List[UUID], NoDecode]
 
     # database
     POSTGRES_DSN: str
@@ -72,4 +75,4 @@ class AppSettings(BaseSettings):
     WORKER_TIMEOUT_SEC: float = 4
 
 
-settings = AppSettings()
+settings = AppSettings()  # type: ignore[call-arg]
