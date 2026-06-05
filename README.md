@@ -52,9 +52,9 @@ $ copier bot-template bot-example
 $ poetry install
 ```
 2. Определяем переменные окружения в файле **`.env`**. Примеры переменных окружения находятся в файле **`example.env`**.
-3. Запускаем `postges` и `redis` используя [docker-compose](https://docs.docker.com/compose/):
+3. Запускаем `postges` и `redis` используя [docker compose](https://docs.docker.com/compose/):
 ```bash
-$ docker-compose -f docker-compose.dev.yml up -d
+$ docker compose -f docker-compose.dev.yml up -d
 ```
 4. Применяем все миграции для инициализации таблиц с помощью [alembic](https://alembic.sqlalchemy.org/en/latest/tutorial.html):
 ```bash
